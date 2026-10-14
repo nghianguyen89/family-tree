@@ -1,0 +1,250 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/homielab/giapha-os/main/public/icon.png" alt="Gia Pha OS Icon" width="100" height="100" style="border-radius: 22%; border: 0.5px solid rgba(0,0,0,0.1);" />
+</p>
+
+# Gia Pha OS (Gia Pha Open Source)
+
+[English](README.en.md) | [Tiếng Việt](README.md)
+
+An open-source family genealogy application with an intuitive interface for exploring family trees, managing members, and finding Vietnamese kinship terms.
+
+The project was created to solve a practical need: a cloud-based system that allows family members in different places to update information together, such as marriages and births, instead of relying on a single local computer. Self-hosting this open-source project gives your family full control over sensitive data rather than handing it to third-party services. I initially built it for my own family, but decided to share it publicly after receiving interest from others.
+
+Designed primarily for Vietnamese families.
+
+## Table of contents
+
+- [Key features](#key-features)
+- [Demo](#demo)
+- [Screenshots](#screenshots)
+- [Installation and running the project](#installation-and-running-the-project)
+  - [Option 1: Quick deploy to Vercel](#option-1-quick-deploy-to-vercel)
+  - [Option 2: Run locally](#option-2-run-locally)
+- [First account](#first-account)
+- [Troubleshooting registration](#troubleshooting-registration)
+- [User roles](#user-roles)
+- [Contributing](#contributing)
+- [Disclaimer and privacy](#disclaimer-and-privacy)
+- [License](#license)
+
+## Key features
+
+- **Interactive family trees**: Explore your genealogy as a Tree or Mindmap.
+- **Kinship finder**: Automatically determine accurate Vietnamese forms of address, such as uncle, aunt, or cousin.
+- **Member management**: Store member information and avatars, and organize family branches.
+- **Relationship management**: Manage family relationships, including special cases such as polygamous relationships.
+- **Statistics and events**: Track death anniversaries and family demographic statistics.
+- **Data backup**: Export and import JSON, CSV, and GEDCOM files for easy storage or migration.
+- **Security**: Use Admin, Editor, and Member roles with data protection through Supabase.
+- **Responsive design**: A modern interface optimized for desktop and mobile devices.
+
+## Demo
+
+- Demo: [giapha-os.homielab.com](https://giapha-os.homielab.com)
+- Account: `giaphaos@homielab.com`
+- Password: `giaphaos`
+
+## Screenshots
+
+![Dashboard](docs/screenshots/dashboard.png)
+
+![Member list](docs/screenshots/list.png)
+
+![Family tree](docs/screenshots/tree.png)
+
+![Mindmap](docs/screenshots/mindmap.png)
+
+![Statistics](docs/screenshots/stats.png)
+
+![Kinship finder](docs/screenshots/kinship.png)
+
+![Events](docs/screenshots/events.png)
+
+More screenshots: [docs/screenshots/](docs/screenshots/)
+
+## Installation and running the project
+
+You can set up a family genealogy system in about 10–15 minutes.
+
+---
+
+## 1. Create a database (free with Supabase)
+
+1. Create a free account at https://github.com if you do not already have one.
+2. Create a free account at https://supabase.com if you do not already have one. Signing up with GitHub is recommended for a faster setup.
+3. Create a **New Project** and wait about 1–2 minutes for initialization to finish.
+4. Open **Project → Connect** or **Project Settings → API Keys** and obtain:
+   - `Project URL`
+   - `Publishable key` (starts with `sb_publishable_`; older projects may show an `anon` key)
+   - `Secret key` for server-side email notifications and administration when needed (starts with `sb_secret_`; older projects may use the `service_role` key in the **Legacy API Keys** tab)
+
+---
+
+## Option 1: Quick deploy to Vercel
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fhomielab%2Fgiapha-os&env=SITE_NAME,NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY,NEXT_PUBLIC_DISABLE_SSO,APP_URL,SUPABASE_SERVICE_ROLE_KEY,SUPABASE_DB_URL,RESEND_API_KEY,RESEND_FROM_EMAIL,ADMIN_NOTIFICATION_EMAIL)
+
+1. Create a free account at https://vercel.com if you do not already have one. Signing up with GitHub is recommended for a faster setup.
+2. Click the Deploy button above.
+3. Enter the environment variables saved in **step 1**:
+   - `NEXT_PUBLIC_SUPABASE_URL` = `Project URL`
+   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` = `Publishable key` (or the `anon` key under **Legacy API Keys** in older projects)
+   - `NEXT_PUBLIC_DISABLE_SSO` = `false` to enable SSO; set it to `true` to hide SSO until it is configured
+   - `APP_URL` = the public application URL, for example `https://giapha-os.vercel.app`
+   - `SUPABASE_SERVICE_ROLE_KEY` = the **Secret key** under **Project Settings → API Keys → Secret keys**. For older projects, copy the `service_role` key from **Legacy API Keys**. This key has high privileges: store it only in Vercel server environment variables, never use a publishable/anon key for this variable, and never use a `NEXT_PUBLIC_` prefix.
+   - `SUPABASE_DB_URL` = the PostgreSQL connection string under **Project Settings → Database → Connection Pooling** (Session mode). Store it only in the Vercel server environment. It allows administrators to check and run migrations from the Dashboard.
+   - `RESEND_API_KEY` = an API key from [Resend](https://resend.com)
+   - `RESEND_FROM_EMAIL` = a verified sender address on Resend, for example `Gia Pha OS <no-reply@your-domain.com>`
+   - `ADMIN_NOTIFICATION_EMAIL` = optional address for notifications. If omitted, notifications are sent to active administrator accounts.
+4. Click **Deploy** and wait 2–3 minutes.
+
+You will receive a website URL that is ready to use.
+
+> **If you are upgrading an existing installation with data:** open Supabase Dashboard → SQL Editor, click **Copy full SQL** on the `/setup` page, paste it, and run it once. The bundle includes the schema and all migrations in the correct order and is safe to run repeatedly. Existing active accounts are preserved; only newly registered accounts remain pending approval.
+
+---
+
+## Option 2: Run locally
+
+Requirements: [Node.js](https://nodejs.org/en) and [Bun](https://bun.sh/)
+
+1. Clone or download the project.
+2. Rename `.env.example` to `.env.local`.
+3. Open `.env.local` and enter the values saved in **step 1**.
+
+```env
+NEXT_PUBLIC_SUPABASE_URL="https://your-project.supabase.co"
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY="your-anon-key"
+```
+
+4. Install dependencies:
+
+```bash
+bun install
+```
+
+5. Start the project:
+
+```bash
+bun run dev
+```
+
+Open a browser and visit `http://localhost:3000`.
+
+---
+
+## First account
+
+This fork uses Bun and `bun.lock`. Install with `bun install --frozen-lockfile` to apply `patches/braces@3.0.3.patch`, which rejects excessively nested patterns/ASTs before recursive walkers run. Version-based audits may still report the upstream advisory. Verify with `bun run test:security`.
+
+Gallery requires the server-only `SUPABASE_SERVICE_ROLE_KEY` to download images through the authenticated route. Members cannot mint signed URLs directly from Storage. Never use a `NEXT_PUBLIC_*` variable for this key.
+
+- Register a new account when you first open the website.
+- Every new account is a **member** and requires email verification and administrator approval.
+- To create the first administrator, open `docs/bootstrap-admin.sql` in Supabase SQL Editor, replace the placeholder with your verified account email, and run it. Registration order never grants administrator access.
+- For existing databases, apply `20261014000000_personal_fork_security.sql` as well. Existing administrators are preserved.
+
+### Notifications and approving new accounts
+
+After a user confirms their email, the account remains **pending approval**. The system sends administrators a one-time approval link that is valid for 7 days. Approval links require a signed-in administrator; if redirected to login, sign in and reopen the email link. Administrators can also approve accounts from **Manage users**.
+
+To enable email notifications on Vercel, configure `APP_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_KEY`, and `RESEND_FROM_EMAIL`. `ADMIN_NOTIFICATION_EMAIL` is optional; when omitted, the system uses the email addresses of active administrators. Secret/service-role keys can bypass Row Level Security (RLS), so store them only on the server and never put them in source code, the browser, or Git. See the [Supabase API keys guide](https://supabase.com/docs/guides/getting-started/api-keys).
+
+## Troubleshooting registration
+
+If you see `Failed to fetch` while registering after setup:
+
+**Cause:** Supabase is blocking requests from a domain that has not been added to the allowlist.
+
+**Fix:**
+
+1. Open [Supabase Dashboard](https://supabase.com/dashboard) and select your project.
+2. Go to **Authentication → URL Configuration**.
+3. Under **Site URL**, enter the application’s primary URL, for example:
+   - Vercel: `https://giapha-os.vercel.app`
+   - Local: `http://localhost:3000`
+4. Under **Redirect URLs**, click **Add URL** and add:
+   - `https://giapha-os.vercel.app/**`
+   - `http://localhost:3000/**` (for local development)
+   - Or at minimum: `https://giapha-os.vercel.app/auth/callback` and `http://localhost:3000/auth/callback`
+5. Click **Save** and try again.
+
+> **Note:** Replace `giapha-os.vercel.app` with your actual domain. If you use a custom domain, add that domain as well.
+
+### Sign in with Google and Facebook
+
+The login screen supports Google and Facebook through Supabase Auth. To enable these providers:
+
+1. Open Supabase Dashboard → **Authentication → Sign In / Providers** and enable Google or Facebook.
+2. Create the corresponding OAuth app in Google Cloud Console or Facebook Developers.
+3. In the OAuth app configuration, set the Supabase callback URL, which looks like:
+   `https://<project-ref>.supabase.co/auth/v1/callback`
+4. In Supabase → **Authentication → URL Configuration**, add the application callback:
+   `https://<your-domain>/auth/callback`
+
+Accounts registered through SSO are also created as **pending admin approval**, just like email registrations. See the official guides for [Google](https://supabase.com/docs/guides/auth/social-login/auth-google) and [Facebook](https://supabase.com/docs/guides/auth/social-login/auth-facebook).
+
+If SSO is not configured, set `NEXT_PUBLIC_DISABLE_SSO=true` in Vercel and deploy again. If the variable is omitted, the application also hides SSO by default to avoid displaying an unavailable feature. Users will then see a notice with a link to this guide. Because this is a `NEXT_PUBLIC_*` variable, you must rebuild and redeploy after changing it.
+
+### System upgrades in the Dashboard
+
+Administrators can open **System upgrade** from the administration menu to check the source code version on GitHub and the database version, then run pending migrations. If the current source code is older than the latest GitHub version, the system requires the source code to be updated before migrations can run. Direct migration support requires `SUPABASE_DB_URL` on the server. Without it, `/dashboard/upgrade` still provides the SQL bundle from `/setup` for manual execution.
+
+### Source code updates
+
+When `/dashboard/upgrade` reports that the source code is outdated, update the **entire source tree** to the latest version. Do not only change the `version` number in `package.json` to bypass the warning, because migrations may require corresponding code changes.
+
+**If deployed on Vercel:**
+
+1. Confirm that the Vercel project is linked to the correct `homielab/giapha-os` repository and deployment branch.
+2. Synchronize that branch with the latest GitHub code. If updating from a local Git checkout:
+
+   ```bash
+   git fetch origin
+   git pull --ff-only origin main
+   git push origin main
+   ```
+
+3. Wait for Vercel to finish building and deploying. If it does not deploy automatically, open **Deployments** and choose **Redeploy** on the latest deployment.
+4. Reopen `/dashboard/upgrade`, click **Check again**, and confirm that the current version is not lower than the GitHub version.
+
+**If running locally or self-hosted:**
+
+```bash
+git fetch origin
+git pull --ff-only origin main
+bun install
+bun run build
+```
+
+Restart the application with the command you use, such as `bun run start`. Once the source code is updated, an administrator can return to `/dashboard/upgrade` and run the database migrations. Back up the database before upgrading. If `SUPABASE_DB_URL` is not configured, use the SQL bundle at `/setup` as described above.
+
+---
+
+## User roles
+
+The system has three roles for controlling who can update the family tree:
+
+1. **Admin**: Full access to the system.
+2. **Editor**: Can add, edit, and delete member profiles and relationships.
+3. **Member**: Can view the family tree and visual statistics.
+
+## Contributing
+
+This is an open-source project. Contributions, issue reports, and pull requests are welcome.
+
+## Disclaimer and privacy
+
+> **This project provides source code only. The author does not collect or store any personal data.**
+
+- **Fully self-hosted:** When you deploy the application, all family tree data—names, birth dates, relationships, contact information, and more—is stored **in your own Supabase account**. The project author has no access to that database.
+
+- **No data collection:** The source code includes no analytics, tracking, telemetry, or other form of user data collection.
+
+- **You control your data:** All family data and member information remains in the Supabase database you create and manage. You can delete, export, or move it at any time.
+
+- **Public demo:** The demo at `giapha-os.homielab.com` uses fictional sample data and contains no information about real people. Do not enter real personal information on the demo site.
+
+## License
+
+This project is distributed under the [MIT License](LICENSE). Copyright (c) 2026 HomieLab.
