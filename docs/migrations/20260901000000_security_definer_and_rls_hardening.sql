@@ -10,127 +10,71 @@ CREATE SCHEMA IF NOT EXISTS private;
 REVOKE ALL ON SCHEMA private FROM PUBLIC, anon, authenticated;
 GRANT USAGE ON SCHEMA private TO authenticated;
 
+-- schema.sql and older migrations recreate public functions on a bundle replay.
+-- Refresh an existing private function in place, preserving its OID/dependencies.
+-- Trigger helpers must also rebind public trigger references before removal;
+-- policy/admin API functions retain their public OIDs as invoker wrappers below.
 DO $$
+DECLARE
+  entry record;
+  public_function oid;
+  private_function oid;
+  function_definition text;
+  trigger_entry record;
+  trigger_definition text;
 BEGIN
-  IF EXISTS (
-    SELECT 1
-    FROM pg_proc p
-    JOIN pg_namespace n ON n.oid = p.pronamespace
-    WHERE n.nspname = 'public'
-      AND p.oid = to_regprocedure('public.handle_updated_at()')
-  ) THEN
-    ALTER FUNCTION public.handle_updated_at() SET SCHEMA private;
-  END IF;
+  FOR entry IN
+    SELECT * FROM (VALUES
+      ('handle_updated_at', '', true),
+      ('is_admin', '', false),
+      ('is_active_user', '', false),
+      ('is_editor', '', false),
+      ('handle_new_user', '', true),
+      ('handle_first_user_confirmation', '', true),
+      ('get_admin_users', '', false),
+      ('set_user_role', 'uuid,text', false),
+      ('delete_user', 'uuid', false),
+      ('admin_create_user', 'text,text,text,boolean', false),
+      ('set_user_active_status', 'uuid,boolean', false)
+    ) AS functions(function_name, argument_types, is_trigger_helper)
+  LOOP
+    public_function := to_regprocedure(format('public.%I(%s)', entry.function_name, entry.argument_types));
+    IF public_function IS NULL THEN CONTINUE; END IF;
+    IF NOT entry.is_trigger_helper AND NOT (SELECT prosecdef FROM pg_proc WHERE oid = public_function) THEN CONTINUE; END IF;
+    private_function := to_regprocedure(format('private.%I(%s)', entry.function_name, entry.argument_types));
 
-  IF EXISTS (
-    SELECT 1
-    FROM pg_proc p
-    JOIN pg_namespace n ON n.oid = p.pronamespace
-    WHERE n.nspname = 'public'
-      AND p.oid = to_regprocedure('public.is_admin()')
-      AND p.prosecdef
-  ) THEN
-    ALTER FUNCTION public.is_admin() SET SCHEMA private;
-  END IF;
+    IF private_function IS NULL THEN
+      EXECUTE format('ALTER FUNCTION public.%I(%s) SET SCHEMA private', entry.function_name, entry.argument_types);
+    ELSE
+      function_definition := pg_get_functiondef(public_function);
+      function_definition := replace(function_definition,
+        format('FUNCTION public.%I(', entry.function_name),
+        format('FUNCTION private.%I(', entry.function_name));
+      EXECUTE function_definition;
 
-  IF EXISTS (
-    SELECT 1
-    FROM pg_proc p
-    JOIN pg_namespace n ON n.oid = p.pronamespace
-    WHERE n.nspname = 'public'
-      AND p.oid = to_regprocedure('public.is_active_user()')
-      AND p.prosecdef
-  ) THEN
-    ALTER FUNCTION public.is_active_user() SET SCHEMA private;
-  END IF;
-
-  IF EXISTS (
-    SELECT 1
-    FROM pg_proc p
-    JOIN pg_namespace n ON n.oid = p.pronamespace
-    WHERE n.nspname = 'public'
-      AND p.oid = to_regprocedure('public.is_editor()')
-      AND p.prosecdef
-  ) THEN
-    ALTER FUNCTION public.is_editor() SET SCHEMA private;
-  END IF;
-
-  IF EXISTS (
-    SELECT 1
-    FROM pg_proc p
-    JOIN pg_namespace n ON n.oid = p.pronamespace
-    WHERE n.nspname = 'public'
-      AND p.oid = to_regprocedure('public.handle_new_user()')
-      AND p.prosecdef
-  ) THEN
-    ALTER FUNCTION public.handle_new_user() SET SCHEMA private;
-  END IF;
-
-  IF EXISTS (
-    SELECT 1
-    FROM pg_proc p
-    JOIN pg_namespace n ON n.oid = p.pronamespace
-    WHERE n.nspname = 'public'
-      AND p.oid = to_regprocedure('public.handle_first_user_confirmation()')
-      AND p.prosecdef
-  ) THEN
-    ALTER FUNCTION public.handle_first_user_confirmation() SET SCHEMA private;
-  END IF;
-
-  IF EXISTS (
-    SELECT 1
-    FROM pg_proc p
-    JOIN pg_namespace n ON n.oid = p.pronamespace
-    WHERE n.nspname = 'public'
-      AND p.oid = to_regprocedure('public.get_admin_users()')
-      AND p.prosecdef
-  ) THEN
-    ALTER FUNCTION public.get_admin_users() SET SCHEMA private;
-  END IF;
-
-  IF EXISTS (
-    SELECT 1
-    FROM pg_proc p
-    JOIN pg_namespace n ON n.oid = p.pronamespace
-    WHERE n.nspname = 'public'
-      AND p.oid = to_regprocedure('public.set_user_role(uuid,text)')
-      AND p.prosecdef
-  ) THEN
-    ALTER FUNCTION public.set_user_role(uuid, text) SET SCHEMA private;
-  END IF;
-
-  IF EXISTS (
-    SELECT 1
-    FROM pg_proc p
-    JOIN pg_namespace n ON n.oid = p.pronamespace
-    WHERE n.nspname = 'public'
-      AND p.oid = to_regprocedure('public.delete_user(uuid)')
-      AND p.prosecdef
-  ) THEN
-    ALTER FUNCTION public.delete_user(uuid) SET SCHEMA private;
-  END IF;
-
-  IF EXISTS (
-    SELECT 1
-    FROM pg_proc p
-    JOIN pg_namespace n ON n.oid = p.pronamespace
-    WHERE n.nspname = 'public'
-      AND p.oid = to_regprocedure('public.admin_create_user(text,text,text,boolean)')
-      AND p.prosecdef
-  ) THEN
-    ALTER FUNCTION public.admin_create_user(text, text, text, boolean) SET SCHEMA private;
-  END IF;
-
-  IF EXISTS (
-    SELECT 1
-    FROM pg_proc p
-    JOIN pg_namespace n ON n.oid = p.pronamespace
-    WHERE n.nspname = 'public'
-      AND p.oid = to_regprocedure('public.set_user_active_status(uuid,boolean)')
-      AND p.prosecdef
-  ) THEN
-    ALTER FUNCTION public.set_user_active_status(uuid, boolean) SET SCHEMA private;
-  END IF;
+      IF entry.is_trigger_helper THEN
+        FOR trigger_entry IN
+          SELECT oid, tgname, tgrelid, tgenabled FROM pg_trigger
+          WHERE tgfoid = public_function AND NOT tgisinternal
+        LOOP
+          trigger_definition := regexp_replace(pg_get_triggerdef(trigger_entry.oid),
+            'EXECUTE (FUNCTION|PROCEDURE) [^(]+\(',
+            format('EXECUTE FUNCTION private.%I(', entry.function_name));
+          EXECUTE format('DROP TRIGGER %I ON %s', trigger_entry.tgname, trigger_entry.tgrelid::regclass);
+          EXECUTE trigger_definition;
+          IF trigger_entry.tgenabled = 'D' THEN
+            EXECUTE format('ALTER TABLE %s DISABLE TRIGGER %I', trigger_entry.tgrelid::regclass, trigger_entry.tgname);
+          ELSIF trigger_entry.tgenabled = 'R' THEN
+            EXECUTE format('ALTER TABLE %s ENABLE REPLICA TRIGGER %I', trigger_entry.tgrelid::regclass, trigger_entry.tgname);
+          ELSIF trigger_entry.tgenabled = 'A' THEN
+            EXECUTE format('ALTER TABLE %s ENABLE ALWAYS TRIGGER %I', trigger_entry.tgrelid::regclass, trigger_entry.tgname);
+          END IF;
+        END LOOP;
+        -- RESTRICT is intentional: never silently drop unknown dependent objects.
+        EXECUTE format('DROP FUNCTION public.%I(%s) RESTRICT', entry.function_name, entry.argument_types);
+      END IF;
+    END IF;
+  END LOOP;
 END;
 $$;
 

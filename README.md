@@ -4,6 +4,8 @@
 
 # Gia Phả OS (Gia Phả Open Source)
 
+Ghi chú của bản fork cá nhân: [tổng quan, trạng thái, hướng dẫn local và các vấn đề đã xử lý](docs/README.md).
+
 [Tiếng Việt](README.md) | [English](README.en.md)
 
 Đây là mã nguồn mở cho ứng dụng quản lý gia phả dòng họ, cung cấp giao diện trực quan để xem sơ đồ phả hệ, quản lý thành viên và tìm kiếm danh xưng.
@@ -35,6 +37,8 @@ Phù hợp với người Việt Nam.
 - **Quản lý quan hệ**: Quản lý các mối quan hệ trong gia phả (hỗ trợ các trường hợp đặc biệt như đa thê, đa phu,...).
 - **Thống kê & Sự kiện**: Theo dõi ngày giỗ và các chỉ số nhân khẩu học của dòng họ.
 - **Sao lưu dữ liệu**: Xuất/nhập file JSON, CSV, GEDCOM để lưu trữ hoặc di chuyển dễ dàng.
+- **Thu thập thông tin gia đình**: Link công khai theo nhánh, không cần đăng nhập; admin/editor duyệt trước khi đưa lên cây.
+- **Lịch cúng riêng**: Thiết lập ngày/tháng cúng âm hoặc dương lịch khi không nhớ ngày mất hoặc gia đình có lịch cúng riêng.
 - **Bảo mật**: Phân quyền (Admin, Editor, Member) và bảo vệ dữ liệu bằng Supabase.
 - **Đa thiết bị**: Giao diện hiện đại, tối ưu cho cả máy tính và điện thoại.
 
@@ -134,6 +138,18 @@ Mở trình duyệt và truy cập: `http://localhost:3000`
 ---
 
 ## Tài khoản đầu tiên
+
+### Form công khai và ngày cúng riêng
+
+Chạy [migration thu thập/ngày cúng](docs/migrations/20261014020000_family_intake_and_memorial.sql) sau các migration trước đó. Admin/editor mở menu tài khoản → **Thông tin chờ duyệt** (`/dashboard/intake`), tạo link theo người gốc của nhánh rồi copy để chia sẻ. Người thân chọn người nối, khai gia đình và gửi; dữ liệu chỉ xuất hiện trên cây sau khi được duyệt. Link tạo tại `localhost` chưa dùng để chia sẻ cho người thân ở nơi khác; cần tạo link trên website có địa chỉ public.
+
+Trong form thành viên hoặc form công khai, chọn **Đã mất → Thiết lập ngày cúng riêng hằng năm**, nhập ngày/tháng và chọn âm/dương lịch. Không cần ngày/năm mất; lịch này ưu tiên thay sự kiện suy ra từ ngày mất. Xem [hướng dẫn và bàn giao](docs/FAMILY-INTAKE-HANDOFF.md).
+
+### Ngày sinh, ngày mất chỉ biết khoảng năm
+
+Trong form thêm/sửa thành viên, chọn **Chỉ biết khoảng năm** rồi nhập **Từ năm** và **Đến năm**, ví dụ sinh 1880–1885, mất 1937–1939. Khoảng năm dùng dương lịch và hiển thị với dấu `≈`; không được dùng làm ngày chính xác để tính tuổi, cung/con giáp hoặc sự kiện ngày sinh/ngày giỗ. Các khoảng năm được giữ trong sao lưu JSON, CSV và GEDCOM.
+
+Với database đã cài trước tính năng này, mở **Supabase → SQL Editor**, copy toàn bộ [migration khoảng năm](docs/migrations/20261014010000_add_person_year_ranges.sql) và chạy một lần. Migration chỉ bổ sung trường dữ liệu và cập nhật hàm nhập sao lưu, giữ nguyên thành viên hiện có; có thể chạy lặp lại. Database mới dùng SQL bundle tại `/setup` đã bao gồm migration này.
 
 Bản fork này dùng Bun và `bun.lock`; cài bằng `bun install --frozen-lockfile` để áp dụng bản vá `patches/braces@3.0.3.patch`. Bản vá chặn pattern/AST lồng quá sâu gây stack overflow; công cụ audit theo phiên bản vẫn có thể báo advisory upstream. Kiểm tra bằng `bun run test:security`.
 

@@ -1,8 +1,15 @@
-import { type NextRequest } from 'next/server'
+import { NextResponse, type NextRequest } from 'next/server'
 
 import { updateSession } from '@/utils/supabase/middleware'
 
 export async function proxy(request: NextRequest) {
+  // Public intake uses only scoped RPCs and must not require a login or profiles table lookup.
+  if (
+    request.nextUrl.pathname.startsWith('/contribute/') ||
+    request.nextUrl.pathname.startsWith('/api/intake/')
+  ) {
+    return NextResponse.next()
+  }
   return await updateSession(request)
 }
 

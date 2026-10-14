@@ -22,6 +22,15 @@ export interface Person {
   id: string
   full_name: string
   gender: Gender
+  memorial_day?: number | null
+  memorial_month?: number | null
+  memorial_calendar?: 'lunar' | 'solar' | null
+  memorial_is_leap_month?: boolean
+  memorial_note?: string | null
+  birth_year_from?: number | null
+  birth_year_to?: number | null
+  death_year_from?: number | null
+  death_year_to?: number | null
   birth_year: number | null
   birth_month: number | null
   birth_day: number | null

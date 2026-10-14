@@ -23,7 +23,9 @@ const MIGRATION_FILES = [
   'docs/migrations/20260831140135_security_and_approval_hardening.sql',
   'docs/migrations/20260901000000_security_definer_and_rls_hardening.sql',
   'docs/migrations/20260904000000_add_data_api_table_grants.sql',
-  'docs/migrations/20261014000000_personal_fork_security.sql'
+  'docs/migrations/20261014000000_personal_fork_security.sql',
+  'docs/migrations/20261014010000_add_person_year_ranges.sql',
+  'docs/migrations/20261014020000_family_intake_and_memorial.sql'
 ] as const
 
 const MIGRATION_TABLE = 'public.app_migrations'

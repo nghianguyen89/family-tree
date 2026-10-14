@@ -18,11 +18,17 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
 import { updateDescendantGenerationsAction } from '@/app/actions/member'
+import MemorialFields from '@/components/MemorialFields'
+import YearRangeFields from '@/components/YearRangeFields'
 import { useI18n } from '@/lib/i18n/I18nProvider'
+import { intakeMessages } from '@/lib/i18n/intake'
 import { Gender, Person } from '@/types'
+import { MemorialDate } from '@/types/intake'
 import { getAvatarStoragePath, getAvatarUrl } from '@/utils/avatar'
 import { resizeAvatar } from '@/utils/image'
+import { emptyMemorial, isValidMemorial } from '@/utils/memorial'
 import { createClient } from '@/utils/supabase/client'
+import { isValidYearRange } from '@/utils/yearRanges'
 
 interface MemberFormProps {
   initialData?: Person
@@ -43,7 +49,15 @@ export default function MemberForm({
 }: MemberFormProps) {
   const router = useRouter()
   const supabase = createClient()
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
+  const intakeText = intakeMessages[locale]
+  const [memorial, setMemorial] = useState<MemorialDate>(() => ({
+    memorial_day: initialData?.memorial_day ?? null,
+    memorial_month: initialData?.memorial_month ?? null,
+    memorial_calendar: initialData?.memorial_calendar ?? null,
+    memorial_is_leap_month: initialData?.memorial_is_leap_month ?? false,
+    memorial_note: initialData?.memorial_note ?? null
+  }))
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -51,6 +65,24 @@ export default function MemberForm({
   const [fullName, setFullName] = useState(initialData?.full_name || '')
   const [otherNames, setOtherNames] = useState(initialData?.other_names || '')
   const [gender, setGender] = useState<Gender>(initialData?.gender || 'male')
+  const [birthRange, setBirthRange] = useState(
+    initialData?.birth_year_from != null
+  )
+  const [birthFrom, setBirthFrom] = useState<number | ''>(
+    initialData?.birth_year_from ?? ''
+  )
+  const [birthTo, setBirthTo] = useState<number | ''>(
+    initialData?.birth_year_to ?? ''
+  )
+  const [deathRange, setDeathRange] = useState(
+    initialData?.death_year_from != null
+  )
+  const [deathFrom, setDeathFrom] = useState<number | ''>(
+    initialData?.death_year_from ?? ''
+  )
+  const [deathTo, setDeathTo] = useState<number | ''>(
+    initialData?.death_year_to ?? ''
+  )
   const [birthYear, setBirthYear] = useState<number | ''>(
     initialData?.birth_year || ''
   )
@@ -223,6 +255,31 @@ export default function MemberForm({
     setLoading(true)
     setError(null)
 
+    if (
+      (birthRange && !isValidYearRange(birthFrom, birthTo)) ||
+      (isDeceased && deathRange && !isValidYearRange(deathFrom, deathTo))
+    ) {
+      setError(t('invalidYearRange'))
+      setLoading(false)
+      return
+    }
+    const earliestBirth = birthRange ? birthFrom : birthYear
+    const latestDeath = deathRange ? deathTo : deathYear
+    if (
+      isDeceased &&
+      earliestBirth !== '' &&
+      latestDeath !== '' &&
+      latestDeath < earliestBirth
+    ) {
+      setError(t('deathBeforeBirth'))
+      setLoading(false)
+      return
+    }
+    if (!isValidMemorial({ ...memorial, is_deceased: isDeceased })) {
+      setError(intakeText.invalid)
+      setLoading(false)
+      return
+    }
     // Validation
     const isValidDate = (
       day: number | '',
@@ -241,7 +298,7 @@ export default function MemberForm({
       return true
     }
 
-    if (!isValidDate(birthDay, birthMonth, birthYear)) {
+    if (!birthRange && !isValidDate(birthDay, birthMonth, birthYear)) {
       setError(t('invalidBirthDate'))
       setLoading(false)
       return
@@ -254,7 +311,14 @@ export default function MemberForm({
     let finalDeathLunarMonth = deathLunarMonth
     let finalDeathLunarYear = deathLunarYear
 
-    if (
+    if (deathRange) {
+      finalDeathDay = ''
+      finalDeathMonth = ''
+      finalDeathYear = ''
+      finalDeathLunarDay = ''
+      finalDeathLunarMonth = ''
+      finalDeathLunarYear = ''
+    } else if (
       isDeceased &&
       deathLunarDay !== '' &&
       deathLunarMonth !== '' &&
@@ -314,9 +378,9 @@ export default function MemberForm({
 
     if (
       isDeceased &&
-      birthYear !== '' &&
+      earliestBirth !== '' &&
       finalDeathYear !== '' &&
-      finalDeathYear < birthYear
+      finalDeathYear < earliestBirth
     ) {
       setError(t('deathBeforeBirth'))
       setLoading(false)
@@ -328,11 +392,17 @@ export default function MemberForm({
 
       // Update person data helper to avoid duplication
       const getPersonData = (url: string | null) => ({
+        ...(isDeceased ? memorial : emptyMemorial()),
         full_name: fullName,
         gender,
-        birth_year: birthYear === '' ? null : Number(birthYear),
-        birth_month: birthMonth === '' ? null : Number(birthMonth),
-        birth_day: birthDay === '' ? null : Number(birthDay),
+        birth_year_from: birthRange ? Number(birthFrom) : null,
+        birth_year_to: birthRange ? Number(birthTo) : null,
+        death_year_from: isDeceased && deathRange ? Number(deathFrom) : null,
+        death_year_to: isDeceased && deathRange ? Number(deathTo) : null,
+        birth_year: birthRange || birthYear === '' ? null : Number(birthYear),
+        birth_month:
+          birthRange || birthMonth === '' ? null : Number(birthMonth),
+        birth_day: birthRange || birthDay === '' ? null : Number(birthDay),
         death_year:
           isDeceased && finalDeathYear !== '' ? Number(finalDeathYear) : null,
         death_month:
@@ -477,7 +547,16 @@ export default function MemberForm({
       }
     } catch (err) {
       console.error('Error saving member:', err)
-      setError((err as Error).message || t('saveMemberError'))
+      const saveError = err as { message?: string; code?: string }
+      setError(
+        saveError.code === 'PGRST204' &&
+          /memorial_/.test(saveError.message || '')
+          ? intakeText.migration
+          : saveError.code === 'PGRST204' &&
+              /year_(from|to)/.test(saveError.message || '')
+            ? t('yearRangeMigrationRequired')
+            : saveError.message || t('saveMemberError')
+      )
     } finally {
       setLoading(false)
     }
@@ -783,39 +862,57 @@ export default function MemberForm({
             <label className='mb-1.5 block text-sm font-medium text-stone-700'>
               {t('solarBirthDate')}
             </label>
-            <div className='grid grid-cols-3 gap-3'>
+            <label className='mb-4 flex items-center gap-2 text-sm text-stone-600'>
               <input
-                type='number'
-                placeholder={t('day')}
-                min='1'
-                max='31'
-                value={birthDay}
-                onChange={(e) =>
-                  setBirthDay(e.target.value ? Number(e.target.value) : '')
-                }
-                className={inputClasses}
+                type='checkbox'
+                checked={birthRange}
+                onChange={(e) => setBirthRange(e.target.checked)}
+                className='accent-amber-600'
               />
-              <input
-                type='number'
-                placeholder={t('month')}
-                min='1'
-                max='12'
-                value={birthMonth}
-                onChange={(e) =>
-                  setBirthMonth(e.target.value ? Number(e.target.value) : '')
-                }
-                className={inputClasses}
+              {t('useYearRange')}
+            </label>
+            {birthRange ? (
+              <YearRangeFields
+                from={birthFrom}
+                to={birthTo}
+                onFromChange={setBirthFrom}
+                onToChange={setBirthTo}
               />
-              <input
-                type='number'
-                placeholder={t('year')}
-                value={birthYear}
-                onChange={(e) =>
-                  setBirthYear(e.target.value ? Number(e.target.value) : '')
-                }
-                className={inputClasses}
-              />
-            </div>
+            ) : (
+              <div className='grid grid-cols-3 gap-3'>
+                <input
+                  type='number'
+                  placeholder={t('day')}
+                  min='1'
+                  max='31'
+                  value={birthDay}
+                  onChange={(e) =>
+                    setBirthDay(e.target.value ? Number(e.target.value) : '')
+                  }
+                  className={inputClasses}
+                />
+                <input
+                  type='number'
+                  placeholder={t('month')}
+                  min='1'
+                  max='12'
+                  value={birthMonth}
+                  onChange={(e) =>
+                    setBirthMonth(e.target.value ? Number(e.target.value) : '')
+                  }
+                  className={inputClasses}
+                />
+                <input
+                  type='number'
+                  placeholder={t('year')}
+                  value={birthYear}
+                  onChange={(e) =>
+                    setBirthYear(e.target.value ? Number(e.target.value) : '')
+                  }
+                  className={inputClasses}
+                />
+              </div>
+            )}
           </div>
 
           <div className='rounded-2xl border border-stone-200/60 bg-stone-50/50 p-5 md:col-span-2'>
@@ -828,6 +925,10 @@ export default function MemberForm({
                     onChange={(e) => {
                       setIsDeceased(e.target.checked)
                       if (!e.target.checked) {
+                        setMemorial(emptyMemorial())
+                        setDeathRange(false)
+                        setDeathFrom('')
+                        setDeathTo('')
                         setDeathYear('')
                         setDeathMonth('')
                         setDeathDay('')
@@ -875,86 +976,107 @@ export default function MemberForm({
                     {t('dateHint')}
                   </p>
 
-                  <div className='flex flex-col gap-5'>
-                    {/* Lunar Date */}
-                    <div>
-                      <label className='mb-2 block text-sm font-medium text-stone-700'>
-                        {t('lunarDeathDate')}
-                      </label>
-                      <div className='grid grid-cols-3 gap-3'>
-                        <input
-                          type='number'
-                          placeholder={t('day')}
-                          min='1'
-                          max='31'
-                          value={deathLunarDay}
-                          onChange={(e) =>
-                            handleLunarDeathChange('day', e.target.value)
-                          }
-                          className={inputClasses}
-                        />
-                        <input
-                          type='number'
-                          placeholder={t('month')}
-                          min='1'
-                          max='12'
-                          value={deathLunarMonth}
-                          onChange={(e) =>
-                            handleLunarDeathChange('month', e.target.value)
-                          }
-                          className={inputClasses}
-                        />
-                        <input
-                          type='number'
-                          placeholder={t('year')}
-                          value={deathLunarYear}
-                          onChange={(e) =>
-                            handleLunarDeathChange('year', e.target.value)
-                          }
-                          className={inputClasses}
-                        />
+                  <label className='mb-4 flex items-center gap-2 text-sm text-stone-600'>
+                    <input
+                      type='checkbox'
+                      checked={deathRange}
+                      onChange={(e) => setDeathRange(e.target.checked)}
+                      className='accent-amber-600'
+                    />
+                    {t('useYearRange')}
+                  </label>
+                  {deathRange ? (
+                    <YearRangeFields
+                      from={deathFrom}
+                      to={deathTo}
+                      onFromChange={setDeathFrom}
+                      onToChange={setDeathTo}
+                    />
+                  ) : (
+                    <div className='flex flex-col gap-5'>
+                      {/* Lunar Date */}
+                      <div>
+                        <label className='mb-2 block text-sm font-medium text-stone-700'>
+                          {t('lunarDeathDate')}
+                        </label>
+                        <div className='grid grid-cols-3 gap-3'>
+                          <input
+                            type='number'
+                            placeholder={t('day')}
+                            min='1'
+                            max='31'
+                            value={deathLunarDay}
+                            onChange={(e) =>
+                              handleLunarDeathChange('day', e.target.value)
+                            }
+                            className={inputClasses}
+                          />
+                          <input
+                            type='number'
+                            placeholder={t('month')}
+                            min='1'
+                            max='12'
+                            value={deathLunarMonth}
+                            onChange={(e) =>
+                              handleLunarDeathChange('month', e.target.value)
+                            }
+                            className={inputClasses}
+                          />
+                          <input
+                            type='number'
+                            placeholder={t('year')}
+                            value={deathLunarYear}
+                            onChange={(e) =>
+                              handleLunarDeathChange('year', e.target.value)
+                            }
+                            className={inputClasses}
+                          />
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Solar Date */}
-                    <div>
-                      <label className='mb-2 block text-sm font-medium text-stone-700'>
-                        {t('solarDeathDate')}
-                      </label>
-                      <div className='grid grid-cols-3 gap-3'>
-                        <input
-                          type='number'
-                          placeholder={t('day')}
-                          min='1'
-                          max='31'
-                          value={deathDay}
-                          onChange={(e) =>
-                            handleSolarDeathChange('day', e.target.value)
-                          }
-                          className={inputClasses}
-                        />
-                        <input
-                          type='number'
-                          placeholder={t('month')}
-                          min='1'
-                          max='12'
-                          value={deathMonth}
-                          onChange={(e) =>
-                            handleSolarDeathChange('month', e.target.value)
-                          }
-                          className={inputClasses}
-                        />
-                        <input
-                          type='number'
-                          placeholder={t('year')}
-                          value={deathYear}
-                          onChange={(e) =>
-                            handleSolarDeathChange('year', e.target.value)
-                          }
-                          className={inputClasses}
-                        />
+                      {/* Solar Date */}
+                      <div>
+                        <label className='mb-2 block text-sm font-medium text-stone-700'>
+                          {t('solarDeathDate')}
+                        </label>
+                        <div className='grid grid-cols-3 gap-3'>
+                          <input
+                            type='number'
+                            placeholder={t('day')}
+                            min='1'
+                            max='31'
+                            value={deathDay}
+                            onChange={(e) =>
+                              handleSolarDeathChange('day', e.target.value)
+                            }
+                            className={inputClasses}
+                          />
+                          <input
+                            type='number'
+                            placeholder={t('month')}
+                            min='1'
+                            max='12'
+                            value={deathMonth}
+                            onChange={(e) =>
+                              handleSolarDeathChange('month', e.target.value)
+                            }
+                            className={inputClasses}
+                          />
+                          <input
+                            type='number'
+                            placeholder={t('year')}
+                            value={deathYear}
+                            onChange={(e) =>
+                              handleSolarDeathChange('year', e.target.value)
+                            }
+                            className={inputClasses}
+                          />
+                        </div>
                       </div>
                     </div>
+                  )}
+                  <div className='mt-4'>
+                    <MemorialFields value={memorial} onChange={setMemorial} />
                   </div>
                 </motion.div>
               )}

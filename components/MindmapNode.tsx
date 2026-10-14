@@ -10,6 +10,7 @@ import { Person, Relationship } from '@/types'
 import { getAvatarUrl } from '@/utils/avatar'
 import { getAvatarBg } from '@/utils/styleHelprs'
 import { AdjacencyLists, getFilteredTreeData } from '@/utils/treeHelpers'
+import { formatPersonYear } from '@/utils/yearRanges'
 
 import DefaultAvatar from './DefaultAvatar'
 
@@ -182,9 +183,13 @@ export const MindmapNode = memo(
                           />
                         </svg>
                         <span className='truncate'>
-                          {data.person.birth_year || t('unknownDate')}
+                          {formatPersonYear(
+                            data.person,
+                            'birth',
+                            t('unknownDate')
+                          )}
                           {data.person.is_deceased &&
-                            ` → ${data.person.death_lunar_year || data.person.death_year || t('unknownDate')}`}
+                            ` → ${formatPersonYear(data.person, 'death', t('unknownDate'))}`}
                         </span>
                       </span>
                       {(data.person.is_deceased || data.person.is_in_law) && (

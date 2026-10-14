@@ -946,7 +946,9 @@ export default function RelationshipManager({
                         {formatDisplayDate(
                           p.birth_year,
                           p.birth_month,
-                          p.birth_day
+                          p.birth_day,
+                          p.birth_year_from,
+                          p.birth_year_to
                         )}
                       </span>
                     </button>

@@ -1,5 +1,8 @@
 import type { TranslationKey, TranslationValues } from '@/lib/i18n/messages'
 
+import { isValidMemorial } from './memorial'
+import { hasValidPersonYearRanges } from './yearRanges'
+
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 const MAX_PERSONS = 10000
@@ -100,6 +103,8 @@ export function validateImportPayload(
       )
         return t('invalidPersonRecord')
     }
+    if (!hasValidPersonYearRanges(row) || !isValidMemorial(row))
+      return t('invalidPersonRecord')
     for (const field of ['generation', 'birth_order']) {
       if (!isOptionalInteger(row[field], 1, 10000))
         return t('invalidPersonRecord')

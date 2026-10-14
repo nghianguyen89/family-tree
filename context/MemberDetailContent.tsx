@@ -19,6 +19,7 @@ import DefaultAvatar from '@/components/DefaultAvatar'
 import { FemaleIcon, MaleIcon } from '@/components/GenderIcons'
 import RelationshipManager from '@/components/RelationshipManager'
 import { useI18n } from '@/lib/i18n/I18nProvider'
+import { intakeMessages } from '@/lib/i18n/intake'
 import { Person } from '@/types'
 import { getAvatarUrl } from '@/utils/avatar'
 import {
@@ -29,6 +30,7 @@ import {
   getZodiacAnimal,
   getZodiacSign
 } from '@/utils/dateHelpers'
+import { formatMemorial } from '@/utils/memorial'
 
 interface MemberDetailContentProps {
   person: Person
@@ -43,7 +45,7 @@ export default function MemberDetailContent({
   isAdmin,
   canEdit = false
 }: MemberDetailContentProps) {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const [isNoteExpanded, setIsNoteExpanded] = useState(false)
   const [relStats, setRelStats] = useState<{
     biologicalChildren: number
@@ -249,7 +251,9 @@ export default function MemberDetailContent({
                     {formatDisplayDate(
                       person.birth_year,
                       person.birth_month,
-                      person.birth_day
+                      person.birth_day,
+                      person.birth_year_from,
+                      person.birth_year_to
                     )}
                   </p>
                   {(person.birth_year ||
@@ -282,13 +286,16 @@ export default function MemberDetailContent({
                   </div>
                   <div className='space-y-1.5 border-l-2 border-stone-100 pl-4'>
                     <p className='text-sm font-medium text-stone-800 sm:text-sm'>
-                      {person.death_day ||
+                      {person.death_year_from != null ||
+                      person.death_day ||
                       person.death_month ||
                       person.death_year
                         ? formatDisplayDate(
                             person.death_year,
                             person.death_month,
-                            person.death_day
+                            person.death_day,
+                            person.death_year_from,
+                            person.death_year_to
                           )
                         : getSolarDateString(
                             person.death_lunar_year,
@@ -325,6 +332,17 @@ export default function MemberDetailContent({
                 </motion.div>
               )}
 
+              {formatMemorial(person) && (
+                <div className='space-y-2 rounded-2xl border border-border bg-surface p-4 text-sm'>
+                  <h3 className='text-base font-semibold text-primary'>
+                    {intakeMessages[locale].knownDate}
+                  </h3>
+                  <p className='text-secondary'>{formatMemorial(person)}</p>
+                  {person.memorial_note && (
+                    <p className='text-secondary'>{person.memorial_note}</p>
+                  )}
+                </div>
+              )}
               {/* Age Card */}
               {(() => {
                 const ageData = calculateAge(

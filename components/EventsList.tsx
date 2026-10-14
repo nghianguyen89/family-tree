@@ -30,6 +30,11 @@ interface EventsListProps {
   persons: {
     id: string
     full_name: string
+    memorial_day?: number | null
+    memorial_month?: number | null
+    memorial_calendar?: 'lunar' | 'solar' | null
+    memorial_is_leap_month?: boolean
+    memorial_note?: string | null
     birth_year: number | null
     birth_month: number | null
     birth_day: number | null
@@ -122,7 +127,12 @@ function EventCard({
       event.type === 'custom_event' ? 'calendarDateWithYear' : 'calendarDate',
       { weekday: dayOfWeek, day, month, year }
     )
-    if (event.type === 'death_anniversary') {
+    if (
+      event.type === 'death_anniversary' &&
+      event.eventDateLabel.endsWith(' DL')
+    ) {
+      label += ` (${event.eventDateLabel})`
+    } else if (event.type === 'death_anniversary') {
       label += t('lunarDateSuffix', {
         date: event.eventDateLabel.replace(' ÂL', '').replace(' L', '')
       })

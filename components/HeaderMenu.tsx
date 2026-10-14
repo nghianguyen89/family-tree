@@ -16,13 +16,14 @@ import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 
 import { useI18n } from '@/lib/i18n/I18nProvider'
+import { intakeMessages } from '@/lib/i18n/intake'
 
 import LogoutButton from './LogoutButton'
 import { useUser } from './UserProvider'
 
 export default function HeaderMenu() {
-  const { user, isAdmin } = useUser()
-  const { t } = useI18n()
+  const { user, isAdmin, profile } = useUser()
+  const { t, locale } = useI18n()
   const userEmail = user?.email
   const [isOpen, setIsOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -140,6 +141,16 @@ export default function HeaderMenu() {
                 </Link>
               ))}
 
+              {profile?.is_active &&
+                ['admin', 'editor'].includes(profile.role) && (
+                  <Link
+                    href='/dashboard/intake'
+                    onClick={() => setIsOpen(false)}
+                    className='flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-secondary hover:bg-neutral'>
+                    <Users className='size-4' />
+                    {intakeMessages[locale].queue}
+                  </Link>
+                )}
               {isAdmin && (
                 <>
                   <div className='mt-1 px-4 py-2'>

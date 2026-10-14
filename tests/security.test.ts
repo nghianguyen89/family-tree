@@ -26,6 +26,10 @@ const bootstrap = readFileSync('docs/bootstrap-admin.sql', 'utf8').replace(
   'owner@example.com'
 )
 const schema = readFileSync('docs/schema.sql', 'utf8')
+const yearRangeMigration = readFileSync(
+  'docs/migrations/20261014010000_add_person_year_ranges.sql',
+  'utf8'
+)
 const db = new PGlite()
 const t = (key: string) => key
 const backup = () => ({
@@ -72,6 +76,10 @@ before(async () => {
       ''
     )
   )
+  // Model an existing installation without the new columns before upgrading.
+  await db.exec(
+    'ALTER TABLE public.persons DROP COLUMN birth_year_from, DROP COLUMN birth_year_to, DROP COLUMN death_year_from, DROP COLUMN death_year_to'
+  )
   for (const file of readdirSync('docs/migrations')
     .filter((file) => file.endsWith('.sql'))
     .sort()) {
@@ -79,6 +87,13 @@ before(async () => {
   }
   // Applying the migration twice must preserve existing installation behavior.
   await db.exec(migration)
+  await db.exec(yearRangeMigration)
+  await db.exec(
+    readFileSync(
+      'docs/migrations/20261014020000_family_intake_and_memorial.sql',
+      'utf8'
+    )
+  )
   await db.exec(`
     GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO authenticated;
     INSERT INTO auth.users VALUES ('${admin}', 'owner@example.com', NULL);
@@ -140,6 +155,66 @@ test('admin imports all tables and preserves DB defaults', async () => {
   )
   assert.equal(rows[0].created_by, admin)
   assert.ok(rows[0].created_at)
+})
+
+test('year ranges survive backup imports and repeated migration; invalid edits fail', async () => {
+  const payload = backup()
+  Object.assign(payload.persons[0], {
+    birth_year_from: 1880,
+    birth_year_to: 1885,
+    death_year_from: 1937,
+    death_year_to: 1939,
+    is_deceased: true
+  })
+  Object.assign(payload.persons[1], {
+    birth_year: 1900,
+    birth_month: 1,
+    birth_day: 2
+  })
+  await importAs(admin, payload)
+  await db.exec(yearRangeMigration)
+  const { rows } = await db.query(
+    'SELECT birth_year_from, birth_year_to, death_year_from, death_year_to, birth_year, death_year FROM persons WHERE id = $1',
+    [first]
+  )
+  assert.deepEqual(rows[0], {
+    birth_year_from: 1880,
+    birth_year_to: 1885,
+    death_year_from: 1937,
+    death_year_to: 1939,
+    birth_year: null,
+    death_year: null
+  })
+  const exact = await db.query(
+    'SELECT birth_year, birth_month, birth_day FROM persons WHERE id = $1',
+    [second]
+  )
+  assert.deepEqual(exact.rows[0], {
+    birth_year: 1900,
+    birth_month: 1,
+    birth_day: 2
+  })
+  for (const update of [
+    'birth_year_from = 1886',
+    'birth_year_to = NULL',
+    'birth_year = 1880',
+    'death_lunar_year = 1938',
+    'is_deceased = false',
+    'death_year_from = 1870, death_year_to = 1875'
+  ]) {
+    await assert.rejects(
+      db.query(`UPDATE persons SET ${update} WHERE id = $1`, [first]),
+      /check constraint/
+    )
+  }
+  assert.equal(validateImportPayload(payload, t), null)
+  const invalid = structuredClone(payload)
+  Object.assign(invalid.persons[0], { birth_year_to: 1879 })
+  assert.equal(validateImportPayload(invalid, t), 'invalidPersonRecord')
+  const before = await snapshot()
+  await assert.rejects(importAs(admin, invalid), /check constraint/)
+  assert.deepEqual(await snapshot(), before)
+  await importAs(admin, backup())
 })
 
 test('late event failure rolls back deletions and every preceding table insert', async () => {

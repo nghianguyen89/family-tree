@@ -3,8 +3,11 @@ import { Lunar, Solar } from 'lunar-javascript'
 export function formatDisplayDate(
   year: number | null,
   month: number | null,
-  day: number | null
+  day: number | null,
+  yearFrom?: number | null,
+  yearTo?: number | null
 ): string {
+  if (yearFrom != null && yearTo != null) return `≈ ${yearFrom}–${yearTo}`
   if (!year && !month && !day) return 'Chưa rõ'
 
   const parts = []

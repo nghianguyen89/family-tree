@@ -1,7 +1,13 @@
-export interface GedcomPerson {
+import { MemorialDate } from '@/types/intake'
+
+export interface GedcomPerson extends MemorialDate {
   id?: string
   full_name?: string | null
   gender?: 'male' | 'female' | 'other' | string
+  birth_year_from?: number | null
+  birth_year_to?: number | null
+  death_year_from?: number | null
+  death_year_to?: number | null
   birth_year?: number | null
   birth_month?: number | null
   birth_day?: number | null
@@ -154,7 +160,9 @@ export function exportToGedcom(data: {
     else gedcom += '1 SEX U\n'
 
     // Birth
-    if (person.birth_year || person.birth_month || person.birth_day) {
+    if (person.birth_year_from != null && person.birth_year_to != null) {
+      gedcom += `1 BIRT\n2 DATE BET ${person.birth_year_from} AND ${person.birth_year_to}\n`
+    } else if (person.birth_year || person.birth_month || person.birth_day) {
       gedcom += '1 BIRT\n'
       const day = formatNum(person.birth_day ?? null)
       const mont = getMonthName(person.birth_month ?? null)
@@ -168,7 +176,9 @@ export function exportToGedcom(data: {
     // Death
     if (person.is_deceased) {
       gedcom += '1 DEAT Y\n'
-      if (person.death_year || person.death_month || person.death_day) {
+      if (person.death_year_from != null && person.death_year_to != null) {
+        gedcom += `2 DATE BET ${person.death_year_from} AND ${person.death_year_to}\n`
+      } else if (person.death_year || person.death_month || person.death_day) {
         const day = formatNum(person.death_day ?? null)
         const mont = getMonthName(person.death_month ?? null)
         const yea = person.death_year ? String(person.death_year) : ''
@@ -177,6 +187,31 @@ export function exportToGedcom(data: {
           gedcom += `2 DATE ${dateParts.join(' ')}\n`
         }
       }
+    }
+
+    if (
+      person.memorial_day &&
+      person.memorial_month &&
+      person.memorial_calendar
+    ) {
+      gedcom +=
+        '1 _MEMORIAL\n2 _DAY ' +
+        person.memorial_day +
+        '\n2 _MONTH ' +
+        person.memorial_month +
+        '\n2 _CALENDAR ' +
+        person.memorial_calendar.toUpperCase() +
+        '\n2 _LEAP ' +
+        (person.memorial_is_leap_month ? 'Y' : 'N') +
+        '\n'
+      if (person.memorial_note)
+        gedcom +=
+          '2 NOTE ' +
+          person.memorial_note
+            .replace(/\r\n?/g, '\n')
+            .split('\n')
+            .join('\n3 CONT ') +
+          '\n'
     }
 
     // Family Links
@@ -307,10 +342,21 @@ export function parseGedcom(gedcom: string): {
     let birth_day = null
     let birth_month = null
     let birth_year = null
+    let birth_year_from = null
+    let birth_year_to = null
     let death_day = null
     let death_month = null
     let death_year = null
+    let death_year_from = null
+    let death_year_to = null
     let note = ''
+    const memorial: MemorialDate = {
+      memorial_day: null,
+      memorial_month: null,
+      memorial_calendar: null,
+      memorial_is_leap_month: false,
+      memorial_note: null
+    }
 
     let currentTag = ''
 
@@ -323,7 +369,16 @@ export function parseGedcom(gedcom: string): {
       const tag = match[2]
       const val = match[3] || ''
 
-      if (level === 1) {
+      if (currentTag === '_MEMORIAL' && level === 3 && tag === 'CONT') {
+        memorial.memorial_note = (memorial.memorial_note || '') + '\n' + val
+      } else if (currentTag === '_MEMORIAL' && level === 2) {
+        if (tag === '_DAY') memorial.memorial_day = Number(val)
+        else if (tag === '_MONTH') memorial.memorial_month = Number(val)
+        else if (tag === '_CALENDAR')
+          memorial.memorial_calendar = val.toLowerCase() as 'lunar' | 'solar'
+        else if (tag === '_LEAP') memorial.memorial_is_leap_month = val === 'Y'
+        else if (tag === 'NOTE') memorial.memorial_note = val
+      } else if (level === 1) {
         currentTag = tag
         if (tag === 'NAME') {
           fullName = val.replace(/\//g, '').trim()
@@ -339,6 +394,12 @@ export function parseGedcom(gedcom: string): {
         if (currentTag === 'NOTE' && tag === 'CONT') {
           note += '\n' + val
         } else if (currentTag === 'BIRT' && tag === 'DATE') {
+          const range = val.match(/^BET\s+(\d{1,4})\s+AND\s+(\d{1,4})$/i)
+          if (range) {
+            birth_year_from = Number(range[1])
+            birth_year_to = Number(range[2])
+            continue
+          }
           const cleanVal = val.replace(/^(ABT|EST|AFT|BEF|CAL)\s+/i, '')
           const parts = cleanVal.split(' ')
           if (parts.length === 3) {
@@ -353,6 +414,12 @@ export function parseGedcom(gedcom: string): {
           }
         } else if (currentTag === 'DEAT' && tag === 'DATE') {
           is_deceased = true
+          const range = val.match(/^BET\s+(\d{1,4})\s+AND\s+(\d{1,4})$/i)
+          if (range) {
+            death_year_from = Number(range[1])
+            death_year_to = Number(range[2])
+            continue
+          }
           const cleanVal = val.replace(/^(ABT|EST|AFT|BEF|CAL)\s+/i, '')
           const parts = cleanVal.split(' ')
           if (parts.length === 3) {
@@ -371,9 +438,14 @@ export function parseGedcom(gedcom: string): {
 
     persons.push({
       id: uuid,
+      ...memorial,
       full_name: fullName,
       gender,
       is_deceased,
+      birth_year_from,
+      birth_year_to,
+      death_year_from,
+      death_year_to,
       birth_day: Number.isNaN(birth_day) ? null : birth_day,
       birth_month,
       birth_year: Number.isNaN(birth_year) ? null : birth_year,

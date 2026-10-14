@@ -19,6 +19,15 @@ interface PersonExport {
   id: string
   full_name: string
   gender: 'male' | 'female' | 'other'
+  memorial_day?: number | null
+  memorial_month?: number | null
+  memorial_calendar?: 'lunar' | 'solar' | null
+  memorial_is_leap_month?: boolean
+  memorial_note?: string | null
+  birth_year_from?: number | null
+  birth_year_to?: number | null
+  death_year_from?: number | null
+  death_year_to?: number | null
   birth_year: number | null
   birth_month: number | null
   birth_day: number | null
@@ -85,6 +94,15 @@ function sanitizePerson(
     id: p.id,
     full_name: p.full_name,
     gender: p.gender,
+    memorial_day: p.memorial_day ?? null,
+    memorial_month: p.memorial_month ?? null,
+    memorial_calendar: p.memorial_calendar ?? null,
+    memorial_is_leap_month: p.memorial_is_leap_month ?? false,
+    memorial_note: p.memorial_note ?? null,
+    birth_year_from: p.birth_year_from ?? null,
+    birth_year_to: p.birth_year_to ?? null,
+    death_year_from: p.death_year_from ?? null,
+    death_year_to: p.death_year_to ?? null,
     birth_year: p.birth_year ?? null,
     birth_month: p.birth_month ?? null,
     birth_day: p.birth_day ?? null,
@@ -171,7 +189,7 @@ export async function exportData(
   try {
     allPersons = await fetchAll<PersonExport>(
       'persons',
-      'id, full_name, gender, birth_year, birth_month, birth_day, death_year, death_month, death_day, death_lunar_year, death_lunar_month, death_lunar_day, is_deceased, is_in_law, birth_order, generation, other_names, avatar_url, note, created_at, updated_at',
+      'id, full_name, gender, memorial_day, memorial_month, memorial_calendar, memorial_is_leap_month, memorial_note, birth_year_from, birth_year_to, death_year_from, death_year_to, birth_year, birth_month, birth_day, death_year, death_month, death_day, death_lunar_year, death_lunar_month, death_lunar_day, is_deceased, is_in_law, birth_order, generation, other_names, avatar_url, note, created_at, updated_at',
       'created_at'
     )
     allRels = await fetchAll<RelationshipExport>(

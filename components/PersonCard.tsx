@@ -8,6 +8,7 @@ import { useI18n } from '@/lib/i18n/I18nProvider'
 import { Person } from '@/types'
 import { getAvatarUrl } from '@/utils/avatar'
 import { getAvatarBg } from '@/utils/styleHelprs'
+import { formatPersonYear } from '@/utils/yearRanges'
 
 import DefaultAvatar from './DefaultAvatar'
 import { FemaleIcon, MaleIcon } from './GenderIcons'
@@ -84,9 +85,8 @@ function PersonCard({ person }: PersonCardProps) {
               />
             </svg>
             <span className='truncate'>
-              {person.birth_year || '...'}
-              {isDeceased &&
-                ` → ${person.death_lunar_year || person.death_year || '...'}`}
+              {formatPersonYear(person, 'birth')}
+              {isDeceased && ` → ${formatPersonYear(person, 'death')}`}
             </span>
           </p>
           {(isDeceased ||

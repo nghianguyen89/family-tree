@@ -4,6 +4,13 @@ export type Locale = (typeof locales)[number]
 
 export const messages = {
   vi: {
+    useYearRange: 'Chỉ biết khoảng năm',
+    fromYear: 'Từ năm',
+    toYear: 'Đến năm',
+    yearRangeHint: 'Khoảng năm dương lịch ước tính; không dùng để tính tuổi hoặc ngày giỗ chính xác.',
+    invalidYearRange: 'Nhập đủ hai năm từ 1 đến 9999; năm bắt đầu không được lớn hơn năm kết thúc.',
+    yearRangeMigrationRequired: 'Database chưa hỗ trợ khoảng năm. Chạy file docs/migrations/20261014010000_add_person_year_ranges.sql trong Supabase SQL Editor rồi lưu lại.',
+
     language: 'Ngôn ngữ',
     vietnamese: 'Tiếng Việt',
     english: 'English',
@@ -795,6 +802,13 @@ export const messages = {
     sonInLawOf: 'Con rể (chồng của {name})'
   },
   en: {
+    useYearRange: 'Only a year range is known',
+    fromYear: 'From year',
+    toYear: 'To year',
+    yearRangeHint: 'Estimated Gregorian years; not used for exact ages or anniversaries.',
+    invalidYearRange: 'Enter both years from 1 to 9999; the start must not exceed the end.',
+    yearRangeMigrationRequired: 'The database needs the year range migration. Run docs/migrations/20261014010000_add_person_year_ranges.sql in Supabase SQL Editor, then save again.',
+
     language: 'Language',
     vietnamese: 'Tiếng Việt',
     english: 'English',

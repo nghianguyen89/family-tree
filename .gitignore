@@ -46,3 +46,6 @@ next-env.d.ts
 .agents/
 .agent/
 skills-lock.json
+
+# Local debugging screenshots can contain project configuration.
+/_screenshot_/

@@ -19,7 +19,7 @@ export default async function EventsPage() {
       supabase
         .from('persons')
         .select(
-          'id, full_name, birth_year, birth_month, birth_day, death_year, death_month, death_day, death_lunar_year, death_lunar_month, death_lunar_day, is_deceased, avatar_url'
+          'id, full_name, memorial_day, memorial_month, memorial_calendar, memorial_is_leap_month, memorial_note, birth_year, birth_month, birth_day, death_year, death_month, death_day, death_lunar_year, death_lunar_month, death_lunar_day, is_deceased, avatar_url'
         )
         .order('id')
         .range(from, to)

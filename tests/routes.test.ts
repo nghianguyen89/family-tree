@@ -2,6 +2,8 @@ import assert from 'node:assert/strict'
 import { createRequire } from 'node:module'
 import { test } from 'node:test'
 
+import { NextRequest } from 'next/server'
+
 const require = createRequire(import.meta.url)
 const { mock } = require('bun:test')
 let user: { id: string } | null = null
@@ -101,4 +103,141 @@ test('approval GET and POST deny token holders without an active admin session',
     403
   )
   assert.equal(adminClients, previousAdminClients)
+})
+
+let intakeCalls = 0
+let intakeError: { message: string; code?: string } | null = null
+let intakeArgs: Record<string, unknown> = {}
+mock.module('../utils/supabase/public-intake', () => ({
+  getPublicIntakeClient: () => ({
+    rpc: async (name: string, args: Record<string, unknown>) => {
+      assert.equal(name, 'submit_family_intake')
+      intakeCalls++
+      intakeArgs = args
+      return { data: id, error: intakeError }
+    }
+  })
+}))
+const intake = await import('../app/api/intake/[token]/route')
+const intakeToken = 'a'.repeat(64)
+const intakeContext = { params: Promise.resolve({ token: intakeToken }) }
+const intakeBody = () => ({
+  consent: true,
+  website: '',
+  payload: {
+    anchor_id: id,
+    sender_name: 'Sender',
+    sender_contact: 'sender@example.com',
+    note: '',
+    people: [
+      {
+        client_id: '44444444-4444-4444-8444-444444444444',
+        relation: 'child',
+        relative_to: 'anchor',
+        data: { full_name: 'Child', gender: 'male', is_deceased: false },
+        existing_person_id: id,
+        update_existing: true
+      }
+    ]
+  }
+})
+function intakeRequest(
+  body: unknown = intakeBody(),
+  headers: Record<string, string> = {}
+) {
+  return new NextRequest(`https://family.example/api/intake/${intakeToken}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...headers },
+    body: typeof body === 'string' ? body : JSON.stringify(body)
+  })
+}
+
+test('public intake accepts anonymous submissions through scoped RPC only, strips review flags, and returns a private receipt', async () => {
+  user = null
+  intakeError = null
+  const adminBefore = adminClients
+  const response = await intake.POST(intakeRequest(), intakeContext)
+  assert.equal(response.status, 201)
+  assert.deepEqual(await response.json(), { receipt: id })
+  assert.equal(response.headers.get('cache-control'), 'no-store')
+  assert.equal(response.headers.get('referrer-policy'), 'no-referrer')
+  assert.equal(adminClients, adminBefore)
+  const submission = intakeArgs.submission as {
+    people: Array<Record<string, unknown>>
+  }
+  assert.equal(submission.people[0].existing_person_id, undefined)
+  assert.equal(submission.people[0].update_existing, undefined)
+})
+
+test('public intake rejects cross-origin, missing consent, honeypot, malformed and oversized requests before database calls', async () => {
+  const before = intakeCalls
+  assert.equal(
+    (
+      await intake.POST(
+        intakeRequest(undefined, { Origin: 'https://unrelated.example' }),
+        intakeContext
+      )
+    ).status,
+    403
+  )
+  assert.equal(
+    (
+      await intake.POST(
+        intakeRequest({ ...intakeBody(), consent: false }),
+        intakeContext
+      )
+    ).status,
+    400
+  )
+  assert.equal(
+    (
+      await intake.POST(
+        intakeRequest({ ...intakeBody(), website: 'spam' }),
+        intakeContext
+      )
+    ).status,
+    400
+  )
+  assert.equal(
+    (await intake.POST(intakeRequest('{'), intakeContext)).status,
+    400
+  )
+  assert.equal(
+    (await intake.POST(intakeRequest('x'.repeat(65537)), intakeContext)).status,
+    413
+  )
+  assert.equal(
+    (
+      await intake.POST(
+        intakeRequest(undefined, { 'Content-Type': 'text/plain' }),
+        intakeContext
+      )
+    ).status,
+    415
+  )
+  assert.equal(
+    (
+      await intake.POST(intakeRequest(), {
+        params: Promise.resolve({ token: 'invalid' })
+      })
+    ).status,
+    404
+  )
+  assert.equal(intakeCalls, before)
+})
+
+test('public intake maps database quotas and migration failures without exposing database errors', async () => {
+  intakeError = {
+    message:
+      'Collection limit reached. Please contact the family administrator.'
+  }
+  assert.equal((await intake.POST(intakeRequest(), intakeContext)).status, 429)
+  intakeError = {
+    message: 'Raw schema error with internal details',
+    code: 'PGRST202'
+  }
+  const response = await intake.POST(intakeRequest(), intakeContext)
+  assert.equal(response.status, 503)
+  assert.doesNotMatch(JSON.stringify(await response.json()), /Raw schema error/)
+  intakeError = null
 })

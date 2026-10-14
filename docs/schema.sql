@@ -73,6 +73,10 @@ CREATE TABLE IF NOT EXISTS public.persons (
   gender public.gender_enum NOT NULL,
   
   -- Date components (allows for partial dates where only year is known)
+  birth_year_from INT,
+  birth_year_to INT,
+  death_year_from INT,
+  death_year_to INT,
   birth_year INT,
   birth_month INT,
   birth_day INT,
@@ -392,14 +396,20 @@ CREATE POLICY "Admins and editors can delete avatars" ON storage.objects
 -- ==========================================
 
 -- Custom type for get_admin_users
-DROP TYPE IF EXISTS public.admin_user_data CASCADE;
-CREATE TYPE public.admin_user_data AS (
+-- Preserve the type OID and dependent public/private RPCs on setup replay.
+DO $$
+BEGIN
+  IF to_regtype('public.admin_user_data') IS NULL THEN
+    CREATE TYPE public.admin_user_data AS (
     id uuid,
     email text,
     role public.user_role_enum,
     created_at timestamptz,
     is_active boolean
-);
+    );
+  END IF;
+END;
+$$;
 
 -- 1. Get List of Users for Admin
 CREATE OR REPLACE FUNCTION public.get_admin_users()
