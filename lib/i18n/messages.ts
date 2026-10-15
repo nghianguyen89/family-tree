@@ -601,8 +601,9 @@ export const messages = {
     csvRestoreZipOnly:
       'Vui lòng phục hồi bằng file .zip được tạo ra từ chức năng Xuất CSV.',
     invalidRestoreFile: 'Vui lòng chọn file .json, .ged, hoặc .zip hợp lệ.',
-    galleryTitle: 'Phòng trưng bày',
-    galleryDescription: 'Lưu giữ những kỷ niệm và khoảnh khắc đáng nhớ',
+    galleryTitle: 'Thư viện ảnh chung',
+    galleryDescription:
+      'Lưu giữ ảnh và dùng lại cho album, bài viết và trang chủ',
     gridView: 'Lưới',
     timelineView: 'Dòng thời gian',
     addImage: 'Thêm hình ảnh',
@@ -1418,8 +1419,9 @@ export const messages = {
     csvRestoreZipOnly:
       'Please restore using the .zip file created by the CSV export function.',
     invalidRestoreFile: 'Please choose a valid .json, .ged, or .zip file.',
-    galleryTitle: 'Gallery',
-    galleryDescription: 'Preserve memorable moments and family memories',
+    galleryTitle: 'Shared photo library',
+    galleryDescription:
+      'Store photos and reuse them in albums, stories and the homepage',
     gridView: 'Grid',
     timelineView: 'Timeline',
     addImage: 'Add image',

@@ -1,6 +1,6 @@
 # Mục lục tài liệu dự án
 
-Cập nhật: 2026-10-15.
+Cập nhật: 2026-10-16.
 
 ## Thứ tự đọc
 
@@ -13,6 +13,8 @@ Cập nhật: 2026-10-15.
 7. [Chế độ sáng / tối](THEME-HANDOFF.md): nút đổi theme, lưu lựa chọn và nơi chỉnh màu.
 8. [Trang chủ và quản lý nội dung](HOME-CONTENT-HANDOFF.md): giới thiệu dòng họ, thông báo, bài viết, album và phân quyền biên tập.
 9. [Cắt ảnh đại diện](AVATAR-CROP-HANDOFF.md): chọn khuôn mặt trong ảnh chung khi thêm/sửa thành viên.
+10. [Tải nhiều ảnh](MULTI-IMAGE-UPLOAD-HANDOFF.md): thumbnail, tải theo lô và bổ sung mô tả sau cho CMS/thư viện ảnh.
+11. [Thư viện ảnh chung](SHARED-MEDIA-HANDOFF.md): migration ảnh cũ, dùng lại file cho album/trang chủ, masonry và PhotoSwipe.
 
 ## Tài liệu và tài nguyên có sẵn
 

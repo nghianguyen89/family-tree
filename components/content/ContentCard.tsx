@@ -25,7 +25,11 @@ export default function ContentCard({
         (image ? (
           <ContentImage
             image={image}
-            className='aspect-[4/3] w-full object-cover'
+            className={
+              entry.kind === 'album'
+                ? 'h-auto w-full'
+                : 'aspect-[4/3] w-full object-cover'
+            }
           />
         ) : (
           <div className='flex aspect-[4/3] items-center justify-center bg-neutral text-secondary'>

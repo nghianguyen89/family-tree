@@ -183,6 +183,7 @@ Use the existing rounded tokens. Main content cards use the established organic 
 - **Outline button:** Transparent surface with a border and secondary 14px text. It has no shadow.
 - **Family node card:** Theme surface with the existing rounded shape and a clear, non-conflicting border or shadow treatment. Avatars are circular.
 - **Dialogs and modals:** Full-screen masks on mobile and centered rounded drawers on desktop. Use either a border or a shadow for the dialog surface, with clean dividers and consistent internal padding.
+- **Photo library:** Use masonry columns with image height determined by the natural portrait/landscape ratio. Avoid a fixed landscape crop on library and album images. Use PhotoSwipe for viewing full images; keep captions as plain 14px text and use existing theme colors.
 
 ## Do's and don'ts
 

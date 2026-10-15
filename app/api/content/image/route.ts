@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 
+import { GET as mediaImage } from '@/app/api/media/image/route'
 import { CONTENT_UUID } from '@/utils/content'
 import { getAdminSupabase } from '@/utils/supabase/admin'
 import { getSupabase } from '@/utils/supabase/queries'
@@ -12,9 +13,16 @@ export async function GET(request: Request) {
   const db = await getSupabase()
   const { data: image, error } = await db
     .from('home_content_images')
-    .select('storage_path')
+    .select('storage_path,asset_id')
     .eq('id', id)
     .maybeSingle()
+  if (image?.asset_id && !error)
+    return mediaImage(
+      new Request(
+        new URL(`/api/media/image?id=${image.asset_id}`, request.url),
+        { headers: request.headers }
+      )
+    )
   if (
     error ||
     !image ||

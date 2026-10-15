@@ -17,7 +17,6 @@ export default function GalleryClient({
   initialItems: GalleryItem[]
   isAdmin: boolean
 }) {
-  const [items, setItems] = useState<GalleryItem[]>(initialItems)
   const [viewMode, setViewMode] = useState<'grid' | 'timeline'>('timeline')
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<GalleryItem | null>(null)
@@ -31,8 +30,7 @@ export default function GalleryClient({
     router.refresh()
   }
 
-  const handleDeleteSuccess = (deletedId: string) => {
-    setItems((prev) => prev.filter((item) => item.id !== deletedId))
+  const handleDeleteSuccess = () => {
     router.refresh()
   }
 
@@ -43,7 +41,7 @@ export default function GalleryClient({
 
   const handleCloseModal = () => {
     setIsModalOpen(false)
-    setTimeout(() => setEditingItem(null), 300) // clear after animation
+    setEditingItem(null)
   }
 
   return (
@@ -97,20 +95,22 @@ export default function GalleryClient({
       </div>
 
       <GalleryGrid
-        items={items}
+        items={initialItems}
         isAdmin={isAdmin}
         viewMode={viewMode}
         onEdit={handleEdit}
         onDeleteSuccess={handleDeleteSuccess}
       />
 
-      <UploadModal
-        key={editingItem?.id || 'new'}
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onSuccess={handleUploadSuccess}
-        initialData={editingItem}
-      />
+      {isModalOpen && (
+        <UploadModal
+          key={editingItem?.id || 'new'}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          onSuccess={handleUploadSuccess}
+          initialData={editingItem}
+        />
+      )}
     </>
   )
 }

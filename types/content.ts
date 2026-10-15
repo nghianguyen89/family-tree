@@ -30,6 +30,7 @@ export interface ContentEntry extends ContentInput {
 }
 
 export interface ContentImage {
+  asset_id?: string | null
   id: string
   entry_id: string | null
   storage_path: string

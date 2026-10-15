@@ -1,7 +1,7 @@
-import GalleryClient from '@/components/GalleryClient'
+import MediaLibrary from '@/components/media/MediaLibrary'
 import { getServerTranslations } from '@/lib/i18n/server'
-import { getIsAdmin, getSupabase } from '@/utils/supabase/queries'
-import { getGalleryStoragePath } from '@/utils/supabase/storage-path'
+import type { MediaAsset } from '@/types/media'
+import { getProfile, getSupabase } from '@/utils/supabase/queries'
 
 export async function generateMetadata() {
   const { t } = await getServerTranslations()
@@ -13,28 +13,27 @@ export async function generateMetadata() {
 
 export default async function GalleryPage() {
   const supabase = await getSupabase()
-  const isAdmin = await getIsAdmin()
+  const profile = await getProfile()
 
-  const { data: items } = await supabase
-    .from('gallery_items')
-    .select('*')
-    .order('event_date', { ascending: false, nullsFirst: false })
-
-  const privateItems = (items || []).map((item) => {
-    const storagePath = getGalleryStoragePath(item.image_url)
-    return {
-      ...item,
-      image_url: `/api/gallery?id=${encodeURIComponent(item.id)}`,
-      storage_path: storagePath
-    }
-  })
+  const { data, count, error } = await supabase
+    .from('media_assets')
+    .select(
+      'id,title,description,event_date,width,height,library_visible,created_at,created_by',
+      { count: 'exact' }
+    )
+    .order('created_at', { ascending: false })
+    .order('id')
+    .range(0, 35)
 
   return (
     <main className='mx-auto flex w-full max-w-7xl flex-1 flex-col p-4 sm:p-8'>
-      <GalleryClient
-        key={privateItems.length}
-        initialItems={privateItems}
-        isAdmin={isAdmin}
+      <MediaLibrary
+        initialAssets={(data || []) as MediaAsset[]}
+        count={count || 0}
+        editable={
+          !!profile?.is_active && ['admin', 'editor'].includes(profile.role)
+        }
+        error={!!error}
       />
     </main>
   )

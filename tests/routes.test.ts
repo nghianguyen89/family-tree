@@ -18,11 +18,12 @@ mock.module('../utils/supabase/queries', () => ({
   getProfile: async () => ({ is_active: active }),
   getIsAdmin: async () => admin,
   getSupabase: async () => ({
-    from: () => ({
+    from: (table: string) => ({
       select: () => ({
         eq: () => ({
           maybeSingle: async () => ({
-            data: imageUrl ? { image_url: imageUrl } : null
+            data: imageUrl ? { image_url: imageUrl } : null,
+            error: table === 'media_assets' ? { code: '42P01' } : null
           })
         })
       })

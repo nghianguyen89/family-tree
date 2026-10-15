@@ -1,8 +1,9 @@
 import { CalendarDays, MapPin } from 'lucide-react'
 
+import PhotoGallery from '@/components/media/PhotoGallery'
 import { contentText } from '@/lib/i18n/content'
 import type { ContentInput, ContentImage as ImageRecord } from '@/types/content'
-import { formatContentDate } from '@/utils/content'
+import { contentImageUrl, formatContentDate } from '@/utils/content'
 
 import ContentImage from './ContentImage'
 
@@ -89,18 +90,19 @@ export default function ContentBody({
         </figure>
       )}
       <PlainContent text={entry.body} />
-      <div
+      <PhotoGallery
+        locale={locale}
         className={
           entry.kind === 'album'
-            ? 'grid items-start gap-6 sm:grid-cols-2'
+            ? 'columns-1 gap-6 space-y-6 sm:columns-2 lg:columns-3'
             : 'space-y-6'
         }>
         {(entry.kind === 'album' ? images : images.slice(1)).map((image) => (
-          <figure key={image.id} className='space-y-2'>
+          <figure key={image.id} className='mb-6 break-inside-avoid space-y-2'>
             <a
-              href={`/api/content/image?id=${image.id}`}
-              target='_blank'
-              rel='noopener noreferrer'
+              href={contentImageUrl(image.id)}
+              data-photo-view
+              data-caption={image.caption || image.alt}
               aria-label={image.alt}>
               <ContentImage
                 image={image}
@@ -114,7 +116,7 @@ export default function ContentBody({
             )}
           </figure>
         ))}
-      </div>
+      </PhotoGallery>
     </article>
   )
 }

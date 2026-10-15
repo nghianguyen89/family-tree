@@ -1,6 +1,26 @@
 @import 'tailwindcss';
 @import './themes.css';
 
+.pswp {
+  --pswp-bg: var(--color-stone-950);
+  --pswp-icon-color: var(--color-stone-50);
+  --pswp-icon-color-secondary: var(--color-stone-950);
+}
+.pswp__safe-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: calc(var(--spacing) * 4) calc(var(--spacing) * 6);
+  font-size: 14px;
+  color: var(--color-stone-50);
+  background: var(--color-stone-950);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 25vh;
+  overflow-y: auto;
+}
+
 /* Accent adaptations share built-in utility names; the theme selector must
    outrank their light declarations regardless of generated rule order. */
 @custom-variant dark (&:is([data-theme='dark'], [data-theme='dark'] *));

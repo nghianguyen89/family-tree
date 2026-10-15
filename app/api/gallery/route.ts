@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 
+import { GET as mediaImage } from '@/app/api/media/image/route'
 import { getAdminSupabase } from '@/utils/supabase/admin'
 import { getProfile, getSupabase, getUser } from '@/utils/supabase/queries'
 import { getGalleryStoragePath } from '@/utils/supabase/storage-path'
@@ -18,6 +19,20 @@ export async function GET(request: Request) {
     return new NextResponse('Forbidden', { status: 403 })
   }
   const supabase = await getSupabase()
+  // Old bookmarks keep their IDs, but use the shared asset's current permissions.
+  const shared = await supabase
+    .from('media_assets')
+    .select('id')
+    .eq('id', id)
+    .maybeSingle()
+  if (!shared.error)
+    return mediaImage(
+      new Request(new URL(`/api/media/image?id=${id}`, request.url), {
+        headers: request.headers
+      })
+    )
+  if (shared.error.code !== '42P01' && shared.error.code !== 'PGRST205')
+    return new NextResponse('Not found', { status: 404 })
   const { data: item } = await supabase
     .from('gallery_items')
     .select('image_url')

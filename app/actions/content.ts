@@ -196,8 +196,7 @@ export async function removeContentImage(id: string) {
     .select('storage_path')
     .maybeSingle()
   if (error || !data) return failed
-  // The image endpoint immediately denies deleted metadata even if storage cleanup fails.
-  await db.storage.from('home-content').remove([data.storage_path])
+  // Detach this placement. The shared asset/file can still be used elsewhere.
   refreshContent()
   return { success: true }
 }

@@ -1,12 +1,18 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 import { removeContentImage, updateContentImage } from '@/app/actions/content'
-import { contentText, contentUploadErrorText } from '@/lib/i18n/content'
+import { attachMediaAsset } from '@/app/actions/media'
+import ImageUploadQueue from '@/components/ImageUploadQueue'
+import MediaPicker from '@/components/media/MediaPicker'
+import { contentText } from '@/lib/i18n/content'
 import { useI18n } from '@/lib/i18n/I18nProvider'
+import { mediaText } from '@/lib/i18n/media'
 import type { ContentImage as ImageRecord } from '@/types/content'
+import type { MediaAsset } from '@/types/media'
 import { MAX_CONTENT_IMAGE_BYTES } from '@/utils/content'
+import { uploadMediaAsset } from '@/utils/media-client'
 
 import ContentImage from './ContentImage'
 
@@ -113,7 +119,9 @@ function ImageEditor({
             type='button'
             className='btn-outline text-error'
             onClick={() => (confirm ? void remove() : setConfirm(true))}>
-            {confirm ? t.confirmImage : t.removeImage}
+            {confirm
+              ? mediaText(locale).confirmDetach
+              : mediaText(locale).detach}
           </button>
         )}
         {confirm && (
@@ -157,72 +165,29 @@ export default function MediaManager({
 }) {
   const { locale } = useI18n(),
     t = contentText(locale)
-  const [images, setImages] = useState(initialImages),
-    [busy, setBusy] = useState(false),
-    [message, setMessage] = useState('')
+  const [images, setImages] = useState(initialImages)
+  const [showPicker, setShowPicker] = useState(false)
+  const imagesRef = useRef(initialImages)
   function update(next: ImageRecord[]) {
     next.sort((a, b) => a.position - b.position || a.id.localeCompare(b.id))
+    imagesRef.current = next
     setImages(next)
     onImagesChange?.(next)
   }
-  async function upload(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    const form = e.currentTarget
-    setMessage('')
-    const data = new FormData(form)
-    const file = data.get('file'),
-      alt = data.get('alt')
-    if (
-      !(file instanceof File) ||
-      !file.size ||
-      typeof alt !== 'string' ||
-      !alt.trim() ||
-      alt.length > 300
-    ) {
-      setMessage(t.uploadInvalid)
-      return
-    }
-    if (file.size > MAX_CONTENT_IMAGE_BYTES) {
-      setMessage(t.uploadSize)
-      return
-    }
-    setBusy(true)
-    if (entryId) data.set('entry_id', entryId)
-    data.set(
-      'position',
-      String(
-        Math.min(10000, Math.max(0, ...images.map((i) => i.position)) + 10)
-      )
-    )
-    try {
-      const response = await fetch('/api/content/upload', {
-        method: 'POST',
-        body: data
-      })
-      const result = (await response.json().catch(() => null)) as {
-        image?: ImageRecord
-        error?: unknown
-      } | null
-      if (!response.ok || !result?.image) {
-        setMessage(
-          contentUploadErrorText(
-            response.redirected ? 'permission' : result?.error,
-            locale,
-            response.status
-          )
-        )
-        return
-      }
-      const { image } = result
-      update([...images, image])
-      onSelect?.(image)
-      form.reset()
-      setMessage(t.imageUploaded)
-    } catch {
-      setMessage(t.uploadNetwork)
-    } finally {
-      setBusy(false)
-    }
+  async function attachAsset(asset: MediaAsset) {
+    const result = await attachMediaAsset(asset.id, entryId)
+    if (result.error || !result.image) throw new Error(mediaText(locale).error)
+    const image = result.image as ImageRecord
+    const firstImage = imagesRef.current.length === 0
+    update([
+      ...imagesRef.current.filter((value) => value.id !== image.id),
+      image
+    ])
+    if (firstImage && !selectedId) onSelect?.(image)
+  }
+  async function upload(file: File) {
+    const { asset } = await uploadMediaAsset(file, false, locale)
+    await attachAsset(asset)
   }
   return (
     <section className='space-y-6' aria-label={t.images}>
@@ -230,38 +195,28 @@ export default function MediaManager({
         <h2 className='font-serif text-2xl font-semibold'>{t.images}</h2>
         <p className='text-sm text-secondary'>{t.imageHelp}</p>
       </div>
-      <form
-        onSubmit={upload}
-        className='space-y-4 rounded-xl border border-border bg-neutral p-6'>
-        <label className='content-field'>
-          {t.upload}
-          <input
-            className='content-control'
-            name='file'
-            type='file'
-            accept='image/jpeg,image/png,image/webp'
-            required
-          />
-        </label>
-        <label className='content-field'>
-          {t.alt}
-          <input
-            className='content-control'
-            name='alt'
-            maxLength={300}
-            required
-          />
-        </label>
-        <button
-          type='submit'
-          disabled={busy || images.length >= 100}
-          className='btn-primary'>
-          {busy ? t.saving : t.upload}
-        </button>
-        <p role='status' className='text-sm text-secondary'>
-          {message}
-        </p>
-      </form>
+      <button
+        type='button'
+        className='btn-outline'
+        disabled={images.length >= 100}
+        onClick={() => setShowPicker(true)}>
+        {mediaText(locale).choose}
+      </button>
+      {showPicker && (
+        <MediaPicker
+          selected={images
+            .map((image) => image.asset_id)
+            .filter((id): id is string => !!id)}
+          onSelect={attachAsset}
+          onClose={() => setShowPicker(false)}
+        />
+      )}
+      <ImageUploadQueue
+        maxBytes={MAX_CONTENT_IMAGE_BYTES}
+        allowedTypes={['image/jpeg', 'image/png', 'image/webp']}
+        maxFiles={Math.max(0, 100 - images.length)}
+        onUpload={upload}
+      />
       <div className='grid items-start gap-6 md:grid-cols-2'>
         {images.map((image) => (
           <div
@@ -305,9 +260,13 @@ export default function MediaManager({
               image={image}
               protectedImage={image.id === protectedId}
               onChange={(value) =>
-                update(images.map((i) => (i.id === image.id ? value : i)))
+                update(
+                  imagesRef.current.map((i) => (i.id === image.id ? value : i))
+                )
               }
-              onRemove={() => update(images.filter((i) => i.id !== image.id))}
+              onRemove={() =>
+                update(imagesRef.current.filter((i) => i.id !== image.id))
+              }
             />
           </div>
         ))}

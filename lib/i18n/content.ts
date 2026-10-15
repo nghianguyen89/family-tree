@@ -72,7 +72,7 @@ const vi = {
   images: 'Hình ảnh',
   upload: 'Tải ảnh lên',
   imageHelp:
-    'JPG, PNG hoặc WebP, tối đa 4 MB/ảnh. Ảnh có thứ tự nhỏ nhất được dùng làm ảnh đại diện.',
+    'Chọn nhiều ảnh JPG, PNG hoặc WebP. Ảnh lớn tự nén xuống dưới 4 MB trước khi tải. Có thể chỉnh mô tả sau; ảnh có thứ tự nhỏ nhất được dùng làm ảnh đại diện.',
   saveFirst: 'Lưu bản nháp trước để thêm ảnh.',
   alt: 'Mô tả ảnh',
   caption: 'Chú thích',
@@ -122,8 +122,7 @@ const vi = {
     'Ảnh vượt quá 4 MB. Anh vui lòng giảm dung lượng ảnh rồi tải lại.',
   uploadType:
     'Ảnh chưa được hỗ trợ hoặc không đúng định dạng. Vui lòng chọn ảnh JPG, PNG hoặc WebP.',
-  uploadInvalid:
-    'Chọn một ảnh và nhập mô tả ảnh (tối đa 300 ký tự) trước khi tải lên.',
+  uploadInvalid: 'Thông tin ảnh chưa hợp lệ. Chọn lại ảnh rồi thử tải lên.',
   uploadBucket:
     'Chưa tìm thấy kho ảnh trang chủ. Cần chạy migration trang chủ để tạo bucket home-content.',
   uploadStoragePermission:
@@ -218,7 +217,7 @@ const en: typeof vi = {
   images: 'Images',
   upload: 'Upload image',
   imageHelp:
-    'JPG, PNG or WebP, up to 4 MB each. The lowest order number determines the cover.',
+    'Choose multiple JPG, PNG or WebP images. Large images are compressed below 4 MB before upload. Edit descriptions later; the lowest order number determines the cover.',
   saveFirst: 'Save a draft before adding images.',
   alt: 'Image description',
   caption: 'Caption',
@@ -267,8 +266,7 @@ const en: typeof vi = {
   uploadSize: 'The image exceeds 4 MB. Reduce its size and try again.',
   uploadType:
     'Unsupported or mismatched image format. Choose a JPG, PNG or WebP image.',
-  uploadInvalid:
-    'Choose an image and enter an image description (up to 300 characters).',
+  uploadInvalid: 'Invalid image information. Choose the image again and retry.',
   uploadBucket:
     'The homepage image bucket was not found. Apply the homepage migration to create home-content.',
   uploadStoragePermission:

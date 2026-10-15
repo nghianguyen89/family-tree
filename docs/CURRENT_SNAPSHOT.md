@@ -1,8 +1,14 @@
 # Family tree — Trạng thái hiện tại
 
-Ngày ghi nhận: 2026-10-15. Đây là trạng thái ở workspace, không phải xác nhận đã triển khai lên production.
+Ngày ghi nhận: 2026-10-16. Đây là trạng thái ở workspace, không phải xác nhận đã triển khai lên production.
 
 ## Đã thực hiện
+
+- Đã hợp nhất ảnh CMS/phòng trưng bày thành `media_assets`, dùng lại qua placement `home_content_images.asset_id`; upload chung có hash chống trùng, picker ảnh có sẵn, gỡ liên kết riêng và chặn xóa asset đang dùng. Thư viện `/dashboard/gallery` và album công khai dùng tỷ lệ ảnh thật/masonry, mở PhotoSwipe mã nguồn mở theo lựa chọn chủ dự án. Chuẩn bị migration `20261015010000_shared_media_library.sql` giữ file/ảnh bìa cũ, không copy hoặc tự công khai ảnh nháp. Xem [bàn giao thư viện chung](SHARED-MEDIA-HANDOFF.md).
+
+- Đã tự động nén ảnh trên 4 MB ở uploader dùng chung và khi thay ảnh gallery: nhận ảnh gốc tối đa 50 MB, giữ tỷ lệ, xuất WebP (PNG fallback), không gửi file quá giới hạn khi nén thất bại. Hiển thị trạng thái/dung lượng trước-sau; ảnh nhỏ giữ nguyên, GIF lớn thành ảnh tĩnh có thông báo. API và bucket CMS giữ giới hạn 4 MB.
+
+- Đã dùng chung bộ tải nhiều ảnh cho trang chủ/bài viết/thông báo/album CMS và thư viện ảnh nội bộ: chọn thêm/kéo thả, thumbnail, bỏ từng ảnh, trạng thái mỗi file, thử lại riêng ảnh lỗi và nhập mô tả sau. Giữ quota/quyền/bucket hiện có; upload không đổi ảnh bìa đang chọn. Form sửa ảnh nội bộ điền sẵn metadata và phản ánh dữ liệu sau refresh. Xem [bàn giao tải nhiều ảnh](MULTI-IMAGE-UPLOAD-HANDOFF.md).
 
 - Đã thêm giao diện cắt ảnh đại diện trong form thêm/sửa thành viên: kéo bằng chuột/cảm ứng, phím mũi tên, zoom 1–16×, vòng tròn xem trước, hủy giữ ảnh trước và chỉnh lại từ ảnh gốc vừa chọn. Chỉ upload bản cắt tối đa 512px khi lưu thành viên; không thay đổi database. Xem [bàn giao crop ảnh](AVATAR-CROP-HANDOFF.md).
 
@@ -25,6 +31,14 @@ Ngày ghi nhận: 2026-10-15. Đây là trạng thái ở workspace, không ph�
 - Đã bổ sung ngày cúng riêng hằng năm âm/dương lịch, tháng nhuận, không bắt buộc ngày hoặc năm mất; lịch cúng riêng ưu tiên trong sự kiện.
 
 ## Bằng chứng kiểm tra
+
+Thư viện chung (2026-10-15): TypeScript, ESLint và 73 bài kiểm thử ở 17 file qua, gồm migration nhập ảnh cũ/replay, reuse/idempotent attach, quyền public/hết hạn/bìa, ảnh nháp không tự mở cho member, chặn xóa ảnh đang dùng, hash/dimensions thật và proxy không cache. Build production đã qua với hai API media mới. Edge headless với ảnh/dịch vụ giả đã kiểm tra masonry portrait/landscape không crop, PhotoSwipe ảnh cũ thiếu kích thước/zoom/chuyển bàn phím/Escape/focus, album công khai, picker dùng một file ở hai album không upload lại, detach/xóa có bảo vệ, nén/chống trùng và mobile dark mode. Đã xem screenshot desktop/mobile/viewer; không dùng dữ liệu gia đình thật. Chưa áp dụng migration thư viện mới trên Supabase thật hoặc kiểm thử ghi bằng phiên đăng nhập thật; chưa deploy Vercel.
+
+Nén ảnh tự động (2026-10-15): TypeScript, ESLint, build production và 65 bài kiểm thử ở 15 file qua. Fixture Edge dùng PNG ngẫu nhiên thực 7,4 MB, nén thành WebP khoảng 3,5 MB trước khi gọi upload CMS/gallery; ảnh hỏng lớn bị chặn trước request. Các kiểm tra batch/ảnh bìa/mô tả sau/mobile dark mode tiếp tục qua. Test unit kiểm tra ảnh nhỏ giữ nguyên, đầu vào quá giới hạn, tỷ lệ/kích thước đầu ra và giải phóng bitmap/canvas cả khi lỗi. Đây là kiểm tra bằng dịch vụ giả, không upload vào Supabase thật; chưa deploy Vercel hoặc thay bucket/migration.
+
+Tải nhiều ảnh (2026-10-15): TypeScript, ESLint, production build và 62 bài kiểm thử ở 14 file qua. Edge headless với ảnh/dịch vụ giả đã kiểm tra thumbnail, chọn thêm/bỏ ảnh, định dạng/dung lượng/số chỗ còn lại, lỗi giữa lô và thử lại chỉ ảnh lỗi ở cả CMS/gallery, giữ thứ tự/ảnh bìa, chỉnh mô tả sau, giải phóng object URL và layout mobile dark mode. Smoke test trang chủ/kho tin/chuyển khách khỏi CMS cũng qua, không có lỗi runtime. Chưa upload nhiều ảnh bằng phiên đăng nhập thật, không ghi Supabase hoặc chạy migration, chưa deploy Vercel.
+
+Chủ dự án đã xác nhận tính năng crop ảnh đại diện hoạt động ổn trước khi yêu cầu mở rộng upload album; đây là phản hồi sử dụng của chủ dự án, không phải kiểm thử ghi Supabase trực tiếp bởi agent.
 
 Cắt ảnh đại diện (2026-10-15): TypeScript, ESLint, production build và 58 bài kiểm thử ở 13 file qua. Edge headless chạy component crop thật với ảnh nhóm giả 3 vùng màu: hủy giữ kết quả cũ/trả focus, zoom, kéo chuột, cảm ứng, reset và layout mobile dark mode đều qua; giải mã file WebP đầu ra kiểm tra đúng vùng màu đã kéo tới và kích thước 200×200 tại zoom 3×. Smoke test trang chủ/kho tin/chuyển khách khỏi CMS cũng qua, không có lỗi runtime. Đã xem screenshot fixture mobile. Không upload hoặc sửa dữ liệu Supabase thật; chưa kiểm thử lưu bằng phiên đăng nhập thật và chưa deploy Vercel.
 
@@ -70,6 +84,8 @@ Sửa hiện tượng nhòe/chớp (2026-10-15): đã xem ảnh lỗi do chủ d
 Cấu hình không có kết nối SQL trực tiếp sử dụng được tại lúc kiểm tra, nên đã bàn giao file SQL để chủ dự án chạy trong Supabase SQL Editor. Không ghi trạng thái migration thật là đã hoàn tất nếu chưa có xác nhận.
 
 ## Bước tiếp theo
+
+- Chạy [migration thư viện chung](migrations/20261015010000_shared_media_library.sql) sau các migration đã có; tải lại `/dashboard/gallery`, thử chọn cùng ảnh cho hai album và kiểm tra bằng member/khách. Phần nhập ảnh cũ và ghi thật trên Supabase chưa được agent thực hiện. Build, 73 tests và fixture browser đã hoàn tất kiểm tra đến 2026-10-16.
 
 - Chạy migration trang chủ theo [bàn giao CMS](HOME-CONTENT-HANDOFF.md); cấu hình service-role key trên server/Vercel; dùng admin/editor nhập nội dung và ảnh thật. Kiểm tra đăng công khai/nội bộ, hẹn giờ, ảnh, thùng rác và tài khoản member trước khi deploy.
 
