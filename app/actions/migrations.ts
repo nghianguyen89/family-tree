@@ -25,7 +25,8 @@ const MIGRATION_FILES = [
   'docs/migrations/20260904000000_add_data_api_table_grants.sql',
   'docs/migrations/20261014000000_personal_fork_security.sql',
   'docs/migrations/20261014010000_add_person_year_ranges.sql',
-  'docs/migrations/20261014020000_family_intake_and_memorial.sql'
+  'docs/migrations/20261014020000_family_intake_and_memorial.sql',
+  'docs/migrations/20261015000000_home_content.sql'
 ] as const
 
 const MIGRATION_TABLE = 'public.app_migrations'

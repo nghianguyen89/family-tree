@@ -119,3 +119,11 @@ select {
 .label-md {
   @apply font-sans text-sm leading-[1.4] font-medium;
 }
+
+/* Shared editorial form controls use the existing design tokens. */
+.content-field {
+  @apply flex min-w-0 flex-col gap-2 text-sm font-medium text-primary;
+}
+.content-control {
+  @apply w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm font-normal text-primary outline-none focus:border-tertiary;
+}

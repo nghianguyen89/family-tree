@@ -15,6 +15,7 @@ import {
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 
+import { contentText } from '@/lib/i18n/content'
 import { useI18n } from '@/lib/i18n/I18nProvider'
 import { intakeMessages } from '@/lib/i18n/intake'
 
@@ -40,6 +41,12 @@ export default function HeaderMenu() {
   }, [])
 
   const links = [
+    {
+      href: '/',
+      icon: Info,
+      label: contentText(locale).home,
+      hover: 'hover:bg-neutral hover:text-primary'
+    },
     {
       href: '/dashboard',
       icon: Network,
@@ -143,13 +150,22 @@ export default function HeaderMenu() {
 
               {profile?.is_active &&
                 ['admin', 'editor'].includes(profile.role) && (
-                  <Link
-                    href='/dashboard/intake'
-                    onClick={() => setIsOpen(false)}
-                    className='flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-secondary hover:bg-neutral'>
-                    <Users className='size-4' />
-                    {intakeMessages[locale].queue}
-                  </Link>
+                  <div>
+                    <Link
+                      href='/dashboard/content'
+                      onClick={() => setIsOpen(false)}
+                      className='flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-secondary hover:bg-neutral'>
+                      <Info className='size-4' />
+                      {contentText(locale).manage}
+                    </Link>
+                    <Link
+                      href='/dashboard/intake'
+                      onClick={() => setIsOpen(false)}
+                      className='flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-secondary hover:bg-neutral'>
+                      <Users className='size-4' />
+                      {intakeMessages[locale].queue}
+                    </Link>
+                  </div>
                 )}
               {isAdmin && (
                 <>

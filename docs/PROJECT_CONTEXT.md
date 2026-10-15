@@ -1,6 +1,6 @@
 # Family tree — Bối cảnh dự án
 
-Cập nhật: 2026-10-14.
+Cập nhật: 2026-10-15.
 
 ## Mục tiêu
 
@@ -9,6 +9,8 @@ Cập nhật: 2026-10-14.
 Các chức năng gồm hồ sơ thành viên, quan hệ gia đình, sơ đồ cây/mindmap, danh xưng, thống kê, sự kiện, thư viện ảnh và sao lưu JSON/CSV/GEDCOM. Bản fork có thay đổi về bảo mật và hỗ trợ khoảng năm cho thông tin lịch sử không nhớ chính xác.
 
 Đã bổ sung form công khai theo nhánh để người thân khai cả gia đình vào khu chờ, admin/editor duyệt trước khi đưa lên cây. Ngày cúng riêng được lưu độc lập với ngày mất để hỗ trợ lịch cúng truyền thống dù không nhớ ngày mất.
+
+Trang chủ có khu giới thiệu dòng họ, thông báo sắp tới, bài viết và album. Admin/editor biên tập tại `/dashboard/content`, có bản nháp, hẹn giờ, phạm vi công khai/nội bộ và thùng rác. CMS dùng bảng/bucket riêng, không tự công khai dữ liệu gia phả. Xem [bàn giao trang chủ](HOME-CONTENT-HANDOFF.md) để áp dụng migration và cấu hình ảnh.
 
 ## Công nghệ
 

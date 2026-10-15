@@ -98,9 +98,9 @@ export default function AboutPage() {
                 {t('contactText')}
                 {` `}
                 <a
-                  href='mailto:giaphaos@homielab.com'
+                  href='mailto:nguyentrongnghia1989@gmail.com'
                   className='mt-2 inline-flex items-center gap-1.5 font-medium text-amber-700 transition-colors hover:text-amber-600'>
-                  giaphaos@homielab.com
+                  nguyentrongnghia1989@gmail.com
                 </a>
               </p>
             </div>

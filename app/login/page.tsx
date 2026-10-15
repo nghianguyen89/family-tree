@@ -14,14 +14,14 @@ import { useI18n } from '@/lib/i18n/I18nProvider'
 import { createClient } from '@/utils/supabase/client'
 
 const ssoGuideUrl =
-  'https://github.com/homielab/giapha-os#đăng-nhập-bằng-google-và-facebook'
+  'https://github.com/nghianguyen89/family-tree#đăng-nhập-bằng-google-và-facebook'
 
 export default function LoginPage() {
   const { t } = useI18n()
   const isDemo =
     typeof window !== 'undefined' &&
     window.location.hostname === config.demoDomain
-  const [email, setEmail] = useState(isDemo ? 'giaphaos@homielab.com' : '')
+  const [email, setEmail] = useState(isDemo ? 'nguyentrongnghia1989@gmail.com' : '')
   const [password, setPassword] = useState(isDemo ? 'giaphaos' : '')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)

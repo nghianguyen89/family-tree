@@ -1,6 +1,20 @@
 # Family tree — Những vấn đề đã xử lý
 
-Ngày ghi nhận: 2026-10-14. Phần này lưu lại nguyên nhân và cách xử lý để các phiên làm việc sau không phải tìm lại.
+Ngày ghi nhận: 2026-10-15. Phần này lưu lại nguyên nhân và cách xử lý để các phiên làm việc sau không phải tìm lại.
+
+## Upload ảnh trang chủ báo lỗi chung
+
+- **Hiện tượng báo cáo:** tải ảnh đầu tiên ở phần thiết lập trang chủ local chỉ hiện thông báo chung về định dạng/dung lượng/Storage.
+- **Lỗi đã tái hiện:** request từ `127.0.0.1:3000` bị từ chối ở kiểm tra origin vì `request.url` đã được Next chuẩn hóa thành localhost. Đây là lỗi xác nhận được trong mã; chưa xác nhận có phải nguyên nhân của đúng ảnh người dùng đã thử hay không.
+- **Xử lý:** so sánh Origin với Host thực tế và protocol của request, vẫn từ chối origin khác/thiếu origin; không dùng X-Forwarded-Host do client cung cấp. Chuẩn hóa MIME ảnh dựa trên chữ ký hợp lệ; bổ sung kiểm tra dung lượng trước fetch và lỗi riêng theo từng bước.
+- **Bằng chứng:** request không đăng nhập trên localhost và `127.0.0.1` đều qua bước origin, bị từ chối đúng ở quyền; TypeScript, ESLint và 54 bài kiểm thử qua. Kiểm tra chỉ đọc xác nhận bảng thiết lập, bucket private 4 MB và khả năng server key truy cập bucket trên Supabase thật. Không thực hiện upload hoặc sửa Supabase thật; đang chờ kết quả người dùng thử lại.
+
+## Chọn ảnh bìa nhưng trang chủ chưa đổi
+
+- **Hiện tượng:** chủ dự án xác nhận upload đã thành công, chọn ảnh bìa rồi bấm “Lưu thay đổi” dưới ảnh nhưng trang chủ chưa phản ánh.
+- **Nguyên nhân xác nhận:** nút dưới ảnh chỉ gọi action lưu mô tả/thứ tự ảnh; nút lưu thiết lập trang chủ ở form phía trên có cùng tên nên dễ nhầm. Kiểm tra chỉ đọc cho thấy thiết lập chưa có `cover_image_id`; không phải ảnh bìa đã lưu rồi bị cache.
+- **Xử lý:** đổi tên thành “Lưu mô tả ảnh” và “Lưu thông tin và ảnh bìa”; thêm nút “Lưu ảnh bìa trang chủ” ngay cạnh ảnh được chọn, liên kết tới đúng form thiết lập. Hiện trạng thái ảnh đã chọn/chưa lưu hoặc đang dùng; phản hồi upload chỉ nói ảnh đã vào thư viện. Phản hồi lưu thiết lập/lỗi cũng hiển thị cạnh ảnh.
+- **Xác minh:** bổ sung kiểm thử render cho nhãn nút khác nhau và liên kết nút cạnh ảnh với form thiết lập thay vì form metadata. Không sửa dữ liệu Supabase; người dùng cần lưu lại lựa chọn bằng nút mới.
 
 ## Local chưa được cấu hình
 

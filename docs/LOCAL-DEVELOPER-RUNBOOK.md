@@ -31,17 +31,17 @@ Chỉ copy mẫu nếu chưa có `.env.local`; không ghi đè cấu hình đã 
 if (!(Test-Path .env.local)) { Copy-Item .env.example .env.local }
 ```
 
-| Biến                                           | Ý nghĩa                                                                  |
-| ---------------------------------------------- | ------------------------------------------------------------------------ |
-| `SITE_NAME`                                    | Tên hiển thị, ví dụ `Gia Phả OS`                                         |
-| `APP_URL`                                      | Local dùng `http://localhost:3000`                                       |
-| `NEXT_PUBLIC_SUPABASE_URL`                     | Project URL của Supabase                                                 |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` | Publishable key hoặc legacy anon key; phải dùng đúng tên biến này        |
-| `NEXT_PUBLIC_DISABLE_SSO`                      | `true` khi chưa cấu hình Google/Facebook                                 |
-| `SUPABASE_SERVICE_ROLE_KEY`                    | Server-only, cần cho Gallery và các chức năng quản trị dùng admin client |
-| `SUPABASE_DB_URL`                              | Server-only, kết nối PostgreSQL cho migration trong Dashboard            |
-| `RESEND_API_KEY`, `RESEND_FROM_EMAIL`          | Tuỳ chọn, gửi thông báo email                                            |
-| `ADMIN_NOTIFICATION_EMAIL`                     | Tuỳ chọn, chỉ định người nhận thông báo                                  |
+| Biến                                           | Ý nghĩa                                                                        |
+| ---------------------------------------------- | ------------------------------------------------------------------------------ |
+| `SITE_NAME`                                    | Tên hiển thị, ví dụ `Gia Phả OS`                                               |
+| `APP_URL`                                      | Local dùng `http://localhost:3000`                                             |
+| `NEXT_PUBLIC_SUPABASE_URL`                     | Project URL của Supabase                                                       |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` | Publishable key hoặc legacy anon key; phải dùng đúng tên biến này              |
+| `NEXT_PUBLIC_DISABLE_SSO`                      | `true` khi chưa cấu hình Google/Facebook                                       |
+| `SUPABASE_SERVICE_ROLE_KEY`                    | Server-only, cần cho ảnh Gallery, ảnh trang chủ và chức năng dùng admin client |
+| `SUPABASE_DB_URL`                              | Server-only, kết nối PostgreSQL cho migration trong Dashboard                  |
+| `RESEND_API_KEY`, `RESEND_FROM_EMAIL`          | Tuỳ chọn, gửi thông báo email                                                  |
+| `ADMIN_NOTIFICATION_EMAIL`                     | Tuỳ chọn, chỉ định người nhận thông báo                                        |
 
 Không dùng tiền tố `NEXT_PUBLIC_` cho secret/service-role/database key. Không copy giá trị thật vào tài liệu, ảnh chụp hoặc Git.
 
@@ -64,6 +64,10 @@ Sau khi sửa `.env.local`, dừng rồi chạy lại để chắc chắn server
 ## Thu thập gia đình và ngày cúng
 
 Sau khi có admin/editor và chạy migration `20261014020000_family_intake_and_memorial.sql`, mở `/dashboard/intake` để tạo link thu thập và duyệt gia đình. Hướng dẫn đầy đủ trong [bàn giao form/ngày cúng](FAMILY-INTAKE-HANDOFF.md). Các route public dùng publishable/anon key hiện có, không yêu cầu service-role key riêng cho tính năng này.
+
+## Trang chủ và nội dung
+
+Chạy migration `20261015000000_home_content.sql` sau các migration hiện có. Admin/editor quản lý tại `/dashboard/content`, thiết lập giới thiệu và ảnh bìa tại `/dashboard/content/settings`. Ảnh cần `SUPABASE_SERVICE_ROLE_KEY` phía server. Khi deploy Vercel, push code không tự áp dụng migration Supabase; cấu hình key ở môi trường Production và chạy SQL riêng. Hướng dẫn đầy đủ trong [bàn giao trang chủ](HOME-CONTENT-HANDOFF.md).
 
 ## Admin đầu tiên
 

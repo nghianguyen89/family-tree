@@ -1,6 +1,6 @@
 # Mục lục tài liệu dự án
 
-Cập nhật: 2026-10-14.
+Cập nhật: 2026-10-15.
 
 ## Thứ tự đọc
 
@@ -11,6 +11,7 @@ Cập nhật: 2026-10-14.
 5. [Bàn giao tính năng khoảng năm](YEAR-RANGES-HANDOFF.md): quy ước dữ liệu, migration và kiểm tra trên giao diện.
 6. [Form thu thập và ngày cúng riêng](FAMILY-INTAKE-HANDOFF.md): link công khai theo nhánh, khu chờ duyệt và lịch cúng không phụ thuộc ngày mất.
 7. [Chế độ sáng / tối](THEME-HANDOFF.md): nút đổi theme, lưu lựa chọn và nơi chỉnh màu.
+8. [Trang chủ và quản lý nội dung](HOME-CONTENT-HANDOFF.md): giới thiệu dòng họ, thông báo, bài viết, album và phân quyền biên tập.
 
 ## Tài liệu và tài nguyên có sẵn
 

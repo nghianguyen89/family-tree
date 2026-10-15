@@ -12,7 +12,7 @@ export default function DashboardHeader() {
       <div className='mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8'>
         <div className='flex min-w-0 items-center gap-4'>
           <Link
-            href='/dashboard'
+            href='/'
             className='group flex items-center gap-2 sm:gap-3'>
             <div className='relative size-10 shrink-0 overflow-hidden rounded-xl transition-all'>
               <Image
