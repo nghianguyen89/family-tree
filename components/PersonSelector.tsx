@@ -157,8 +157,8 @@ export default function PersonSelector({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.98 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
-            className='absolute z-50 mt-2 flex max-h-80 w-full flex-col overflow-hidden rounded-xl border border-stone-200/80 bg-surface/95 ring-1 ring-black/5 backdrop-blur-xl'>
-            <div className='sticky top-0 z-10 border-b border-stone-100/80 bg-stone-50/50 p-2 backdrop-blur-sm'>
+            className='absolute z-50 mt-2 flex max-h-80 w-full flex-col overflow-hidden rounded-xl border border-stone-200/80 bg-surface ring-1 ring-black/5'>
+            <div className='sticky top-0 z-10 border-b border-stone-100/80 bg-stone-50/50 p-2'>
               <div className='relative'>
                 <Search className='absolute top-1/2 left-3 size-4 -translate-y-1/2 text-stone-400' />
                 <input

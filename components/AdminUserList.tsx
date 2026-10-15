@@ -240,7 +240,7 @@ export default function AdminUserList({
         </button>
       </div>
 
-      <div className='overflow-hidden rounded-2xl border border-stone-200/60 bg-surface/60 backdrop-blur-xl'>
+      <div className='overflow-hidden rounded-2xl border border-stone-200/60 bg-surface'>
         <div className='custom-scrollbar overflow-x-auto'>
           <table className='w-full text-left text-sm whitespace-nowrap'>
             <thead className='border-b border-stone-200/60 bg-stone-50/50'>
@@ -366,8 +366,8 @@ export default function AdminUserList({
 
       {/* Create User Modal */}
       {isCreateModalOpen && (
-        <div className='fixed inset-0 z-60 flex items-center justify-center bg-stone-900/40 p-4 backdrop-blur-sm transition-opacity duration-300'>
-          <div className='w-full max-w-md transform overflow-hidden rounded-2xl border border-stone-200/60 bg-surface/95 backdrop-blur-xl transition-all'>
+        <div className='fixed inset-0 z-60 flex items-center justify-center bg-stone-900/40 p-4 transition-opacity duration-300'>
+          <div className='w-full max-w-md transform overflow-hidden rounded-2xl border border-stone-200/60 bg-surface transition-all'>
             <div className='flex items-center justify-between border-b border-stone-100/80 bg-stone-50/50 px-6 py-5'>
               <h3 className='font-serif text-xl font-semibold text-stone-800'>
                 {t('adminCreateTitle')}

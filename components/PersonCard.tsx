@@ -33,7 +33,7 @@ function PersonCard({ person }: PersonCardProps) {
     <button
       type='button'
       onClick={() => setMemberModalId(person.id)}
-      className={`group relative block overflow-hidden rounded-3xl border border-border bg-surface/60 p-2 transition-all duration-300 hover:-translate-y-1 hover:border-tertiary hover:bg-surface/90 sm:p-4 ${isDeceased ? 'opacity-80 grayscale-[0.3]' : ''}`}>
+      className='group relative block overflow-hidden rounded-3xl border border-border bg-surface p-2 transition-colors duration-300 hover:border-tertiary sm:p-4'>
       {/* Decorative gradient blob */}
       {/* <div
         className={`absolute -right-10 -top-10 w-32 h-32 rounded-full blur-[50px] opacity-20 transition-all duration-500 group-hover:opacity-40 group-hover:scale-125 ${person.gender === "male" ? "bg-sky-400" : person.gender === "female" ? "bg-rose-400" : "bg-stone-400"}`}

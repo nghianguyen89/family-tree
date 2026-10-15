@@ -179,7 +179,7 @@ export default function ExportButton() {
         className={`flex h-10 items-center gap-2 rounded-full border px-4 text-sm font-medium transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50 ${
           showMenu
             ? 'border-amber-200 bg-amber-100/90 text-amber-800'
-            : 'border-stone-200/60 bg-surface/80 text-stone-600 backdrop-blur-md hover:bg-surface hover:text-stone-900'
+            : 'border-stone-200/60 bg-surface text-stone-600 hover:bg-surface hover:text-stone-900'
         }`}>
         {isExporting ? (
           <Loader2 className='size-4 shrink-0 animate-spin' />
@@ -198,7 +198,7 @@ export default function ExportButton() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.15, ease: 'easeOut' }}
-            className='absolute top-full right-0 z-50 mt-2 w-48 overflow-hidden rounded-2xl border border-stone-200/60 bg-surface/90 py-2 backdrop-blur-xl sm:right-auto sm:left-0'>
+            className='absolute top-full right-0 z-50 mt-2 w-48 overflow-hidden rounded-2xl border border-stone-200/60 bg-surface py-2 sm:right-auto sm:left-0'>
             <button
               onClick={() => handleExport('png')}
               className='flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm font-medium text-stone-700 transition-colors hover:bg-amber-50 hover:text-amber-700'>

@@ -4,6 +4,8 @@ Ngày ghi nhận: 2026-10-15. Đây là trạng thái ở workspace, không ph�
 
 ## Đã thực hiện
 
+- Đã thêm giao diện cắt ảnh đại diện trong form thêm/sửa thành viên: kéo bằng chuột/cảm ứng, phím mũi tên, zoom 1–16×, vòng tròn xem trước, hủy giữ ảnh trước và chỉnh lại từ ảnh gốc vừa chọn. Chỉ upload bản cắt tối đa 512px khi lưu thành viên; không thay đổi database. Xem [bàn giao crop ảnh](AVATAR-CROP-HANDOFF.md).
+
 - Đã thay trang chủ bằng khu giới thiệu dòng họ, ảnh bìa, lịch sử, thông báo/sự kiện sắp tới, bài viết mới, album và liên hệ; thêm `/news` và trang đọc chi tiết.
 - Đã thêm `/dashboard/content` cho admin/editor hoạt động: tạo/sửa/xem trước, lưu nháp, hẹn giờ đăng/hết hạn, công khai/nội bộ, ảnh/mô tả/chú thích/thứ tự, lọc/phân trang và thùng rác khôi phục về nháp.
 - Đã thêm thiết lập trang chủ, sắp xếp khu vực, kiểm tra phiên bản chống ghi đè, ghi nhận người sửa; chuẩn bị migration `20261015000000_home_content.sql`, RLS và bucket ảnh private. Xem [bàn giao trang chủ](HOME-CONTENT-HANDOFF.md).
@@ -23,6 +25,8 @@ Ngày ghi nhận: 2026-10-15. Đây là trạng thái ở workspace, không ph�
 - Đã bổ sung ngày cúng riêng hằng năm âm/dương lịch, tháng nhuận, không bắt buộc ngày hoặc năm mất; lịch cúng riêng ưu tiên trong sự kiện.
 
 ## Bằng chứng kiểm tra
+
+Cắt ảnh đại diện (2026-10-15): TypeScript, ESLint, production build và 58 bài kiểm thử ở 13 file qua. Edge headless chạy component crop thật với ảnh nhóm giả 3 vùng màu: hủy giữ kết quả cũ/trả focus, zoom, kéo chuột, cảm ứng, reset và layout mobile dark mode đều qua; giải mã file WebP đầu ra kiểm tra đúng vùng màu đã kéo tới và kích thước 200×200 tại zoom 3×. Smoke test trang chủ/kho tin/chuyển khách khỏi CMS cũng qua, không có lỗi runtime. Đã xem screenshot fixture mobile. Không upload hoặc sửa dữ liệu Supabase thật; chưa kiểm thử lưu bằng phiên đăng nhập thật và chưa deploy Vercel.
 
 | Kiểm tra                   | Kết quả đã ghi nhận                                                                                  |
 | -------------------------- | ---------------------------------------------------------------------------------------------------- |
@@ -51,6 +55,8 @@ Chủ dự án đã thử chạy bundle trong SQL Editor và gặp lỗi `42723`
 Đã smoke test HTTP trên bản production: `/contribute/invalid` trả 200 tại đúng URL, không chuyển sang đăng nhập; API token sai trả 404. Server thử cổng 3001 đã tắt sau kiểm tra. Kiểm tra này không tạo dữ liệu trên Supabase thật.
 
 Sửa luồng chọn ảnh bìa (2026-10-15): chủ dự án đã xác nhận upload thành công. Kiểm tra chỉ đọc cho thấy thiết lập chưa lưu ảnh bìa; chủ dự án xác nhận bấm nút lưu dưới ảnh, vốn chỉ lưu metadata. Đã phân biệt nhãn lưu metadata/thiết lập, thêm nút lưu ảnh bìa ngay cạnh ảnh đang chọn và trạng thái chưa lưu/đang dùng. Nút mới gửi đúng form thiết lập, giữ kiểm tra phiên bản và quyền hiện có. Không thay đổi dữ liệu Supabase; chờ người dùng bấm nút mới để xác nhận ảnh bìa thật. TypeScript, ESLint, build production và 56 bài kiểm thử ở 12 file qua, gồm hai kiểm thử UI mới cho nhãn và liên kết form.
+
+Sửa hiện tượng nhòe/chớp (2026-10-15): đã xem ảnh lỗi do chủ dự án cung cấp; chủ dự án báo gặp trên Edge và Firefox ở cả local/Vercel. Đã bỏ backdrop blur lồng nhau ở các surface và filter grayscale/opacity trên toàn thẻ thành viên, dùng token surface/secondary hiện có; giảm chuyển động thẻ/tab. Đây là xử lý hướng nghi ngờ compositing, chưa xác nhận được lỗi GPU/driver cụ thể hoặc tái hiện đúng artifact trên máy người dùng. TypeScript, ESLint, build production và 56 bài kiểm thử qua. Edge headless với GPU không bị tắt bằng flag đã kiểm tra CSS thực tế của 72 thành viên giả ở tỷ lệ 125%: không có filter trên vùng thành viên, pixel nội dung trước/sau 24 lượt cuộn/hover/đổi theme và 10 giây chờ trùng nhau; loại scrollbar native tự ẩn khỏi vùng so sánh. Kiểm tra trang chủ desktop/mobile, lưu theme, kho tin và chuyển khách khỏi CMS cũng qua, không có lỗi runtime. Server/browser thử đã tắt. Không sửa dữ liệu hoặc migration Supabase; chưa deploy bản sửa Vercel; vẫn cần người dùng xác nhận sau khi dùng lâu trên Edge/Firefox thật.
 
 ## Chưa xác nhận
 

@@ -164,7 +164,7 @@ export default function MemberDetailModal() {
           transition={{ duration: 0.2 }}
           role='dialog'
           aria-modal='true'
-          className='fixed inset-0 z-100 flex items-center justify-center bg-stone-900/40 backdrop-blur-sm sm:p-6'>
+          className='fixed inset-0 z-100 flex items-center justify-center bg-stone-900/40 sm:p-6'>
           {/* Click-away backdrop (disabled while editing/creating to avoid accidental close) */}
           {!isEditing && !showCreateMember && (
             <div

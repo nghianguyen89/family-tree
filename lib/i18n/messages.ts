@@ -7,9 +7,12 @@ export const messages = {
     useYearRange: 'Chỉ biết khoảng năm',
     fromYear: 'Từ năm',
     toYear: 'Đến năm',
-    yearRangeHint: 'Khoảng năm dương lịch ước tính; không dùng để tính tuổi hoặc ngày giỗ chính xác.',
-    invalidYearRange: 'Nhập đủ hai năm từ 1 đến 9999; năm bắt đầu không được lớn hơn năm kết thúc.',
-    yearRangeMigrationRequired: 'Database chưa hỗ trợ khoảng năm. Chạy file docs/migrations/20261014010000_add_person_year_ranges.sql trong Supabase SQL Editor rồi lưu lại.',
+    yearRangeHint:
+      'Khoảng năm dương lịch ước tính; không dùng để tính tuổi hoặc ngày giỗ chính xác.',
+    invalidYearRange:
+      'Nhập đủ hai năm từ 1 đến 9999; năm bắt đầu không được lớn hơn năm kết thúc.',
+    yearRangeMigrationRequired:
+      'Database chưa hỗ trợ khoảng năm. Chạy file docs/migrations/20261014010000_add_person_year_ranges.sql trong Supabase SQL Editor rồi lưu lại.',
 
     language: 'Ngôn ngữ',
     vietnamese: 'Tiếng Việt',
@@ -454,12 +457,24 @@ export const messages = {
     updateDescendantDescription:
       'Tự động điều chỉnh đời của con, cháu... tương ứng với thay đổi này.',
     avatar: 'Ảnh đại diện',
+    cropAvatarTitle: 'Cắt ảnh đại diện',
+    cropAvatarHint:
+      'Kéo ảnh và phóng to để chọn đúng khuôn mặt. Vòng tròn cho biết phần hiển thị trên gia phả. Ảnh GIF sẽ thành ảnh tĩnh.',
+    cropAvatarCanvas:
+      'Vùng cắt ảnh. Kéo để di chuyển hoặc dùng các phím mũi tên để chọn vị trí.',
+    cropAvatarZoom: 'Phóng to',
+    cropAvatarReset: 'Đặt lại vị trí',
+    cropAvatarLoading: 'Đang đọc ảnh…',
+    cropAvatarError:
+      'Không thể đọc hoặc cắt ảnh. Anh/chị thử lại bằng ảnh JPG, PNG hoặc WebP khác nhé.',
+    cropAvatarApply: 'Dùng ảnh đã cắt',
+    cropAvatarEdit: 'Chỉnh vùng cắt',
     invalidImageType: 'Ảnh phải có định dạng JPG, PNG, GIF hoặc WebP.',
     imageTooLarge: 'Ảnh không được vượt quá 20MB.',
     chooseNewPhoto: 'Chọn ảnh mới',
     removePhoto: 'Xóa ảnh',
     imageSupport:
-      'Hỗ trợ PNG, JPG, GIF, WebP tối đa 20MB. Ảnh lớn sẽ được tự động thu nhỏ.',
+      'Hỗ trợ PNG, JPG, GIF, WebP tối đa 20MB. Chọn vùng khuôn mặt trước khi dùng; ảnh được thu nhỏ tối đa 512px.',
     solarBirthDate: 'Ngày sinh dương lịch',
     day: 'Ngày',
     month: 'Tháng',
@@ -805,9 +820,12 @@ export const messages = {
     useYearRange: 'Only a year range is known',
     fromYear: 'From year',
     toYear: 'To year',
-    yearRangeHint: 'Estimated Gregorian years; not used for exact ages or anniversaries.',
-    invalidYearRange: 'Enter both years from 1 to 9999; the start must not exceed the end.',
-    yearRangeMigrationRequired: 'The database needs the year range migration. Run docs/migrations/20261014010000_add_person_year_ranges.sql in Supabase SQL Editor, then save again.',
+    yearRangeHint:
+      'Estimated Gregorian years; not used for exact ages or anniversaries.',
+    invalidYearRange:
+      'Enter both years from 1 to 9999; the start must not exceed the end.',
+    yearRangeMigrationRequired:
+      'The database needs the year range migration. Run docs/migrations/20261014010000_add_person_year_ranges.sql in Supabase SQL Editor, then save again.',
 
     language: 'Language',
     vietnamese: 'Tiếng Việt',
@@ -1259,12 +1277,24 @@ export const messages = {
     updateDescendantDescription:
       'Automatically adjust the generations of children and grandchildren to match this change.',
     avatar: 'Profile photo',
+    cropAvatarTitle: 'Crop profile photo',
+    cropAvatarHint:
+      'Drag and zoom to select the right face. The circle shows how the photo appears in the family tree. GIFs become still images.',
+    cropAvatarCanvas:
+      'Photo crop area. Drag or use the arrow keys to position the photo.',
+    cropAvatarZoom: 'Zoom',
+    cropAvatarReset: 'Reset position',
+    cropAvatarLoading: 'Loading photo…',
+    cropAvatarError:
+      'Unable to read or crop this photo. Try another JPG, PNG, or WebP image.',
+    cropAvatarApply: 'Use cropped photo',
+    cropAvatarEdit: 'Adjust crop',
     invalidImageType: 'The photo must be JPG, PNG, GIF, or WebP.',
     imageTooLarge: 'The photo must not exceed 20MB.',
     chooseNewPhoto: 'Choose new photo',
     removePhoto: 'Remove photo',
     imageSupport:
-      'PNG, JPG, GIF, and WebP up to 20MB. Large photos are resized automatically.',
+      'PNG, JPG, GIF, and WebP up to 20MB. Select a face before using the photo; output is resized to at most 512px.',
     solarBirthDate: 'Solar birth date',
     day: 'Day',
     month: 'Month',

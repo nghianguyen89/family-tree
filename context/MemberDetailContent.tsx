@@ -213,7 +213,7 @@ export default function MemberDetailContent({
               {/* Birth Card */}
               <motion.div
                 variants={itemVariants}
-                className='rounded-2xl border border-stone-200/60 bg-surface/80 p-4 backdrop-blur-sm transition-all hover:border-amber-200/60'>
+                className='rounded-2xl border border-stone-200/60 bg-surface p-4 transition-all hover:border-amber-200/60'>
                 <div className='mb-2 flex items-center justify-between'>
                   <div className='flex items-center gap-2'>
                     <span className='size-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]'></span>
@@ -277,7 +277,7 @@ export default function MemberDetailContent({
               {isDeceased && (
                 <motion.div
                   variants={itemVariants}
-                  className='rounded-2xl border border-stone-200/60 bg-surface/80 p-4 backdrop-blur-sm transition-all hover:border-amber-200/60'>
+                  className='rounded-2xl border border-stone-200/60 bg-surface p-4 transition-all hover:border-amber-200/60'>
                   <div className='mb-2 flex items-center gap-2'>
                     <span className='size-2 rounded-full bg-stone-400 shadow-[0_0_8px_rgba(156,163,175,0.5)]'></span>
                     <h3 className='text-base font-semibold text-stone-400'>
@@ -393,7 +393,7 @@ export default function MemberDetailContent({
                   <motion.div
                     layout
                     variants={itemVariants}
-                    className='rounded-2xl border border-stone-200/60 bg-surface/80 p-4 backdrop-blur-sm transition-all hover:border-amber-200/60 sm:col-span-2 md:col-span-3'>
+                    className='rounded-2xl border border-stone-200/60 bg-surface p-4 transition-all hover:border-amber-200/60 sm:col-span-2 md:col-span-3'>
                     <div className='mb-3 flex items-center gap-2'>
                       <span className='size-2 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.5)]'></span>
                       <h3 className='text-base font-semibold text-stone-400'>
@@ -525,7 +525,7 @@ export default function MemberDetailContent({
                 <Info className='size-5 text-amber-600' />
                 {t('notes')}
               </h2>
-              <div className='relative overflow-hidden rounded-2xl border border-stone-200/60 bg-surface/80 p-5 backdrop-blur-sm sm:p-6'>
+              <div className='relative overflow-hidden rounded-2xl border border-stone-200/60 bg-surface p-5 sm:p-6'>
                 {note ? (
                   <div className='flex flex-col'>
                     <motion.div
@@ -577,7 +577,7 @@ export default function MemberDetailContent({
                 <Users className='size-5 text-amber-600' />
                 {t('family')}
               </h2>
-              <div className='relative z-0 rounded-2xl border border-stone-200/60 bg-surface/80 p-4 backdrop-blur-sm sm:p-6'>
+              <div className='relative z-0 rounded-2xl border border-stone-200/60 bg-surface p-4 sm:p-6'>
                 <RelationshipManager
                   person={person}
                   isAdmin={isAdmin}

@@ -340,7 +340,7 @@ export default function DataImportExport() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className='absolute inset-0 cursor-pointer bg-stone-900/40 backdrop-blur-sm'
+              className='absolute inset-0 cursor-pointer bg-stone-900/40'
               onClick={() => setShowConfirm(false)}
             />
             <motion.div

@@ -98,7 +98,7 @@ export default function BaseToolbar({
           className={`flex h-10 items-center gap-2 rounded-full border px-4 text-sm font-medium transition-all duration-300 ${
             showFilters
               ? 'border-amber-200 bg-amber-100/90 text-amber-800'
-              : 'border-stone-200/60 bg-surface/80 text-stone-600 backdrop-blur-md hover:bg-surface hover:text-stone-900'
+              : 'border-stone-200/60 bg-surface text-stone-600 hover:bg-surface hover:text-stone-900'
           }`}>
           <Filter className='size-4' />
           <span className='hidden sm:inline'>{t('show')}</span>
@@ -111,7 +111,7 @@ export default function BaseToolbar({
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
               transition={{ duration: 0.15, ease: 'easeOut' }}
-              className='absolute top-full right-0 z-50 mt-2 flex w-48 flex-col gap-3 rounded-3xl border border-border bg-surface/95 p-4 backdrop-blur-xl'>
+              className='absolute top-full right-0 z-50 mt-2 flex w-48 flex-col gap-3 rounded-3xl border border-border bg-surface p-4'>
               <div className='mb-1 text-sm font-medium text-stone-400'>
                 {t('display')}
               </div>

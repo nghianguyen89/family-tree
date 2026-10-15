@@ -35,7 +35,7 @@ function FamilyNodeCard({
   const content = (
     <div
       onClick={onClickCard}
-      className={`group relative flex h-full flex-col items-center justify-start rounded-3xl px-1 py-2 transition-[translate,box-shadow] duration-300 hover:-translate-y-1 ${isDeceased ? 'opacity-80 grayscale-[0.4]' : ''} ${showAvatar ? 'w-20 bg-surface hover:shadow-soft-hover sm:w-24 md:w-28' : 'px-3'} `}>
+      className={`group relative flex h-full flex-col items-center justify-start rounded-3xl px-1 py-2 transition-shadow duration-300 ${showAvatar ? 'w-20 bg-surface hover:shadow-soft-hover sm:w-24 md:w-28' : 'px-3'} `}>
       {isRingVisible && (
         <div
           className={`absolute top-[15%] -left-2.5 z-100 flex size-5 items-center justify-center rounded-full text-sm font-medium text-stone-500 sm:-left-3.5 sm:size-6 sm:text-sm ${showAvatar ? 'bg-surface shadow-sm' : ''} `}>
@@ -73,7 +73,7 @@ function FamilyNodeCard({
       {/* 2. Gender Icon + Name */}
       <div className='relative z-10 flex w-full flex-col items-center justify-center gap-1 px-0.5 sm:px-1'>
         <div
-          className={`cursor-pointer text-center text-sm leading-tight font-medium transition-colors sm:text-sm md:text-sm ${onClickName ? 'text-stone-800 group-hover:text-amber-700 hover:underline' : 'text-stone-800 group-hover:text-amber-800'} `}
+          className={`cursor-pointer text-center text-sm leading-tight font-medium transition-colors sm:text-sm md:text-sm ${isDeceased ? 'text-secondary group-hover:text-amber-700' : onClickName ? 'text-stone-800 group-hover:text-amber-700 hover:underline' : 'text-stone-800 group-hover:text-amber-800'} `}
           title={person.full_name}
           onClick={(e) => {
             if (onClickName) {

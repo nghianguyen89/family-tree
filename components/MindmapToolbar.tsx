@@ -19,7 +19,7 @@ export default function MindmapToolbar({
   return (
     <BaseToolbar {...baseProps}>
       {/* Expand/Collapse Controls */}
-      <div className='flex h-10 items-center overflow-hidden rounded-full border border-stone-200/60 bg-surface/80 backdrop-blur-md transition-opacity'>
+      <div className='flex h-10 items-center overflow-hidden rounded-full border border-stone-200/60 bg-surface transition-opacity'>
         <button
           onClick={() => setExpandSignal({ type: 'collapse', ts: Date.now() })}
           className='flex h-full items-center gap-1.5 px-3 font-medium text-stone-600 transition-colors hover:bg-stone-100/50 md:px-4'

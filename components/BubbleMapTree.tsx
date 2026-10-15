@@ -548,7 +548,7 @@ export default function BubbleMapTree({
         id='tree-toolbar-portal'
         className='absolute top-4 left-4 z-50'></div>
 
-      <div className='absolute top-4 right-4 z-50 flex items-center gap-1 rounded-xl border border-stone-200/70 bg-surface/85 p-1.5 backdrop-blur-md'>
+      <div className='absolute top-4 right-4 z-50 flex items-center gap-1 rounded-xl border border-stone-200/70 bg-surface p-1.5'>
         <button
           type='button'
           onClick={() => changeZoom(Math.max(0.1, zoomLevel - 0.1))}

@@ -18,7 +18,7 @@ export default function PublicHeader({
 }) {
   const t = contentText(locale)
   return (
-    <header className='sticky top-0 z-30 border-b border-border bg-surface/80 backdrop-blur-xl'>
+    <header className='sticky top-0 z-30 border-b border-border bg-surface'>
       <div className='mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8'>
         <Link href='/' className='flex min-w-0 flex-1 items-center gap-3'>
           <BookOpen

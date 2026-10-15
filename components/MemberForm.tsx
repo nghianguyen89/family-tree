@@ -18,6 +18,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
 import { updateDescendantGenerationsAction } from '@/app/actions/member'
+import AvatarCropDialog from '@/components/AvatarCropDialog'
 import MemorialFields from '@/components/MemorialFields'
 import YearRangeFields from '@/components/YearRangeFields'
 import { useI18n } from '@/lib/i18n/I18nProvider'
@@ -25,7 +26,6 @@ import { intakeMessages } from '@/lib/i18n/intake'
 import { Gender, Person } from '@/types'
 import { MemorialDate } from '@/types/intake'
 import { getAvatarStoragePath, getAvatarUrl } from '@/utils/avatar'
-import { resizeAvatar } from '@/utils/image'
 import { emptyMemorial, isValidMemorial } from '@/utils/memorial'
 import { createClient } from '@/utils/supabase/client'
 import { isValidYearRange } from '@/utils/yearRanges'
@@ -146,7 +146,8 @@ export default function MemberForm({
   // Existing photo is only deleted from storage once the form is saved,
   // so cancelling after "Remove photo" doesn't leave a broken avatar.
   const [removeExistingAvatar, setRemoveExistingAvatar] = useState(false)
-  const [processingAvatar, setProcessingAvatar] = useState(false)
+  const [cropFile, setCropFile] = useState<File | null>(null)
+  const [avatarSourceFile, setAvatarSourceFile] = useState<File | null>(null)
   const errorRef = useRef<HTMLDivElement>(null)
 
   // Bring validation/save errors into view on long forms
@@ -252,6 +253,7 @@ export default function MemberForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (cropFile || loading) return
     setLoading(true)
     setError(null)
 
@@ -576,6 +578,19 @@ export default function MemberForm({
 
   return (
     <form onSubmit={handleSubmit} className='space-y-6 sm:space-y-8'>
+      {cropFile && (
+        <AvatarCropDialog
+          file={cropFile}
+          onCancel={() => setCropFile(null)}
+          onConfirm={(cropped) => {
+            if (initialData?.avatar_url) setRemoveExistingAvatar(true)
+            setAvatarSourceFile(cropFile)
+            setAvatarFile(cropped)
+            setAvatarPreview(URL.createObjectURL(cropped))
+            setCropFile(null)
+          }}
+        />
+      )}
       <motion.div
         variants={formSectionVariants}
         initial='hidden'
@@ -784,9 +799,10 @@ export default function MemberForm({
                   <div className='relative'>
                     <input
                       type='file'
-                      accept='image/*'
-                      disabled={processingAvatar}
-                      onChange={async (e) => {
+                      accept='image/jpeg,image/png,image/gif,image/webp'
+                      aria-label={t('chooseNewPhoto')}
+                      disabled={loading || !!cropFile}
+                      onChange={(e) => {
                         const file = e.target.files?.[0]
                         e.target.value = ''
                         if (file) {
@@ -806,18 +822,7 @@ export default function MemberForm({
                             return
                           }
                           setError(null)
-                          setProcessingAvatar(true)
-                          const resized = await resizeAvatar(file)
-                          setProcessingAvatar(false)
-                          if (resized.size > 2 * 1024 * 1024) {
-                            setError(t('imageTooLarge'))
-                            return
-                          }
-                          if (initialData?.avatar_url) {
-                            setRemoveExistingAvatar(true)
-                          }
-                          setAvatarFile(resized)
-                          setAvatarPreview(URL.createObjectURL(resized))
+                          setCropFile(file)
                         }
                       }}
                       className='absolute inset-0 h-full w-full opacity-0'
@@ -825,14 +830,19 @@ export default function MemberForm({
                     <button
                       type='button'
                       className='flex items-center gap-2 rounded-lg border border-amber-200/50 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-700 transition-colors hover:border-amber-300 hover:bg-amber-100'>
-                      {processingAvatar ? (
-                        <Loader2 className='size-4 animate-spin' />
-                      ) : (
-                        <ImageIcon className='size-4' />
-                      )}
+                      <ImageIcon className='size-4' />
                       {t('chooseNewPhoto')}
                     </button>
                   </div>
+                  {avatarSourceFile && (
+                    <button
+                      type='button'
+                      disabled={loading}
+                      className='btn'
+                      onClick={() => setCropFile(avatarSourceFile)}>
+                      {t('cropAvatarEdit')}
+                    </button>
+                  )}
                   {avatarPreview && (
                     <button
                       type='button'
@@ -842,6 +852,7 @@ export default function MemberForm({
                         }
                         setAvatarUrl('')
                         setAvatarFile(null)
+                        setAvatarSourceFile(null)
                         setAvatarPreview(null)
                       }}
                       className='flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-medium text-rose-600 transition-colors hover:bg-rose-100 hover:text-rose-700'>
@@ -1197,7 +1208,7 @@ export default function MemberForm({
         </button>
         <button
           type='submit'
-          disabled={loading || processingAvatar}
+          disabled={loading || !!cropFile}
           className='btn-primary disabled:pointer-events-none disabled:opacity-60'>
           {loading && <Loader2 className='size-4 animate-spin' />}
           {loading

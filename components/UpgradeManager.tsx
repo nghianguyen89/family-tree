@@ -84,7 +84,7 @@ export default function UpgradeManager({
 
   return (
     <div className='space-y-5'>
-      <section className='rounded-2xl border border-stone-200/60 bg-surface/70 p-5 backdrop-blur-xl sm:p-6'>
+      <section className='rounded-2xl border border-stone-200/60 bg-surface p-5 sm:p-6'>
         <div className='flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between'>
           <div className='flex items-start gap-3'>
             <div className='rounded-xl bg-amber-50 p-2.5 text-amber-700'>
@@ -219,7 +219,7 @@ export default function UpgradeManager({
           </div>
         </section>
       ) : hasPendingMigrations ? (
-        <section className='rounded-2xl border border-stone-200/60 bg-surface/70 p-5 backdrop-blur-xl sm:p-6'>
+        <section className='rounded-2xl border border-stone-200/60 bg-surface p-5 sm:p-6'>
           <div className='flex items-start gap-3'>
             <div className='rounded-xl bg-amber-50 p-2.5 text-amber-700'>
               <ArrowUpCircle className='size-5' />

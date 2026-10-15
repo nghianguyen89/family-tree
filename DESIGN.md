@@ -98,7 +98,7 @@ components:
     rounded: '{rounded.sm}'
     padding: 4px 8px
   card-feature:
-    backgroundColor: 'rgba(255, 255, 255, 0.7)'
+    backgroundColor: '{colors.surface}'
     rounded: '{rounded.3xl}'
     padding: 32px
 ---
@@ -172,7 +172,7 @@ The family tree uses standardized spacing for nodes and relationship lines. Larg
 
 ## Elevation and shapes
 
-Use tonal layers such as `bg-white/70` and `backdrop-blur-xl` before adding elevation. A surface may use the existing soft shadow tokens or an existing border, but never both at once. Focus rings are allowed; when a ring surrounds a bordered or nested surface, use concentric radii and keep the separation at or below 8px only when the radii mathematically match.
+Use the existing `bg-surface` and `bg-neutral` tokens for navigation, cards, menus and dialogs. Avoid backdrop filters on these surfaces and avoid grayscale or opacity filters over an entire member card. Nested filters and moving filtered text layers can produce rendering artifacts on some browser/GPU combinations. Keep deceased-member indicators in badges and existing secondary text colors. Use color changes for hover on dense member lists instead of moving the whole text card. A surface may use the existing soft shadow tokens or an existing border, but never both at once. Focus rings are allowed; when a ring surrounds a bordered or nested surface, use concentric radii and keep the separation at or below 8px only when the radii mathematically match.
 
 Use the existing rounded tokens. Main content cards use the established organic curves, controls use the established button and input radii, and circular shapes are reserved for avatars, indicators, and compact icon controls.
 
@@ -181,7 +181,7 @@ Use the existing rounded tokens. Main content cards use the established organic 
 - **Primary button:** Deep stone background, white 14px text, semibold or medium weight as appropriate, and the existing rounded-xl shape.
 - **Action button:** Amber background, primary 14px text, and the existing rounded-full shape.
 - **Outline button:** Transparent surface with a border and secondary 14px text. It has no shadow.
-- **Family node card:** Semi-transparent white surface with the existing rounded shape and a clear, non-conflicting border or shadow treatment. Avatars are circular.
+- **Family node card:** Theme surface with the existing rounded shape and a clear, non-conflicting border or shadow treatment. Avatars are circular.
 - **Dialogs and modals:** Full-screen masks on mobile and centered rounded drawers on desktop. Use either a border or a shadow for the dialog surface, with clean dividers and consistent internal padding.
 
 ## Do's and don'ts

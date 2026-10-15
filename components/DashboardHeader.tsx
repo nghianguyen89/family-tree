@@ -8,12 +8,10 @@ import ThemeToggle from '@/components/ThemeToggle'
 
 export default function DashboardHeader() {
   return (
-    <header className='sticky top-0 z-30 border-b border-border bg-surface/80 backdrop-blur-xl transition-all duration-200'>
+    <header className='sticky top-0 z-30 border-b border-border bg-surface'>
       <div className='mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8'>
         <div className='flex min-w-0 items-center gap-4'>
-          <Link
-            href='/'
-            className='group flex items-center gap-2 sm:gap-3'>
+          <Link href='/' className='group flex items-center gap-2 sm:gap-3'>
             <div className='relative size-10 shrink-0 overflow-hidden rounded-xl transition-all'>
               <Image
                 src='/icon.png'

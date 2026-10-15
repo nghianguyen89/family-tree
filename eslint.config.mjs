@@ -13,6 +13,8 @@ const eslintConfig = defineConfig([
     '.next/**',
     'out/**',
     'build/**',
+    // Local screenshots and generated browser fixtures are not source code.
+    '_screenshot_/**',
     'next-env.d.ts'
   ])
 ])

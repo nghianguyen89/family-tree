@@ -171,7 +171,7 @@ export default function UploadModal({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
-          className='fixed inset-0 z-100 flex items-center justify-center bg-stone-900/40 p-4 backdrop-blur-sm sm:p-6'>
+          className='fixed inset-0 z-100 flex items-center justify-center bg-stone-900/40 p-4 sm:p-6'>
           {/* Click-away backdrop */}
           <div
             className='absolute inset-0 cursor-pointer'
@@ -184,7 +184,7 @@ export default function UploadModal({
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.96, opacity: 0, y: 15 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
-            className='relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-stone-200 bg-surface/95 backdrop-blur-2xl'>
+            className='relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-stone-200 bg-surface'>
             {/* Sticky Header Actions */}
             <div className='absolute top-4 right-4 z-20 flex items-center gap-2 sm:top-5 sm:right-5'>
               <button
@@ -228,7 +228,7 @@ export default function UploadModal({
                           setFile(null)
                           setPreview(null)
                         }}
-                        className='absolute top-2 right-2 rounded-full bg-surface/90 p-1.5 text-stone-700 shadow-md backdrop-blur-sm hover:text-rose-600'>
+                        className='absolute top-2 right-2 rounded-full bg-surface p-1.5 text-stone-700 shadow-md hover:text-rose-600'>
                         <X className='size-4' />
                       </button>
                     </div>

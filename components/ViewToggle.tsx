@@ -1,6 +1,5 @@
 'use client'
 
-import { motion } from 'framer-motion'
 import { Circle, List, ListTree, Network } from 'lucide-react'
 
 import { useMemberListView } from '@/context/MemberListContext'
@@ -36,7 +35,7 @@ export default function ViewToggle() {
   ] as const
 
   return (
-    <div className='relative z-10 mx-auto mt-4 mb-2 flex w-fit rounded-full border border-stone-200/60 bg-stone-200/50 p-1.5 backdrop-blur-sm'>
+    <div className='relative z-10 mx-auto mt-4 mb-2 flex w-fit rounded-full border border-stone-200/60 bg-stone-100 p-1.5'>
       {tabs.map((tab) => {
         const isActive = currentView === tab.id
         return (
@@ -45,16 +44,9 @@ export default function ViewToggle() {
             onClick={() => setView(tab.id as ViewMode)}
             className={`relative z-10 flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium transition-colors duration-300 ease-in-out sm:px-6 sm:py-2.5 ${
               isActive
-                ? 'text-stone-900'
+                ? 'bg-surface text-stone-900'
                 : 'text-stone-500 hover:text-stone-800'
             }`}>
-            {isActive && (
-              <motion.div
-                layoutId='activeTab'
-                className='absolute inset-0 z-[-1] rounded-full border border-stone-200/60 bg-surface'
-                transition={{ type: 'spring', stiffness: 450, damping: 30 }}
-              />
-            )}
             <span
               className={`transition-colors duration-300 ${isActive ? 'text-amber-700' : 'text-stone-400'}`}>
               {tab.icon}

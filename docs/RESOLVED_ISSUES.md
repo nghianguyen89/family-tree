@@ -16,6 +16,13 @@ Ngày ghi nhận: 2026-10-15. Phần này lưu lại nguyên nhân và cách x�
 - **Xử lý:** đổi tên thành “Lưu mô tả ảnh” và “Lưu thông tin và ảnh bìa”; thêm nút “Lưu ảnh bìa trang chủ” ngay cạnh ảnh được chọn, liên kết tới đúng form thiết lập. Hiện trạng thái ảnh đã chọn/chưa lưu hoặc đang dùng; phản hồi upload chỉ nói ảnh đã vào thư viện. Phản hồi lưu thiết lập/lỗi cũng hiển thị cạnh ảnh.
 - **Xác minh:** bổ sung kiểm thử render cho nhãn nút khác nhau và liên kết nút cạnh ảnh với form thiết lập thay vì form metadata. Không sửa dữ liệu Supabase; người dùng cần lưu lại lựa chọn bằng nút mới.
 
+## Nhòe, mất từng mảng chữ và chớp giao diện
+
+- **Báo cáo:** ảnh local `_screenshot_/bug01.png` cho thấy một phần header và thẻ thành viên bị mất nét/mất mảng; người dùng gặp trên Edge và Firefox, cả local và Vercel. Không sao chép ảnh hoặc dữ liệu gia đình trong ảnh vào tài liệu.
+- **Nhận định:** các vùng này có backdrop blur hoặc filter grayscale/opacity trên thẻ chữ, kết hợp chuyển động/bo góc. Đây là hướng nghi ngờ lỗi compositing của trình duyệt/GPU; chưa xác nhận được nguyên nhân GPU/driver cụ thể từ ảnh chụp.
+- **Thay đổi mã:** chuyển header, panel, menu và dialog sang surface theme sẵn có, bỏ các backdrop-filter lồng nhau; bỏ grayscale/opacity trên toàn thẻ danh sách/cây/mindmap, giữ nhãn người đã mất và màu chữ phụ. Bỏ chuyển động cả thẻ ở danh sách dày và thay chỉ báo tab dùng shared layout bằng nền tab thường. Không thêm mẹo ép GPU/will-change lên mọi phần tử.
+- **Kiểm chứng:** build, TypeScript, ESLint và 56 bài kiểm thử qua. Script `scripts/create-rendering-fixture.mjs` chạy bằng Bun tạo trang gồm 72 thành viên giả, không kết nối Supabase; `node scripts/check-home-browser.mjs --rendering-fixture` kiểm tra bản production local ở tỷ lệ 125% và không tắt GPU bằng flag. Đã qua: không có filter trên vùng thử nghiệm, pixel nội dung trước/sau 24 lượt cuộn/hover/đổi theme và 10 giây chờ trùng nhau (không so scrollbar native tự ẩn), không lỗi JavaScript. Ảnh kiểm chứng nằm trong `_screenshot_/rendering/`, được Git ignore. Cần người dùng xác nhận sau khi dùng một thời gian trên trình duyệt thật; headless không chứng minh mọi GPU/driver đều hết lỗi. Không thay đổi dữ liệu hay migration Supabase, chưa deploy Vercel.
+
 ## Local chưa được cấu hình
 
 - **Hiện tượng:** repository chưa có `.env.local`; chưa có project Supabase ở đầu phiên hỗ trợ.

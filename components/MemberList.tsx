@@ -304,7 +304,7 @@ export default function MemberList({
   return (
     <>
       <div className='relative mb-8'>
-        <div className='relative z-10 flex w-full flex-col items-start justify-between gap-4 rounded-2xl border border-stone-200/60 bg-surface/60 p-4 backdrop-blur-xl transition-all duration-300 sm:flex-row sm:items-center sm:p-5'>
+        <div className='relative z-10 flex w-full flex-col items-start justify-between gap-4 rounded-2xl border border-stone-200/60 bg-surface p-4 transition-all duration-300 sm:flex-row sm:items-center sm:p-5'>
           <div className='flex w-full flex-1 flex-col gap-4 sm:w-auto sm:flex-row'>
             <div className='group relative max-w-sm flex-1'>
               <Search className='absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-stone-400 transition-colors group-focus-within:text-amber-500' />

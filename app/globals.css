@@ -86,7 +86,7 @@ select {
 }
 
 .card-feature {
-  @apply rounded-3xl bg-surface/70 p-[32px] shadow-soft backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-soft-hover;
+  @apply rounded-3xl bg-surface p-[32px] shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-soft-hover;
 }
 
 .title {

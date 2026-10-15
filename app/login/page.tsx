@@ -21,7 +21,9 @@ export default function LoginPage() {
   const isDemo =
     typeof window !== 'undefined' &&
     window.location.hostname === config.demoDomain
-  const [email, setEmail] = useState(isDemo ? 'nguyentrongnghia1989@gmail.com' : '')
+  const [email, setEmail] = useState(
+    isDemo ? 'nguyentrongnghia1989@gmail.com' : ''
+  )
   const [password, setPassword] = useState(isDemo ? 'giaphaos' : '')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -177,7 +179,7 @@ export default function LoginPage() {
 
       <div className='relative z-10 flex w-full flex-1 items-center justify-center px-4 py-12'>
         <motion.div
-          className='relative w-full max-w-md overflow-hidden rounded-3xl border border-surface/80 bg-surface/70 p-8 backdrop-blur-xl sm:p-10'
+          className='relative w-full max-w-md overflow-hidden rounded-3xl border border-surface/80 bg-surface p-8 sm:p-10'
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}>
