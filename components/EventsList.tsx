@@ -152,10 +152,10 @@ function EventCard({
           : isPast
             ? 'border-stone-200/50 bg-stone-50/60'
             : isBirthday
-              ? 'border-stone-200/60 bg-white/80 hover:border-blue-200'
+              ? 'border-stone-200/60 bg-surface/80 hover:border-blue-200'
               : isCustom
-                ? 'border-stone-200/60 bg-white/80 hover:border-purple-200'
-                : 'border-stone-200/60 bg-white/80 hover:border-rose-200'
+                ? 'border-stone-200/60 bg-surface/80 hover:border-purple-200'
+                : 'border-stone-200/60 bg-surface/80 hover:border-rose-200'
       }`}>
       {/* Icon */}
       <div
@@ -213,7 +213,7 @@ function EventCard({
             {isToday && (
               <span className='relative flex size-1.5'>
                 <span className='absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-200 opacity-75' />
-                <span className='relative inline-flex size-1.5 rounded-full bg-white' />
+                <span className='relative inline-flex size-1.5 rounded-full bg-surface' />
               </span>
             )}
             {!isToday && <Clock className='size-2.5' />}
@@ -354,7 +354,7 @@ export default function EventsList({
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
-        className='relative mb-8 flex flex-col justify-between gap-6 overflow-hidden rounded-3xl border border-stone-200/60 bg-white p-6 transition-all duration-300 hover:border-stone-400 sm:flex-row sm:items-center sm:p-8'>
+        className='relative mb-8 flex flex-col justify-between gap-6 overflow-hidden rounded-3xl border border-stone-200/60 bg-surface p-6 transition-all duration-300 hover:border-stone-400 sm:flex-row sm:items-center sm:p-8'>
         {/* Subtle background flair */}
         <div className='pointer-events-none absolute top-0 right-0 h-64 w-64 translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-50/50 opacity-50 blur-3xl'></div>
 
@@ -430,9 +430,9 @@ export default function EventsList({
               className={`rounded-xl px-4 py-2 text-sm font-medium transition-all ${
                 filter === tab.key
                   ? filter === 'past'
-                    ? 'bg-stone-600 text-white'
+                    ? 'bg-stone-600 text-surface'
                     : 'bg-amber-500 text-white'
-                  : 'border border-stone-200/60 bg-white/80 text-stone-600 hover:border-amber-200 hover:text-amber-700'
+                  : 'border border-stone-200/60 bg-surface/80 text-stone-600 hover:border-amber-200 hover:text-amber-700'
               }`}>
               {tab.label}
             </button>

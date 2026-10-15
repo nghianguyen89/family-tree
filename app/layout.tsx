@@ -3,6 +3,7 @@ import { Inter, Playfair_Display } from 'next/font/google'
 
 import { I18nProvider } from '@/lib/i18n/I18nProvider'
 import { getServerLocale } from '@/lib/i18n/server'
+import { themeInitScript } from '@/utils/theme'
 
 import config from './config'
 
@@ -29,7 +30,10 @@ export default async function RootLayout({
   const locale = await getServerLocale()
 
   return (
-    <html lang={locale}>
+    <html lang={locale} data-theme='light' suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body
         className={`${inter.variable} ${playfair.variable} relative font-sans antialiased`}>
         <I18nProvider initialLocale={locale}>{children}</I18nProvider>

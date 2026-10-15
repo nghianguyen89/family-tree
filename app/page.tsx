@@ -1,6 +1,7 @@
 import Footer from '@/components/Footer'
 import LandingHero from '@/components/LandingHero'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
+import ThemeToggle from '@/components/ThemeToggle'
 
 import config from './config'
 
@@ -9,14 +10,15 @@ export default function HomePage() {
     <div className='relative flex min-h-screen flex-col overflow-hidden bg-neutral selection:bg-amber-200 selection:text-amber-900'>
       {/* Decorative background grid and blurs */}
       <div className='pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-size-[24px_24px]'></div>
-      <div className='pointer-events-none absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_-30%,#fef3c7,transparent)]'></div>
+      <div className='pointer-events-none absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_-30%,var(--color-amber-100),transparent)]'></div>
 
       <div className='pointer-events-none absolute inset-x-0 top-0 flex h-screen justify-center overflow-hidden'>
         <div className='absolute top-[-10%] right-[-5%] h-[50vw] max-h-[600px] w-[50vw] max-w-[600px] rounded-full bg-amber-300/20 mix-blend-multiply blur-[100px]' />
         <div className='absolute top-[20%] left-[-10%] h-[60vw] max-h-[800px] w-[60vw] max-w-[800px] rounded-full bg-rose-200/20 mix-blend-multiply blur-[120px]' />
       </div>
 
-      <div className='absolute top-6 right-6 z-20'>
+      <div className='absolute top-6 right-6 z-20 flex items-center gap-2'>
+        <ThemeToggle />
         <LanguageSwitcher />
       </div>
 

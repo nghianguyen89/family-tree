@@ -11,7 +11,7 @@ export default function LoadingComponent() {
       <div className='flex flex-col items-center justify-center space-y-4'>
         <div className='relative'>
           <div className='absolute inset-0 animate-pulse rounded-full bg-amber-200/50 blur-xl'></div>
-          <div className='relative rounded-2xl border border-stone-100 bg-white p-4'>
+          <div className='relative rounded-2xl border border-stone-100 bg-surface p-4'>
             <Loader2 className='size-8 animate-spin text-amber-600' />
           </div>
         </div>

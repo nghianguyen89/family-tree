@@ -121,7 +121,7 @@ export default function MemberDetailContent({
           variants={itemVariants}
           className='absolute -bottom-12 left-6 z-10 sm:-bottom-16 sm:left-8'>
           <div
-            className={`flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full border-4 border-white text-sm font-medium text-white sm:h-32 sm:w-32 sm:border-[6px] sm:text-sm ${
+            className={`flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full border-4 border-surface text-sm font-medium text-white sm:h-32 sm:w-32 sm:border-[6px] sm:text-sm ${
               person.gender === 'male'
                 ? 'bg-linear-to-br from-sky-400 to-sky-700'
                 : person.gender === 'female'
@@ -143,7 +143,7 @@ export default function MemberDetailContent({
           </div>
           {/* Gender Indicator Icon */}
           <div
-            className={`absolute right-1 bottom-1 flex size-6 items-center justify-center rounded-full shadow-md ring-2 ring-white sm:right-2 sm:bottom-2 sm:size-8 sm:ring-4 ${
+            className={`absolute right-1 bottom-1 flex size-6 items-center justify-center rounded-full shadow-md ring-2 ring-surface sm:right-2 sm:bottom-2 sm:size-8 sm:ring-4 ${
               person.gender === 'male'
                 ? 'bg-sky-100 text-sky-600'
                 : person.gender === 'female'
@@ -213,7 +213,7 @@ export default function MemberDetailContent({
               {/* Birth Card */}
               <motion.div
                 variants={itemVariants}
-                className='rounded-2xl border border-stone-200/60 bg-white/80 p-4 backdrop-blur-sm transition-all hover:border-amber-200/60'>
+                className='rounded-2xl border border-stone-200/60 bg-surface/80 p-4 backdrop-blur-sm transition-all hover:border-amber-200/60'>
                 <div className='mb-2 flex items-center justify-between'>
                   <div className='flex items-center gap-2'>
                     <span className='size-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]'></span>
@@ -277,7 +277,7 @@ export default function MemberDetailContent({
               {isDeceased && (
                 <motion.div
                   variants={itemVariants}
-                  className='rounded-2xl border border-stone-200/60 bg-white/80 p-4 backdrop-blur-sm transition-all hover:border-amber-200/60'>
+                  className='rounded-2xl border border-stone-200/60 bg-surface/80 p-4 backdrop-blur-sm transition-all hover:border-amber-200/60'>
                   <div className='mb-2 flex items-center gap-2'>
                     <span className='size-2 rounded-full bg-stone-400 shadow-[0_0_8px_rgba(156,163,175,0.5)]'></span>
                     <h3 className='text-base font-semibold text-stone-400'>
@@ -393,7 +393,7 @@ export default function MemberDetailContent({
                   <motion.div
                     layout
                     variants={itemVariants}
-                    className='rounded-2xl border border-stone-200/60 bg-white/80 p-4 backdrop-blur-sm transition-all hover:border-amber-200/60 sm:col-span-2 md:col-span-3'>
+                    className='rounded-2xl border border-stone-200/60 bg-surface/80 p-4 backdrop-blur-sm transition-all hover:border-amber-200/60 sm:col-span-2 md:col-span-3'>
                     <div className='mb-3 flex items-center gap-2'>
                       <span className='size-2 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.5)]'></span>
                       <h3 className='text-base font-semibold text-stone-400'>
@@ -525,7 +525,7 @@ export default function MemberDetailContent({
                 <Info className='size-5 text-amber-600' />
                 {t('notes')}
               </h2>
-              <div className='relative overflow-hidden rounded-2xl border border-stone-200/60 bg-white/80 p-5 backdrop-blur-sm sm:p-6'>
+              <div className='relative overflow-hidden rounded-2xl border border-stone-200/60 bg-surface/80 p-5 backdrop-blur-sm sm:p-6'>
                 {note ? (
                   <div className='flex flex-col'>
                     <motion.div
@@ -545,7 +545,7 @@ export default function MemberDetailContent({
                       </p>
                       {/* Gradient fade overlay when collapsed */}
                       {!isNoteExpanded && isNoteLong && (
-                        <div className='pointer-events-none absolute right-0 bottom-0 left-0 h-16 bg-linear-to-t from-white/95 via-white/40 to-transparent' />
+                        <div className='pointer-events-none absolute right-0 bottom-0 left-0 h-16 bg-linear-to-t from-surface/95 via-surface/40 to-transparent' />
                       )}
                     </motion.div>
 
@@ -577,7 +577,7 @@ export default function MemberDetailContent({
                 <Users className='size-5 text-amber-600' />
                 {t('family')}
               </h2>
-              <div className='relative z-0 rounded-2xl border border-stone-200/60 bg-white/80 p-4 backdrop-blur-sm sm:p-6'>
+              <div className='relative z-0 rounded-2xl border border-stone-200/60 bg-surface/80 p-4 backdrop-blur-sm sm:p-6'>
                 <RelationshipManager
                   person={person}
                   isAdmin={isAdmin}
@@ -604,7 +604,7 @@ export default function MemberDetailContent({
                       <dt className='mb-1 flex items-center gap-1.5 text-sm font-medium text-stone-500'>
                         <Phone className='h-3.5 w-3.5' /> {t('phoneNumber')}
                       </dt>
-                      <dd className='rounded-lg border border-stone-200/60 bg-white px-3 py-2 font-medium text-stone-900'>
+                      <dd className='rounded-lg border border-stone-200/60 bg-surface px-3 py-2 font-medium text-stone-900'>
                         {(fullPerson.phone_number as string) || (
                           <span className='font-normal text-stone-400'>
                             {t('notUpdated')}
@@ -616,7 +616,7 @@ export default function MemberDetailContent({
                       <dt className='mb-1 flex items-center gap-1.5 text-sm font-medium text-stone-500'>
                         <Briefcase className='h-3.5 w-3.5' /> {t('occupation')}
                       </dt>
-                      <dd className='rounded-lg border border-stone-200/60 bg-white px-3 py-2 font-medium text-stone-900'>
+                      <dd className='rounded-lg border border-stone-200/60 bg-surface px-3 py-2 font-medium text-stone-900'>
                         {(fullPerson.occupation as string) || (
                           <span className='font-normal text-stone-400'>
                             {t('notUpdated')}
@@ -629,7 +629,7 @@ export default function MemberDetailContent({
                         <MapPin className='h-3.5 w-3.5' />{' '}
                         {t('currentResidence')}
                       </dt>
-                      <dd className='rounded-lg border border-stone-200/60 bg-white px-3 py-2 font-medium text-stone-900'>
+                      <dd className='rounded-lg border border-stone-200/60 bg-surface px-3 py-2 font-medium text-stone-900'>
                         {(fullPerson.current_residence as string) || (
                           <span className='font-normal text-stone-400'>
                             {t('notUpdated')}

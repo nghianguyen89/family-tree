@@ -6,13 +6,14 @@ import Link from 'next/link'
 
 import Footer from '@/components/Footer'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
+import ThemeToggle from '@/components/ThemeToggle'
 import { useI18n } from '@/lib/i18n/I18nProvider'
 
 export default function MissingDBConfigPage() {
   const { t } = useI18n()
 
   return (
-    <div className='relative flex min-h-screen flex-col overflow-hidden bg-[#fafaf9] select-none selection:bg-amber-200 selection:text-amber-900'>
+    <div className='relative flex min-h-screen flex-col overflow-hidden bg-neutral select-none selection:bg-amber-200 selection:text-amber-900'>
       {/* Decorative background grid and blurs */}
       <div className='pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-size-[24px_24px]'></div>
       <div className='pointer-events-none absolute inset-x-0 top-0 flex h-screen justify-center overflow-hidden'>
@@ -20,13 +21,14 @@ export default function MissingDBConfigPage() {
         <div className='absolute bottom-[0%] left-[-10%] h-[60vw] max-h-[800px] w-[60vw] max-w-[800px] rounded-full bg-amber-200/20 mix-blend-multiply blur-[120px]' />
       </div>
 
-      <div className='absolute top-6 right-6 z-20'>
+      <div className='absolute top-6 right-6 z-20 flex items-center gap-2'>
+        <ThemeToggle />
         <LanguageSwitcher />
       </div>
 
       <div className='relative z-10 flex w-full flex-1 items-center justify-center px-4 py-12'>
         <motion.div
-          className='relative w-full max-w-2xl overflow-hidden rounded-3xl border border-red-100 bg-white p-8 sm:p-10'
+          className='relative w-full max-w-2xl overflow-hidden rounded-3xl border border-red-100 bg-surface p-8 sm:p-10'
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.5 }}>
@@ -97,7 +99,7 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your_supabase_anon_key`}
 
       <Link
         href='/'
-        className='absolute top-6 left-6 z-20 flex items-center gap-2 rounded-full border border-stone-200 bg-white/60 px-5 py-2.5 text-sm font-medium text-stone-500 transition-all duration-300 hover:border-stone-300 hover:text-stone-900'>
+        className='absolute top-6 left-6 z-20 flex items-center gap-2 rounded-full border border-stone-200 bg-surface/60 px-5 py-2.5 text-sm font-medium text-stone-500 transition-all duration-300 hover:border-stone-300 hover:text-stone-900'>
         <ArrowLeft className='size-4' />
         {t('home')}
       </Link>

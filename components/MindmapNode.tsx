@@ -113,7 +113,7 @@ export const MindmapNode = memo(
               <button
                 onClick={() => setIsExpanded(!isExpanded)}
                 type='button'
-                className='flex size-5 items-center justify-center rounded border border-stone-200 bg-white text-stone-500 transition-colors hover:bg-amber-50 hover:text-amber-600'
+                className='flex size-5 items-center justify-center rounded border border-stone-200 bg-surface text-stone-500 transition-colors hover:bg-amber-50 hover:text-amber-600'
                 aria-label={isExpanded ? t('collapse') : t('expand')}
                 aria-expanded={isExpanded}>
                 {isExpanded ? (
@@ -123,7 +123,7 @@ export const MindmapNode = memo(
                 )}
               </button>
             ) : (
-              <div className='h-1.5 w-1.5 rounded-full bg-stone-300 ring-2 ring-white'></div>
+              <div className='h-1.5 w-1.5 rounded-full bg-stone-300 ring-2 ring-surface'></div>
             )}
           </div>
 
@@ -139,14 +139,14 @@ export const MindmapNode = memo(
                     ctx.setMemberModalId(data.person.id)
                   }
                 }}
-                className={`group/card relative flex cursor-pointer flex-wrap items-center gap-2 overflow-hidden rounded-2xl border border-stone-200/60 bg-white/60 p-2 transition-all duration-300 hover:border-amber-300 hover:bg-white/90 sm:p-2.5 ${data.person.is_deceased ? 'opacity-80 grayscale-[0.3]' : ''}`}
+                className={`group/card relative flex cursor-pointer flex-wrap items-center gap-2 overflow-hidden rounded-2xl border border-stone-200/60 bg-surface/60 p-2 transition-all duration-300 hover:border-amber-300 hover:bg-surface/90 sm:p-2.5 ${data.person.is_deceased ? 'opacity-80 grayscale-[0.3]' : ''}`}
                 onClick={() => ctx.setMemberModalId(data.person.id)}>
                 <div className='relative z-10 flex w-full items-center gap-2.5'>
                   <div className='flex min-w-0 flex-1 items-center gap-2.5'>
                     {ctx.showAvatar && (
                       <div className='relative shrink-0'>
                         <div
-                          className={`flex size-10 items-center justify-center overflow-hidden rounded-full text-sm font-medium text-white shadow-md ring-2 ring-white transition-transform duration-300 group-hover/card:scale-105 ${getAvatarBg(data.person.gender)}`}>
+                          className={`flex size-10 items-center justify-center overflow-hidden rounded-full text-sm font-medium text-white shadow-md ring-2 ring-surface transition-transform duration-300 group-hover/card:scale-105 ${getAvatarBg(data.person.gender)}`}>
                           {getAvatarUrl(data.person.avatar_url) ? (
                             <Image
                               unoptimized
@@ -226,7 +226,7 @@ export const MindmapNode = memo(
                               e.stopPropagation()
                               ctx.setMemberModalId(spouseData.person.id)
                             }}
-                            className={`group/spouse flex cursor-pointer flex-col items-center gap-1 rounded-xl border border-stone-200/60 bg-stone-50/50 p-1.5 transition-all hover:border-amber-300 hover:bg-white ${spouseData.person.is_deceased ? 'opacity-80 grayscale-[0.3]' : ''}`}
+                            className={`group/spouse flex cursor-pointer flex-col items-center gap-1 rounded-xl border border-stone-200/60 bg-stone-50/50 p-1.5 transition-all hover:border-amber-300 hover:bg-surface ${spouseData.person.is_deceased ? 'opacity-80 grayscale-[0.3]' : ''}`}
                             title={
                               spouseData.note ||
                               (spouseData.person.gender === 'male'
@@ -235,7 +235,7 @@ export const MindmapNode = memo(
                             }>
                             {ctx.showAvatar && (
                               <div
-                                className={`flex size-8 items-center justify-center overflow-hidden rounded-full text-sm font-medium text-white shadow-sm ring-2 ring-white transition-transform duration-300 group-hover/spouse:scale-105 ${getAvatarBg(spouseData.person.gender)}`}>
+                                className={`flex size-8 items-center justify-center overflow-hidden rounded-full text-sm font-medium text-white shadow-sm ring-2 ring-surface transition-transform duration-300 group-hover/spouse:scale-105 ${getAvatarBg(spouseData.person.gender)}`}>
                                 {getAvatarUrl(spouseData.person.avatar_url) ? (
                                   <Image
                                     unoptimized

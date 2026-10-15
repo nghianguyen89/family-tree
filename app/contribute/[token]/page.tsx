@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 
 import PublicIntakeForm from '@/components/intake/PublicIntakeForm'
+import ThemeToggle from '@/components/ThemeToggle'
 import { intakeMessages } from '@/lib/i18n/intake'
 import { getServerLocale } from '@/lib/i18n/server'
 import { IntakeOptions } from '@/types/intake'
@@ -38,6 +39,9 @@ export default async function ContributePage({
   return (
     <main className='min-h-screen bg-neutral px-4 py-8 font-sans text-primary sm:px-6'>
       <div className='mx-auto max-w-3xl space-y-6'>
+        <div className='flex justify-end'>
+          <ThemeToggle />
+        </div>
         <header className='space-y-2'>
           <h1 className='font-serif text-3xl font-semibold'>{text.title}</h1>
           <p className='text-sm text-secondary'>{text.description}</p>

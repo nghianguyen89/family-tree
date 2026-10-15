@@ -835,7 +835,7 @@ export default function RelationshipManager({
                 placeholder={t('relationshipNotePlaceholder')}
                 value={newRelNote}
                 onChange={(e) => setNewRelNote(e.target.value)}
-                className='mb-3 block w-full rounded-lg border border-stone-300 bg-white p-2 text-sm text-stone-900 placeholder-stone-400 transition-colors focus:border-amber-500 focus:ring-amber-500 sm:p-2.5'
+                className='mb-3 block w-full rounded-lg border border-stone-300 bg-surface p-2 text-sm text-stone-900 placeholder-stone-400 transition-colors focus:border-amber-500 focus:ring-amber-500 sm:p-2.5'
               />
             </div>
 
@@ -854,7 +854,7 @@ export default function RelationshipManager({
                     e.target.value as 'parent' | 'child' | 'spouse'
                   )
                 }
-                className='block w-full max-w-full rounded-lg border border-stone-300 bg-white p-2 text-sm text-stone-900 transition-colors focus:border-amber-500 focus:ring-amber-500 sm:p-2.5'>
+                className='block w-full max-w-full rounded-lg border border-stone-300 bg-surface p-2 text-sm text-stone-900 transition-colors focus:border-amber-500 focus:ring-amber-500 sm:p-2.5'>
                 <option value='parent'>{t('relationParentOption')}</option>
                 <option value='spouse'>{t('relationSpouseOption')}</option>
                 <option value='child'>{t('relationChildOption')}</option>
@@ -876,7 +876,7 @@ export default function RelationshipManager({
                   onChange={(e) =>
                     setNewRelType(e.target.value as RelationshipType)
                   }
-                  className='block w-full max-w-full rounded-lg border border-stone-300 bg-white p-2 text-sm text-stone-900 transition-colors focus:border-amber-500 focus:ring-amber-500 sm:p-2.5'>
+                  className='block w-full max-w-full rounded-lg border border-stone-300 bg-surface p-2 text-sm text-stone-900 transition-colors focus:border-amber-500 focus:ring-amber-500 sm:p-2.5'>
                   <option value='biological_child'>
                     {t('biologicalChild')}
                   </option>
@@ -898,14 +898,14 @@ export default function RelationshipManager({
                 placeholder={t('searchRelativePlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className='block w-full rounded-lg border border-stone-300 bg-white p-2 text-sm text-stone-900 placeholder-stone-400 transition-colors focus:border-amber-500 focus:ring-amber-500 sm:p-2.5'
+                className='block w-full rounded-lg border border-stone-300 bg-surface p-2 text-sm text-stone-900 placeholder-stone-400 transition-colors focus:border-amber-500 focus:ring-amber-500 sm:p-2.5'
               />
               {/* Search Results Dropdown */}
               {(searchResults.length > 0 ||
                 (searchTerm.length === 0 &&
                   !selectedTargetId &&
                   recentMembers.length > 0)) && (
-                <div className='mt-2 max-h-62.5 overflow-y-auto rounded-md border border-stone-200 bg-white'>
+                <div className='mt-2 max-h-62.5 overflow-y-auto rounded-md border border-stone-200 bg-surface'>
                   <div className='sticky top-0 z-10 border-b border-stone-200 bg-stone-100 px-3 py-1.5 text-sm font-medium text-stone-500'>
                     {searchResults.length > 0
                       ? t('searchResults')
@@ -976,7 +976,7 @@ export default function RelationshipManager({
                   setSearchTerm('')
                   setNewRelNote('')
                 }}
-                className='rounded-md border border-stone-300 bg-white px-4 py-2 text-sm text-stone-700 transition-colors hover:bg-stone-50 sm:rounded-lg sm:py-2.5'>
+                className='rounded-md border border-stone-300 bg-surface px-4 py-2 text-sm text-stone-700 transition-colors hover:bg-stone-50 sm:rounded-lg sm:py-2.5'>
                 {t('cancel')}
               </button>
             </div>
@@ -1003,7 +1003,7 @@ export default function RelationshipManager({
                 name='bulk-spouse'
                 value={selectedSpouseId}
                 onChange={(e) => setSelectedSpouseId(e.target.value)}
-                className='block w-full max-w-full rounded-lg border border-stone-300 bg-white p-2 text-sm text-stone-900 transition-colors focus:border-sky-500 focus:ring-sky-500 sm:p-2.5'>
+                className='block w-full max-w-full rounded-lg border border-stone-300 bg-surface p-2 text-sm text-stone-900 transition-colors focus:border-sky-500 focus:ring-sky-500 sm:p-2.5'>
                 <option value='unknown'>{t('unknownOtherParent')}</option>
                 {groupByType('spouse').map((rel) => (
                   <option key={rel.id} value={rel.targetPerson.id}>
@@ -1021,7 +1021,7 @@ export default function RelationshipManager({
               {bulkChildren.map((child, index) => (
                 <div
                   key={index}
-                  className='rounded-xl border border-stone-200/80 bg-white p-3 sm:p-4'>
+                  className='rounded-xl border border-stone-200/80 bg-surface p-3 sm:p-4'>
                   {/* Header: number + remove */}
                   <div className='mb-2.5 flex items-center justify-between'>
                     <span className='rounded-md bg-sky-50 px-2 py-0.5 text-sm font-medium text-sky-600'>
@@ -1151,7 +1151,7 @@ export default function RelationshipManager({
                   ])
                   setSelectedSpouseId('')
                 }}
-                className='rounded-md border border-stone-300 bg-white px-4 py-2 text-sm text-stone-700 transition-colors hover:bg-stone-50 sm:rounded-lg sm:py-2.5'>
+                className='rounded-md border border-stone-300 bg-surface px-4 py-2 text-sm text-stone-700 transition-colors hover:bg-stone-50 sm:rounded-lg sm:py-2.5'>
                 {t('cancel')}
               </button>
             </div>
@@ -1180,7 +1180,7 @@ export default function RelationshipManager({
                 placeholder={t('fullNamePlaceholder')}
                 value={newSpouseName}
                 onChange={(e) => setNewSpouseName(e.target.value)}
-                className='block w-full rounded-lg border border-stone-300 bg-white p-2 text-sm text-stone-900 placeholder-stone-400 transition-colors focus:border-rose-500 focus:ring-rose-500 sm:p-2.5'
+                className='block w-full rounded-lg border border-stone-300 bg-surface p-2 text-sm text-stone-900 placeholder-stone-400 transition-colors focus:border-rose-500 focus:ring-rose-500 sm:p-2.5'
               />
             </div>
 
@@ -1197,7 +1197,7 @@ export default function RelationshipManager({
                 placeholder={t('birthYearExample')}
                 value={newSpouseBirthYear}
                 onChange={(e) => setNewSpouseBirthYear(e.target.value)}
-                className='block w-full rounded-lg border border-stone-300 bg-white p-2 text-sm text-stone-900 placeholder-stone-400 transition-colors focus:border-rose-500 focus:ring-rose-500 sm:p-2.5'
+                className='block w-full rounded-lg border border-stone-300 bg-surface p-2 text-sm text-stone-900 placeholder-stone-400 transition-colors focus:border-rose-500 focus:ring-rose-500 sm:p-2.5'
               />
             </div>
 
@@ -1214,7 +1214,7 @@ export default function RelationshipManager({
                 placeholder={t('optional')}
                 value={newSpouseNote}
                 onChange={(e) => setNewSpouseNote(e.target.value)}
-                className='block w-full rounded-lg border border-stone-300 bg-white p-2 text-sm text-stone-900 placeholder-stone-400 transition-colors focus:border-rose-500 focus:ring-rose-500 sm:p-2.5'
+                className='block w-full rounded-lg border border-stone-300 bg-surface p-2 text-sm text-stone-900 placeholder-stone-400 transition-colors focus:border-rose-500 focus:ring-rose-500 sm:p-2.5'
               />
             </div>
 
@@ -1243,7 +1243,7 @@ export default function RelationshipManager({
                   setNewSpouseBirthYear('')
                   setNewSpouseNote('')
                 }}
-                className='rounded-md border border-stone-300 bg-white px-4 py-2 text-sm text-stone-700 transition-colors hover:bg-stone-50 sm:rounded-lg sm:py-2.5'>
+                className='rounded-md border border-stone-300 bg-surface px-4 py-2 text-sm text-stone-700 transition-colors hover:bg-stone-50 sm:rounded-lg sm:py-2.5'>
                 {t('cancel')}
               </button>
             </div>

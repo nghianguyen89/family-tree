@@ -1,9 +1,9 @@
 @import 'tailwindcss';
+@import './themes.css';
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* Accent adaptations share built-in utility names; the theme selector must
+   outrank their light declarations regardless of generated rule order. */
+@custom-variant dark (&:is([data-theme='dark'], [data-theme='dark'] *));
 
 @theme inline {
   --color-background: var(--background);
@@ -12,14 +12,6 @@
   /* Typography */
   --font-sans: var(--font-inter);
   --font-serif: var(--font-playfair);
-
-  --color-primary: #1c1917;
-  --color-secondary: #57534e;
-  --color-tertiary: #d97706;
-  --color-neutral: #fafaf9;
-  --color-surface: #ffffff;
-  --color-border: #e7e5e4;
-  --color-error: #dc2626;
 
   --radius-sm: 4px;
   --radius-md: 8px;
@@ -90,11 +82,11 @@ select {
 }
 
 .badge-error {
-  @apply inline-flex items-center rounded-sm bg-error px-2 py-1 text-sm font-medium text-surface;
+  @apply inline-flex items-center rounded-sm bg-error px-2 py-1 text-sm font-medium text-white;
 }
 
 .card-feature {
-  @apply rounded-3xl bg-white/70 p-[32px] shadow-soft backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-soft-hover;
+  @apply rounded-3xl bg-surface/70 p-[32px] shadow-soft backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-soft-hover;
 }
 
 .title {

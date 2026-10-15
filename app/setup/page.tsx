@@ -5,6 +5,7 @@ import { ArrowLeft, Database, Play } from 'lucide-react'
 import Link from 'next/link'
 
 import Footer from '@/components/Footer'
+import ThemeToggle from '@/components/ThemeToggle'
 import { getServerTranslations } from '@/lib/i18n/server'
 
 import CopyButton from './CopyButton'
@@ -44,7 +45,10 @@ export default async function SetupPage() {
   }
 
   return (
-    <div className='relative flex min-h-screen flex-col overflow-hidden bg-[#fafaf9] select-none selection:bg-amber-200 selection:text-amber-900'>
+    <div className='relative flex min-h-screen flex-col overflow-hidden bg-neutral select-none selection:bg-amber-200 selection:text-amber-900'>
+      <div className='absolute top-6 right-6 z-20'>
+        <ThemeToggle />
+      </div>
       <div className='pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-size-[24px_24px]'></div>
       <div className='pointer-events-none absolute inset-x-0 top-0 flex h-screen justify-center overflow-hidden'>
         <div className='absolute top-[-10%] right-[-5%] h-[50vw] max-h-[600px] w-[50vw] max-w-[600px] rounded-full bg-indigo-300/20 mix-blend-multiply blur-[100px]' />
@@ -52,7 +56,7 @@ export default async function SetupPage() {
       </div>
 
       <div className='relative z-10 mx-auto flex w-full max-w-5xl flex-1 flex-col items-center px-4 py-12'>
-        <div className='relative mb-8 w-full overflow-hidden rounded-3xl border border-stone-200 bg-white p-8 sm:p-10'>
+        <div className='relative mb-8 w-full overflow-hidden rounded-3xl border border-stone-200 bg-surface p-8 sm:p-10'>
           <div className='mb-6 flex items-center gap-4'>
             <div className='rounded-2xl bg-indigo-50 p-4 text-indigo-600'>
               <Database className='size-8' />
@@ -123,7 +127,7 @@ export default async function SetupPage() {
 
       <Link
         href='/login'
-        className='absolute top-6 left-6 z-20 flex items-center gap-2 rounded-full border border-stone-200 bg-white/60 px-5 py-2.5 text-sm font-medium text-stone-500 transition-all duration-300 hover:border-stone-300 hover:text-stone-900'>
+        className='absolute top-6 left-6 z-20 flex items-center gap-2 rounded-full border border-stone-200 bg-surface/60 px-5 py-2.5 text-sm font-medium text-stone-500 transition-all duration-300 hover:border-stone-300 hover:text-stone-900'>
         <ArrowLeft className='size-4' />
         {t('backToLogin')}
       </Link>

@@ -124,6 +124,35 @@ The visual language uses warm limestone backgrounds, crisp typography, restraine
 
 ## Colors
 
+### Light and dark themes
+
+Edit the existing color tokens in `app/themes.css`. The `@theme` block defines
+the light theme; `:root[data-theme='dark']` defines the dark theme using the
+existing stone palette. Keep component colors in this shared configuration.
+
+| Token     | Light     | Dark      |
+| --------- | --------- | --------- |
+| Primary   | `#1c1917` | `#fafaf9` |
+| Secondary | `#57534e` | `#d6d3d1` |
+| Tertiary  | `#d97706` | `#d97706` |
+| Neutral   | `#fafaf9` | `#1c1917` |
+| Surface   | `#ffffff` | `#292524` |
+| Border    | `#e7e5e4` | `#44403c` |
+| Error     | `#dc2626` | `#dc2626` |
+
+Use `bg-surface` for panels and `bg-neutral` for the canvas. Primary actions
+pair `bg-primary` with `text-surface`. Saturated actions and image overlays may
+keep literal white text; amber actions use dark stone text in both themes.
+SVG tree colors must use these CSS variables so they update without a redraw.
+Legacy stone utilities and muted accent layers are adapted centrally in the
+same stylesheet. The circular theme control uses the existing border, surface,
+spacing and radius tokens, with no shadow.
+
+The default follows the system until a user switches themes. Store the choice
+in `localStorage` under `giapha-theme` and apply it before the first paint.
+Keep both icon elements in the HTML and let CSS select the visible one to avoid
+hydration mismatches.
+
 - **Primary (#1C1917):** Deep charcoal for headlines, branding, and important actions.
 - **Secondary (#57534E):** Granite grey for metadata, inactive states, icons, and supporting structure.
 - **Tertiary (#D97706):** Golden amber for focus outlines, badges, and key interactive highlights.

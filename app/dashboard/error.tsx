@@ -21,7 +21,7 @@ export default function DashboardError({
 
   return (
     <main className='flex flex-1 flex-col items-center justify-center p-4'>
-      <div className='w-full max-w-md rounded-3xl border border-stone-200 bg-white p-8 text-center'>
+      <div className='w-full max-w-md rounded-3xl border border-stone-200 bg-surface p-8 text-center'>
         <div className='mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-red-50 text-red-500'>
           <AlertCircle className='size-7' />
         </div>

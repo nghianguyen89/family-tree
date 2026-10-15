@@ -9,6 +9,7 @@ import { useMemo, useState } from 'react'
 import config from '@/app/config'
 import Footer from '@/components/Footer'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
+import ThemeToggle from '@/components/ThemeToggle'
 import { useI18n } from '@/lib/i18n/I18nProvider'
 import { createClient } from '@/utils/supabase/client'
 
@@ -144,10 +145,10 @@ export default function LoginPage() {
   }
 
   return (
-    <div className='relative flex min-h-screen flex-col overflow-hidden bg-[#fafaf9] select-none selection:bg-amber-200 selection:text-amber-900'>
+    <div className='relative flex min-h-screen flex-col overflow-hidden bg-neutral select-none selection:bg-amber-200 selection:text-amber-900'>
       {/* Decorative background grid and blurs */}
       <div className='pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-size-[24px_24px]'></div>
-      <div className='pointer-events-none absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_-30%,#fef3c7,transparent)]'></div>
+      <div className='pointer-events-none absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_-30%,var(--color-amber-100),transparent)]'></div>
 
       <div className='pointer-events-none absolute inset-x-0 top-0 flex h-screen justify-center overflow-hidden'>
         <div className='absolute top-[-10%] right-[-5%] h-[50vw] max-h-[600px] w-[50vw] max-w-[600px] rounded-full bg-amber-300/20 mix-blend-multiply blur-[100px]' />
@@ -157,16 +158,17 @@ export default function LoginPage() {
       <header className='relative z-20 flex w-full items-center justify-between gap-3 px-4 pt-6 sm:px-6'>
         <Link
           href='/'
-          className='group flex shrink-0 items-center gap-2 rounded-full border border-stone-200 bg-white/60 px-4 py-2.5 text-sm font-medium text-stone-500 transition-all duration-300 hover:border-stone-300 hover:text-stone-900 sm:px-5'>
+          className='group flex shrink-0 items-center gap-2 rounded-full border border-stone-200 bg-surface/60 px-4 py-2.5 text-sm font-medium text-stone-500 transition-all duration-300 hover:border-stone-300 hover:text-stone-900 sm:px-5'>
           <ArrowLeft className='size-4 transition-transform group-hover:-translate-x-1' />
           {t('home')}
         </Link>
 
         <div className='flex shrink-0 items-center gap-2 sm:gap-3'>
+          <ThemeToggle />
           <LanguageSwitcher />
           <Link
             href='/about'
-            className='group flex items-center gap-2 rounded-full border border-stone-200 bg-white/60 px-4 py-2.5 text-sm font-medium text-stone-500 transition-all duration-300 hover:border-stone-300 hover:text-stone-900 sm:px-5'>
+            className='group flex items-center gap-2 rounded-full border border-stone-200 bg-surface/60 px-4 py-2.5 text-sm font-medium text-stone-500 transition-all duration-300 hover:border-stone-300 hover:text-stone-900 sm:px-5'>
             <Info className='size-4 transition-transform group-hover:scale-110' />
             {t('about')}
           </Link>
@@ -175,7 +177,7 @@ export default function LoginPage() {
 
       <div className='relative z-10 flex w-full flex-1 items-center justify-center px-4 py-12'>
         <motion.div
-          className='relative w-full max-w-md overflow-hidden rounded-3xl border border-white/80 bg-white/70 p-8 backdrop-blur-xl sm:p-10'
+          className='relative w-full max-w-md overflow-hidden rounded-3xl border border-surface/80 bg-surface/70 p-8 backdrop-blur-xl sm:p-10'
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}>
@@ -184,7 +186,7 @@ export default function LoginPage() {
           <div className='relative z-10 mb-8 text-center'>
             <Link
               href='/'
-              className='mb-5 inline-flex items-center justify-center rounded-2xl bg-white p-3.5 shadow-sm ring-1 ring-stone-100 transition-all duration-300 hover:scale-105 hover:shadow-md'>
+              className='mb-5 inline-flex items-center justify-center rounded-2xl bg-surface p-3.5 shadow-sm ring-1 ring-stone-100 transition-all duration-300 hover:scale-105 hover:shadow-md'>
               <Shield className='size-8 text-amber-600' />
             </Link>
             <h2 className='font-serif text-3xl font-semibold text-stone-900 sm:text-4xl'>
@@ -221,7 +223,7 @@ export default function LoginPage() {
                     type='email'
                     autoComplete='email'
                     required
-                    className='block w-full rounded-xl border border-stone-200/80 bg-white/50 py-3.5 pr-4 pl-11 text-stone-900 placeholder-stone-400 transition-all duration-200 outline-none focus:border-amber-400 focus:bg-white focus:ring-amber-400'
+                    className='block w-full rounded-xl border border-stone-200/80 bg-surface/50 py-3.5 pr-4 pl-11 text-stone-900 placeholder-stone-400 transition-all duration-200 outline-none focus:border-amber-400 focus:bg-surface focus:ring-amber-400'
                     placeholder='name@example.com'
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -243,7 +245,7 @@ export default function LoginPage() {
                     type='password'
                     autoComplete={isLogin ? 'current-password' : 'new-password'}
                     required
-                    className='block w-full rounded-xl border border-stone-200/80 bg-white/50 py-3.5 pr-4 pl-11 text-stone-900 placeholder-stone-400 transition-all duration-200 outline-none focus:border-amber-400 focus:bg-white focus:ring-amber-400'
+                    className='block w-full rounded-xl border border-stone-200/80 bg-surface/50 py-3.5 pr-4 pl-11 text-stone-900 placeholder-stone-400 transition-all duration-200 outline-none focus:border-amber-400 focus:bg-surface focus:ring-amber-400'
                     placeholder={t('passwordPlaceholder')}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -272,7 +274,7 @@ export default function LoginPage() {
                         type='password'
                         autoComplete='new-password'
                         required={!isLogin}
-                        className='block w-full rounded-xl border border-stone-200/80 bg-white/50 py-3.5 pr-4 pl-11 text-stone-900 placeholder-stone-400 transition-all duration-200 outline-none focus:border-amber-400 focus:bg-white focus:ring-amber-400'
+                        className='block w-full rounded-xl border border-stone-200/80 bg-surface/50 py-3.5 pr-4 pl-11 text-stone-900 placeholder-stone-400 transition-all duration-200 outline-none focus:border-amber-400 focus:bg-surface focus:ring-amber-400'
                         placeholder={t('confirmPasswordPlaceholder')}
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
@@ -325,11 +327,11 @@ export default function LoginPage() {
               <button
                 type='submit'
                 disabled={loading}
-                className='group relative flex w-full items-center justify-center gap-2 rounded-xl border border-stone-800 bg-stone-900 px-4 py-4 text-sm font-medium text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-stone-800 focus:ring-2 focus:ring-stone-900 focus:ring-offset-2 focus:outline-none disabled:cursor-wait disabled:opacity-70'>
+                className='group relative flex w-full items-center justify-center gap-2 rounded-xl border border-stone-800 bg-stone-900 px-4 py-4 text-sm font-medium text-surface transition-all duration-300 hover:-translate-y-0.5 hover:bg-stone-800 focus:ring-2 focus:ring-stone-900 focus:ring-offset-2 focus:outline-none disabled:cursor-wait disabled:opacity-70'>
                 {loading ? (
                   <span className='flex items-center gap-2.5'>
                     <svg
-                      className='-ml-1 h-4 w-4 animate-spin text-white'
+                      className='-ml-1 h-4 w-4 animate-spin text-current'
                       fill='none'
                       viewBox='0 0 24 24'>
                       <circle
@@ -369,7 +371,7 @@ export default function LoginPage() {
                       type='button'
                       disabled={loading}
                       onClick={() => handleOAuthLogin('google')}
-                      className='flex w-full items-center justify-center gap-2.5 rounded-xl border border-stone-200/80 bg-white py-3.5 text-sm font-medium text-stone-700 transition-all duration-200 hover:bg-stone-50 hover:text-stone-900 focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:outline-none disabled:cursor-wait disabled:opacity-60'>
+                      className='flex w-full items-center justify-center gap-2.5 rounded-xl border border-stone-200/80 bg-surface py-3.5 text-sm font-medium text-stone-700 transition-all duration-200 hover:bg-stone-50 hover:text-stone-900 focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:outline-none disabled:cursor-wait disabled:opacity-60'>
                       <svg
                         aria-hidden='true'
                         className='size-4'
@@ -398,7 +400,7 @@ export default function LoginPage() {
                       type='button'
                       disabled={loading}
                       onClick={() => handleOAuthLogin('facebook')}
-                      className='flex w-full items-center justify-center gap-2.5 rounded-xl border border-stone-200/80 bg-white py-3.5 text-sm font-medium text-stone-700 transition-all duration-200 hover:bg-stone-50 hover:text-stone-900 focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:outline-none disabled:cursor-wait disabled:opacity-60'>
+                      className='flex w-full items-center justify-center gap-2.5 rounded-xl border border-stone-200/80 bg-surface py-3.5 text-sm font-medium text-stone-700 transition-all duration-200 hover:bg-stone-50 hover:text-stone-900 focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:outline-none disabled:cursor-wait disabled:opacity-60'>
                       <svg
                         aria-hidden='true'
                         className='size-4'
@@ -426,7 +428,7 @@ export default function LoginPage() {
                   setSuccessMessage(null)
                   setSsoError(false)
                 }}
-                className='w-full rounded-xl border border-stone-200/80 bg-white py-3.5 text-sm font-medium text-stone-600 transition-all duration-200 hover:bg-stone-50 hover:text-stone-900 focus:outline-none'>
+                className='w-full rounded-xl border border-stone-200/80 bg-surface py-3.5 text-sm font-medium text-stone-600 transition-all duration-200 hover:bg-stone-50 hover:text-stone-900 focus:outline-none'>
                 {isLogin ? t('noAccount') : t('hasAccount')}
               </button>
             </div>

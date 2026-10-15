@@ -7,6 +7,7 @@ import DashboardHeader from '@/components/DashboardHeader'
 import Footer from '@/components/Footer'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import LogoutButton from '@/components/LogoutButton'
+import ThemeToggle from '@/components/ThemeToggle'
 import { UserProvider } from '@/components/UserProvider'
 import { getServerTranslations } from '@/lib/i18n/server'
 import { getProfile, getUser } from '@/utils/supabase/queries'
@@ -28,7 +29,7 @@ export default async function DashboardLayout({
   if (!profile?.is_active) {
     return (
       <div className='flex min-h-screen flex-col bg-neutral font-sans text-primary'>
-        <header className='sticky top-0 z-30 border-b border-stone-200 bg-white/80 transition-all duration-200'>
+        <header className='sticky top-0 z-30 border-b border-stone-200 bg-surface/80 transition-all duration-200'>
           <div className='mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8'>
             <div className='flex items-center gap-4'>
               <Link href='/' className='group flex items-center gap-2'>
@@ -38,6 +39,7 @@ export default async function DashboardLayout({
               </Link>
             </div>
             <div className='flex items-center gap-3'>
+              <ThemeToggle />
               <LanguageSwitcher />
               <div className='w-32'>
                 <LogoutButton />
@@ -70,7 +72,7 @@ export default async function DashboardLayout({
             </p>
           </div>
         </main>
-        <Footer className='mt-auto border-t border-stone-200 bg-white' />
+        <Footer className='mt-auto border-t border-stone-200 bg-surface' />
       </div>
     )
   }
@@ -81,7 +83,7 @@ export default async function DashboardLayout({
         <DashboardHeader />
         {children}
         <Footer
-          className='mt-auto border-t border-stone-200 bg-white'
+          className='mt-auto border-t border-stone-200 bg-surface'
           showDisclaimer={true}
         />
       </div>

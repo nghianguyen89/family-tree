@@ -98,7 +98,7 @@ export default function BaseToolbar({
           className={`flex h-10 items-center gap-2 rounded-full border px-4 text-sm font-medium transition-all duration-300 ${
             showFilters
               ? 'border-amber-200 bg-amber-100/90 text-amber-800'
-              : 'border-stone-200/60 bg-white/80 text-stone-600 backdrop-blur-md hover:bg-white hover:text-stone-900'
+              : 'border-stone-200/60 bg-surface/80 text-stone-600 backdrop-blur-md hover:bg-surface hover:text-stone-900'
           }`}>
           <Filter className='size-4' />
           <span className='hidden sm:inline'>{t('show')}</span>

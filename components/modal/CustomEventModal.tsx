@@ -204,7 +204,7 @@ export default function CustomEventModal({
   }
 
   const inputClasses =
-    'bg-white text-stone-900 placeholder-stone-500 block w-full rounded-xl border border-stone-300  focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:bg-white text-sm px-4 py-3 transition-all outline-none!'
+    'bg-surface text-stone-900 placeholder-stone-500 block w-full rounded-xl border border-stone-300  focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:bg-surface text-sm px-4 py-3 transition-all outline-none!'
 
   return (
     <AnimatePresence>
@@ -224,7 +224,7 @@ export default function CustomEventModal({
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 20 }}
             transition={{ type: 'spring', stiffness: 350, damping: 25 }}
-            className='relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-stone-200 bg-white/95 backdrop-blur-2xl'>
+            className='relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-stone-200 bg-surface/95 backdrop-blur-2xl'>
             {/* Sticky Header Actions */}
             <div className='absolute top-4 right-4 z-20 flex items-center gap-2 sm:top-5 sm:right-5'>
               <button
@@ -259,7 +259,7 @@ export default function CustomEventModal({
                   variants={formSectionVariants}
                   initial='hidden'
                   animate='show'
-                  className='space-y-5 rounded-2xl border border-stone-200/80 bg-white/80 p-5 sm:p-6'>
+                  className='space-y-5 rounded-2xl border border-stone-200/80 bg-surface/80 p-5 sm:p-6'>
                   <div>
                     <label className='mb-1.5 block text-sm font-medium text-stone-700'>
                       {t('eventName')} <span className='text-red-500'>*</span>

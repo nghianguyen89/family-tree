@@ -90,11 +90,11 @@ function PersonSelector({
         className={`flex w-full items-center gap-3 rounded-2xl border px-4 py-3 text-left transition-all ${
           selected
             ? 'border-amber-300 bg-amber-50 text-stone-800'
-            : 'border-stone-200 bg-white/80 text-stone-400 hover:border-amber-200'
+            : 'border-stone-200 bg-surface/80 text-stone-400 hover:border-amber-200'
         }`}>
         <div className='relative shrink-0'>
           <div
-            className={`flex size-10 items-center justify-center overflow-hidden rounded-full text-sm font-medium text-white shadow-sm ring-2 ring-white ${selected ? getAvatarBg(selected.gender) : 'bg-stone-100 text-stone-400'}`}>
+            className={`flex size-10 items-center justify-center overflow-hidden rounded-full text-sm font-medium text-white shadow-sm ring-2 ring-surface ${selected ? getAvatarBg(selected.gender) : 'bg-stone-100 text-stone-400'}`}>
             {selected ? (
               getAvatarUrl(selected.avatar_url) ? (
                 <Image
@@ -114,7 +114,7 @@ function PersonSelector({
           </div>
           {selected && (
             <div
-              className={`absolute -right-1 -bottom-1 flex size-4 items-center justify-center rounded-full shadow-xs ring-2 ring-white ${getGenderStyle(selected.gender)}`}>
+              className={`absolute -right-1 -bottom-1 flex size-4 items-center justify-center rounded-full shadow-xs ring-2 ring-surface ${getGenderStyle(selected.gender)}`}>
               {selected.gender === 'male' ? (
                 <MaleIcon className='size-3' />
               ) : selected.gender === 'female' ? (
@@ -141,7 +141,7 @@ function PersonSelector({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 6, scale: 0.97 }}
             transition={{ duration: 0.15 }}
-            className='absolute top-full right-0 left-0 z-50 mt-2 overflow-hidden rounded-2xl border border-stone-200/60 bg-white'>
+            className='absolute top-full right-0 left-0 z-50 mt-2 overflow-hidden rounded-2xl border border-stone-200/60 bg-surface'>
             <div className='border-b border-stone-100 p-3'>
               <div className='relative'>
                 <Search className='absolute top-1/2 left-3 size-4 -translate-y-1/2 text-stone-400' />
@@ -171,7 +171,7 @@ function PersonSelector({
                     className='flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-amber-50'>
                     <div className='relative shrink-0'>
                       <div
-                        className={`flex size-8 items-center justify-center overflow-hidden rounded-full text-sm font-medium text-white shadow-xs ring-1 ring-white ${getAvatarBg(p.gender)}`}>
+                        className={`flex size-8 items-center justify-center overflow-hidden rounded-full text-sm font-medium text-white shadow-xs ring-1 ring-surface ${getAvatarBg(p.gender)}`}>
                         {getAvatarUrl(p.avatar_url) ? (
                           <Image
                             unoptimized
@@ -186,7 +186,7 @@ function PersonSelector({
                         )}
                       </div>
                       <div
-                        className={`absolute -right-0.5 -bottom-0.5 flex size-3.5 items-center justify-center rounded-full shadow-xs ring-1 ring-white ${getGenderStyle(p.gender)}`}>
+                        className={`absolute -right-0.5 -bottom-0.5 flex size-3.5 items-center justify-center rounded-full shadow-xs ring-1 ring-surface ${getGenderStyle(p.gender)}`}>
                         {p.gender === 'male' ? (
                           <MaleIcon className='size-2.5' />
                         ) : p.gender === 'female' ? (
@@ -324,7 +324,7 @@ export default function KinshipFinder({ persons, relationships }: Props) {
   return (
     <div className='space-y-6'>
       {/* ── Selector row ── */}
-      <div className='rounded-2xl border border-stone-200/60 bg-white/80 p-4 sm:p-6'>
+      <div className='rounded-2xl border border-stone-200/60 bg-surface/80 p-4 sm:p-6'>
         <div className='flex flex-col items-center gap-3 sm:flex-row sm:items-end sm:gap-4'>
           <PersonSelector
             label={t('memberA')}
@@ -385,7 +385,7 @@ export default function KinshipFinder({ persons, relationships }: Props) {
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.1 }}
-                className='rounded-2xl border border-stone-200/60 bg-white/90 p-5'>
+                className='rounded-2xl border border-stone-200/60 bg-surface/90 p-5'>
                 <p className='mb-3 text-sm font-medium text-stone-400'>
                   {t('callsAs', {
                     name: personA.full_name,
@@ -401,7 +401,7 @@ export default function KinshipFinder({ persons, relationships }: Props) {
                 initial={{ opacity: 0, x: 10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.15 }}
-                className='rounded-2xl border border-stone-200/60 bg-white/90 p-5'>
+                className='rounded-2xl border border-stone-200/60 bg-surface/90 p-5'>
                 <p className='mb-3 text-sm font-medium text-stone-400'>
                   {t('callsAs', {
                     name: personB.full_name,
@@ -430,7 +430,7 @@ export default function KinshipFinder({ persons, relationships }: Props) {
                 <div className='space-y-4'>
                   {result.pathLabels.map((label, i) => (
                     <div key={i} className='flex items-start gap-4'>
-                      <div className='mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white'>
+                      <div className='mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-surface'>
                         <span className='text-sm font-medium text-stone-400'>
                           {i + 1}
                         </span>
@@ -571,7 +571,7 @@ export default function KinshipFinder({ persons, relationships }: Props) {
               className='overflow-hidden'>
               <div className='space-y-5 pb-2'>
                 {/* Reference table */}
-                <div className='overflow-hidden rounded-2xl border border-stone-200/60 bg-white/80'>
+                <div className='overflow-hidden rounded-2xl border border-stone-200/60 bg-surface/80'>
                   <div className='border-b border-stone-100 bg-stone-50/50 px-5 py-3'>
                     <p className='text-sm font-medium text-stone-600'>
                       {t('referenceTableTitle')}
@@ -609,7 +609,7 @@ export default function KinshipFinder({ persons, relationships }: Props) {
               className='overflow-hidden'>
               <div className='space-y-5 pb-2'>
                 {/* Regional Reference table */}
-                <div className='overflow-hidden rounded-2xl border border-stone-200/60 bg-white/80'>
+                <div className='overflow-hidden rounded-2xl border border-stone-200/60 bg-surface/80'>
                   <div className='border-b border-stone-100 bg-stone-50/50 px-5 py-3'>
                     <p className='text-sm font-medium text-stone-600'>
                       {t('regionalDescription')}

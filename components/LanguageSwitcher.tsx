@@ -9,7 +9,7 @@ export default function LanguageSwitcher() {
   const { locale, setLocale, t } = useI18n()
 
   return (
-    <label className='inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white/70 px-3 py-2 text-sm font-medium text-stone-600'>
+    <label className='inline-flex items-center gap-2 rounded-full border border-stone-200 bg-surface/70 px-3 py-2 text-sm font-medium text-stone-600'>
       <Languages className='size-4 text-stone-500' aria-hidden='true' />
       <span className='sr-only'>{t('language')}</span>
       <select

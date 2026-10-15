@@ -223,7 +223,7 @@ export default function DataImportExport() {
     <div className='space-y-6'>
       <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
         {/* Export Card */}
-        <div className='group relative rounded-2xl border border-stone-200/60 bg-white/80 p-6 transition-shadow'>
+        <div className='group relative rounded-2xl border border-stone-200/60 bg-surface/80 p-6 transition-shadow'>
           {/* Background Decor */}
           <div className='pointer-events-none absolute inset-0 overflow-hidden rounded-2xl'>
             <div className='absolute top-0 right-0 -mt-16 -mr-16 h-32 w-32 rounded-full bg-amber-200/20 blur-2xl transition-colors group-hover:bg-amber-300/30' />
@@ -293,7 +293,7 @@ export default function DataImportExport() {
         </div>
 
         {/* Import Card */}
-        <div className='group relative rounded-2xl border border-stone-200/60 bg-white/80 p-6 transition-shadow'>
+        <div className='group relative rounded-2xl border border-stone-200/60 bg-surface/80 p-6 transition-shadow'>
           {/* Background Decor */}
           <div className='pointer-events-none absolute inset-0 overflow-hidden rounded-2xl'>
             <div className='absolute top-0 right-0 -mt-16 -mr-16 h-32 w-32 rounded-full bg-rose-200/20 blur-2xl transition-colors group-hover:bg-rose-300/30' />
@@ -347,7 +347,7 @@ export default function DataImportExport() {
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className='relative z-10 w-full max-w-md rounded-2xl border border-stone-200/60 bg-white p-6'>
+              className='relative z-10 w-full max-w-md rounded-2xl border border-stone-200/60 bg-surface p-6'>
               <div className='mb-5 flex items-start gap-4'>
                 <div className='mt-1 shrink-0 rounded-full bg-rose-100/50 p-3 text-rose-600'>
                   <AlertTriangle className='size-6' />

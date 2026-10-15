@@ -161,7 +161,7 @@ export default function UploadModal({
   }
 
   const inputClasses =
-    'bg-white text-stone-900 placeholder-stone-500 block w-full rounded-xl border border-stone-300  focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:bg-white text-sm px-4 py-3 transition-all outline-none!'
+    'bg-surface text-stone-900 placeholder-stone-500 block w-full rounded-xl border border-stone-300  focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:bg-surface text-sm px-4 py-3 transition-all outline-none!'
 
   return (
     <AnimatePresence>
@@ -184,7 +184,7 @@ export default function UploadModal({
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.96, opacity: 0, y: 15 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
-            className='relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-stone-200 bg-white/95 backdrop-blur-2xl'>
+            className='relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-stone-200 bg-surface/95 backdrop-blur-2xl'>
             {/* Sticky Header Actions */}
             <div className='absolute top-4 right-4 z-20 flex items-center gap-2 sm:top-5 sm:right-5'>
               <button
@@ -228,7 +228,7 @@ export default function UploadModal({
                           setFile(null)
                           setPreview(null)
                         }}
-                        className='absolute top-2 right-2 rounded-full bg-white/90 p-1.5 text-stone-700 shadow-md backdrop-blur-sm hover:text-rose-600'>
+                        className='absolute top-2 right-2 rounded-full bg-surface/90 p-1.5 text-stone-700 shadow-md backdrop-blur-sm hover:text-rose-600'>
                         <X className='size-4' />
                       </button>
                     </div>

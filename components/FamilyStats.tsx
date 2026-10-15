@@ -48,7 +48,7 @@ function StatCard({
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay }}
-      className='group relative overflow-hidden rounded-3xl border border-stone-200/60 bg-white/80 p-5 transition-all hover:-translate-y-1'>
+      className='group relative overflow-hidden rounded-3xl border border-stone-200/60 bg-surface/80 p-5 transition-all hover:-translate-y-1'>
       {/* Background glow */}
       <div
         className={`absolute -top-6 -right-6 size-24 rounded-full opacity-20 blur-2xl transition-opacity group-hover:opacity-30 ${color}`}
@@ -318,7 +318,7 @@ export default function FamilyStats({
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.65 }}
-        className='rounded-2xl border border-stone-200/60 bg-white/80 p-6'>
+        className='rounded-2xl border border-stone-200/60 bg-surface/80 p-6'>
         <h2 className='mb-5 flex items-center gap-2 text-base font-semibold text-stone-700'>
           <Users className='size-4 text-stone-500' />
           {t('genderRatio')}

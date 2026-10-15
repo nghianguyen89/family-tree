@@ -165,7 +165,7 @@ export default async function DashboardLaunchpad() {
       {/* ── Today's Date & Upcoming Events ─────────────────── */}
       <Link
         href='/dashboard/events'
-        className='group relative mb-10 block overflow-hidden rounded-3xl border border-stone-200/60 bg-white transition-all duration-300 hover:-translate-y-1 hover:border-stone-400'>
+        className='group relative mb-10 block overflow-hidden rounded-3xl border border-stone-200/60 bg-surface transition-all duration-300 hover:-translate-y-1 hover:border-stone-400'>
         {/* Subtle background flair */}
         <div className='pointer-events-none absolute top-0 right-0 h-64 w-64 translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-50/50 opacity-50 blur-3xl'></div>
 
@@ -216,7 +216,7 @@ export default async function DashboardLaunchpad() {
                         key={i}
                         className='flex cursor-pointer items-center gap-3.5 rounded-2xl border border-transparent bg-stone-50/50 p-3 transition-all duration-300 hover:border-stone-100 hover:bg-stone-50'>
                         <div
-                          className={`size-10 rounded-xl ${cfg.bg} flex shrink-0 items-center justify-center border border-white`}>
+                          className={`size-10 rounded-xl ${cfg.bg} flex shrink-0 items-center justify-center border border-surface`}>
                           <Icon className={`size-4 ${cfg.color}`} />
                         </div>
                         <div className='min-w-0 flex-1'>
@@ -272,9 +272,9 @@ export default async function DashboardLaunchpad() {
               <Link
                 key={feat.href}
                 href={feat.href}
-                className={`group flex flex-col rounded-2xl border bg-white p-6 ${feat.borderColor} ${feat.hoverColor} transition-all duration-300 hover:-translate-y-1`}>
+                className={`group flex flex-col rounded-2xl border bg-surface p-6 ${feat.borderColor} ${feat.hoverColor} transition-all duration-300 hover:-translate-y-1`}>
                 <div
-                  className={`mb-5 flex size-14 items-center justify-center rounded-xl ${feat.bgColor} border border-transparent transition-colors duration-300 group-hover:bg-white group-hover:${feat.borderColor}`}>
+                  className={`mb-5 flex size-14 items-center justify-center rounded-xl ${feat.bgColor} border border-transparent transition-colors duration-300 group-hover:bg-surface group-hover:${feat.borderColor}`}>
                   {feat.icon}
                 </div>
                 <h4 className='mb-2 text-lg font-semibold text-stone-800 transition-colors group-hover:text-amber-700'>
@@ -299,9 +299,9 @@ export default async function DashboardLaunchpad() {
                 <Link
                   key={feat.href}
                   href={feat.href}
-                  className={`group flex flex-col rounded-2xl border bg-white p-6 ${feat.borderColor} ${feat.hoverColor} transition-all duration-300 hover:-translate-y-1`}>
+                  className={`group flex flex-col rounded-2xl border bg-surface p-6 ${feat.borderColor} ${feat.hoverColor} transition-all duration-300 hover:-translate-y-1`}>
                   <div
-                    className={`mb-5 flex size-14 items-center justify-center rounded-xl ${feat.bgColor} border border-transparent transition-colors duration-300 group-hover:bg-white group-hover:${feat.borderColor}`}>
+                    className={`mb-5 flex size-14 items-center justify-center rounded-xl ${feat.bgColor} border border-transparent transition-colors duration-300 group-hover:bg-surface group-hover:${feat.borderColor}`}>
                     {feat.icon}
                   </div>
                   <h4 className='mb-2 text-lg font-semibold text-stone-800 transition-colors group-hover:text-rose-700'>

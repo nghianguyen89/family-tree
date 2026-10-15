@@ -322,7 +322,7 @@ export const messages = {
     back: 'Quay lại',
     home: 'Trang chủ',
     footerDisclaimer:
-      'Nội dung có thể thiếu sót. Vui lòng đóng góp để gia phả chính xác hơn.',
+      'Nội dung có thể thiếu sót. Mọi người vui lòng đóng góp/gửi thông tin cho Mít tờ Lê Thành Ý.',
     pendingTitle: 'Tài khoản chờ duyệt',
     pendingDescription:
       'Tài khoản của bạn đã được đăng ký thành công. Tuy nhiên, hệ thống yêu cầu Quản trị viên kích hoạt tài khoản của bạn trước khi bạn có thể xem các thông tin gia đình.',
@@ -1127,7 +1127,7 @@ export const messages = {
     back: 'Back',
     home: 'Home',
     footerDisclaimer:
-      'Content may contain omissions. Please contribute to make the family tree more accurate.',
+      'The content may be incomplete. Please feel free to contribute or send information to Mr. Lê Thành Ý.',
     pendingTitle: 'Account pending approval',
     pendingDescription:
       'Your account was registered successfully. However, an administrator must activate it before you can view family information.',

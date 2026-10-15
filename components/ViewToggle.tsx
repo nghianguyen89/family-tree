@@ -51,7 +51,7 @@ export default function ViewToggle() {
             {isActive && (
               <motion.div
                 layoutId='activeTab'
-                className='absolute inset-0 z-[-1] rounded-full border border-stone-200/60 bg-white'
+                className='absolute inset-0 z-[-1] rounded-full border border-stone-200/60 bg-surface'
                 transition={{ type: 'spring', stiffness: 450, damping: 30 }}
               />
             )}

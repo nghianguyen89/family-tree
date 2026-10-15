@@ -471,7 +471,7 @@ export default function LineageManager({
                       key={u.id}
                       className={`border-b border-stone-100 transition-colors last:border-0 ${
                         u.changed ? 'bg-amber-50/40' : ''
-                      } ${i % 2 === 0 && !u.changed ? 'bg-white' : !u.changed ? 'bg-stone-50/30' : ''}`}>
+                      } ${i % 2 === 0 && !u.changed ? 'bg-surface' : !u.changed ? 'bg-stone-50/30' : ''}`}>
                       <td className='px-4 py-3 font-medium text-stone-800'>
                         {u.full_name}
                       </td>

@@ -572,7 +572,7 @@ export default function MemberForm({
   }
 
   const inputClasses =
-    'bg-white text-stone-900 placeholder-stone-500 block w-full rounded-xl border border-stone-300  focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:bg-white text-sm px-4 py-3 transition-all outline-none!'
+    'bg-surface text-stone-900 placeholder-stone-500 block w-full rounded-xl border border-stone-300  focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:bg-surface text-sm px-4 py-3 transition-all outline-none!'
 
   return (
     <form onSubmit={handleSubmit} className='space-y-6 sm:space-y-8'>
@@ -580,7 +580,7 @@ export default function MemberForm({
         variants={formSectionVariants}
         initial='hidden'
         animate='show'
-        className='rounded-2xl border border-stone-200/80 bg-white/80 p-5 sm:p-8'>
+        className='rounded-2xl border border-stone-200/80 bg-surface/80 p-5 sm:p-8'>
         <h3 className='mb-6 flex items-center gap-2 border-b border-stone-100 pb-4 font-serif text-lg font-semibold text-stone-800 sm:text-xl'>
           <User className='size-5 text-amber-600' />
           {t('generalInfo')}
@@ -761,7 +761,7 @@ export default function MemberForm({
             </label>
             <div className='flex flex-col items-start gap-5 rounded-xl border border-stone-100 bg-stone-50/50 p-4 sm:flex-row sm:items-center'>
               <div
-                className={`flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border-4 border-white text-sm font-medium text-white sm:h-24 sm:w-24 ${!avatarPreview ? (gender === 'male' ? 'bg-linear-to-br from-sky-400 to-sky-700' : gender === 'female' ? 'bg-linear-to-br from-rose-400 to-rose-700' : 'bg-linear-to-br from-stone-400 to-stone-600') : ''}`}>
+                className={`flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border-4 border-surface text-sm font-medium text-white sm:h-24 sm:w-24 ${!avatarPreview ? (gender === 'male' ? 'bg-linear-to-br from-sky-400 to-sky-700' : gender === 'female' ? 'bg-linear-to-br from-rose-400 to-rose-700' : 'bg-linear-to-br from-stone-400 to-stone-600') : ''}`}>
                 {avatarPreview ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img

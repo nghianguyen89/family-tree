@@ -85,10 +85,10 @@ export default function PersonSelector({
     <div className={`relative ${className}`} ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`group flex w-full items-center gap-3 rounded-xl border bg-white/60 px-3 py-2 text-sm transition-all duration-300 focus:ring-2 focus:ring-amber-500/20 focus:outline-none ${isOpen ? 'border-amber-300 bg-white ring-2 ring-amber-500/10' : 'border-stone-200/60 hover:border-amber-300 hover:bg-white/90'}`}>
+        className={`group flex w-full items-center gap-3 rounded-xl border bg-surface/60 px-3 py-2 text-sm transition-all duration-300 focus:ring-2 focus:ring-amber-500/20 focus:outline-none ${isOpen ? 'border-amber-300 bg-surface ring-2 ring-amber-500/10' : 'border-stone-200/60 hover:border-amber-300 hover:bg-surface/90'}`}>
         <div className='relative shrink-0'>
           <div
-            className={`flex size-8 items-center justify-center overflow-hidden rounded-full text-sm font-medium shadow-xs ring-2 ring-white ${
+            className={`flex size-8 items-center justify-center overflow-hidden rounded-full text-sm font-medium shadow-xs ring-2 ring-surface ${
               currentPerson
                 ? `${getAvatarBg(currentPerson.gender)} text-white`
                 : showAllOption && selectedId === null
@@ -116,7 +116,7 @@ export default function PersonSelector({
           </div>
           {currentPerson && (
             <div
-              className={`absolute -right-0.5 -bottom-0.5 flex size-3.5 items-center justify-center rounded-full shadow-xs ring-2 ring-white ${getGenderStyle(currentPerson.gender)}`}>
+              className={`absolute -right-0.5 -bottom-0.5 flex size-3.5 items-center justify-center rounded-full shadow-xs ring-2 ring-surface ${getGenderStyle(currentPerson.gender)}`}>
               {currentPerson.gender === 'male' ? (
                 <MaleIcon className='size-2.5' />
               ) : currentPerson.gender === 'female' ? (
@@ -157,13 +157,13 @@ export default function PersonSelector({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.98 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
-            className='absolute z-50 mt-2 flex max-h-80 w-full flex-col overflow-hidden rounded-xl border border-stone-200/80 bg-white/95 ring-1 ring-black/5 backdrop-blur-xl'>
+            className='absolute z-50 mt-2 flex max-h-80 w-full flex-col overflow-hidden rounded-xl border border-stone-200/80 bg-surface/95 ring-1 ring-black/5 backdrop-blur-xl'>
             <div className='sticky top-0 z-10 border-b border-stone-100/80 bg-stone-50/50 p-2 backdrop-blur-sm'>
               <div className='relative'>
                 <Search className='absolute top-1/2 left-3 size-4 -translate-y-1/2 text-stone-400' />
                 <input
                   type='text'
-                  className='w-full rounded-lg border border-stone-200/80 bg-white py-2 pr-3 pl-9 text-sm text-stone-900 placeholder-stone-400 transition-all outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20'
+                  className='w-full rounded-lg border border-stone-200/80 bg-surface py-2 pr-3 pl-9 text-sm text-stone-900 placeholder-stone-400 transition-all outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20'
                   placeholder={t('searchMembers')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -181,7 +181,7 @@ export default function PersonSelector({
                       : 'border border-transparent text-stone-700 hover:bg-stone-100/80'
                   }`}>
                   <div className='relative shrink-0'>
-                    <div className='flex size-8 items-center justify-center rounded-full bg-stone-500 text-white shadow-xs ring-1 ring-white'>
+                    <div className='flex size-8 items-center justify-center rounded-full bg-stone-500 text-white shadow-xs ring-1 ring-surface'>
                       <Database className='size-4' />
                     </div>
                   </div>
@@ -212,7 +212,7 @@ export default function PersonSelector({
                         }`}>
                         <div className='relative shrink-0'>
                           <div
-                            className={`flex size-8 items-center justify-center overflow-hidden rounded-full text-sm font-medium text-white shadow-xs ring-1 ring-white ${getAvatarBg(person.gender)}`}>
+                            className={`flex size-8 items-center justify-center overflow-hidden rounded-full text-sm font-medium text-white shadow-xs ring-1 ring-surface ${getAvatarBg(person.gender)}`}>
                             {getAvatarUrl(person.avatar_url) ? (
                               <Image
                                 unoptimized
@@ -227,7 +227,7 @@ export default function PersonSelector({
                             )}
                           </div>
                           <div
-                            className={`absolute -right-0.5 -bottom-0.5 flex size-3.5 items-center justify-center rounded-full shadow-xs ring-1 ring-white ${getGenderStyle(person.gender)}`}>
+                            className={`absolute -right-0.5 -bottom-0.5 flex size-3.5 items-center justify-center rounded-full shadow-xs ring-1 ring-surface ${getGenderStyle(person.gender)}`}>
                             {person.gender === 'male' ? (
                               <MaleIcon className='size-2.5' />
                             ) : person.gender === 'female' ? (

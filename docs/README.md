@@ -10,6 +10,7 @@ Cập nhật: 2026-10-14.
 4. [Những vấn đề đã xử lý](RESOLVED_ISSUES.md): triệu chứng, nguyên nhân và cách giải quyết.
 5. [Bàn giao tính năng khoảng năm](YEAR-RANGES-HANDOFF.md): quy ước dữ liệu, migration và kiểm tra trên giao diện.
 6. [Form thu thập và ngày cúng riêng](FAMILY-INTAKE-HANDOFF.md): link công khai theo nhánh, khu chờ duyệt và lịch cúng không phụ thuộc ngày mất.
+7. [Chế độ sáng / tối](THEME-HANDOFF.md): nút đổi theme, lưu lựa chọn và nơi chỉnh màu.
 
 ## Tài liệu và tài nguyên có sẵn
 

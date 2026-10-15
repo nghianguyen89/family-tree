@@ -240,7 +240,7 @@ export default function AdminUserList({
         </button>
       </div>
 
-      <div className='overflow-hidden rounded-2xl border border-stone-200/60 bg-white/60 backdrop-blur-xl'>
+      <div className='overflow-hidden rounded-2xl border border-stone-200/60 bg-surface/60 backdrop-blur-xl'>
         <div className='custom-scrollbar overflow-x-auto'>
           <table className='w-full text-left text-sm whitespace-nowrap'>
             <thead className='border-b border-stone-200/60 bg-stone-50/50'>
@@ -367,7 +367,7 @@ export default function AdminUserList({
       {/* Create User Modal */}
       {isCreateModalOpen && (
         <div className='fixed inset-0 z-60 flex items-center justify-center bg-stone-900/40 p-4 backdrop-blur-sm transition-opacity duration-300'>
-          <div className='w-full max-w-md transform overflow-hidden rounded-2xl border border-stone-200/60 bg-white/95 backdrop-blur-xl transition-all'>
+          <div className='w-full max-w-md transform overflow-hidden rounded-2xl border border-stone-200/60 bg-surface/95 backdrop-blur-xl transition-all'>
             <div className='flex items-center justify-between border-b border-stone-100/80 bg-stone-50/50 px-6 py-5'>
               <h3 className='font-serif text-xl font-semibold text-stone-800'>
                 {t('adminCreateTitle')}
@@ -400,7 +400,7 @@ export default function AdminUserList({
                     type='email'
                     name='email'
                     required
-                    className='w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-stone-900 placeholder-stone-400 transition-colors focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none sm:py-2.5'
+                    className='w-full rounded-lg border border-stone-300 bg-surface px-3 py-2 text-stone-900 placeholder-stone-400 transition-colors focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none sm:py-2.5'
                     placeholder='email@example.com'
                   />
                 </div>
@@ -414,7 +414,7 @@ export default function AdminUserList({
                     name='password'
                     required
                     minLength={6}
-                    className='w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-stone-900 placeholder-stone-400 transition-colors focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none sm:py-2.5'
+                    className='w-full rounded-lg border border-stone-300 bg-surface px-3 py-2 text-stone-900 placeholder-stone-400 transition-colors focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none sm:py-2.5'
                     placeholder={t('adminPasswordMinLength')}
                   />
                 </div>
@@ -425,7 +425,7 @@ export default function AdminUserList({
                   </label>
                   <select
                     name='role'
-                    className='w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-stone-900 placeholder-stone-400 transition-colors focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none sm:py-2.5'
+                    className='w-full rounded-lg border border-stone-300 bg-surface px-3 py-2 text-stone-900 placeholder-stone-400 transition-colors focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none sm:py-2.5'
                     defaultValue='member'>
                     <option value='member'>{t('adminMemberRole')}</option>
                     <option value='editor'>{t('adminEditorRole')}</option>
@@ -439,7 +439,7 @@ export default function AdminUserList({
                   </label>
                   <select
                     name='is_active'
-                    className='w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-stone-900 placeholder-stone-400 transition-colors focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none sm:py-2.5'
+                    className='w-full rounded-lg border border-stone-300 bg-surface px-3 py-2 text-stone-900 placeholder-stone-400 transition-colors focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none sm:py-2.5'
                     defaultValue='true'>
                     <option value='true'>{t('adminApproved')}</option>
                     <option value='false'>{t('adminPending')}</option>

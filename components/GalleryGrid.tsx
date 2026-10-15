@@ -114,7 +114,7 @@ export default function GalleryGrid({
 
   if (!items || items.length === 0) {
     return (
-      <div className='flex flex-col items-center justify-center rounded-3xl border border-stone-100 bg-white px-4 py-20 text-center'>
+      <div className='flex flex-col items-center justify-center rounded-3xl border border-stone-100 bg-surface px-4 py-20 text-center'>
         <div className='mb-4 flex size-20 items-center justify-center rounded-full border border-stone-100 bg-stone-50'>
           <Maximize2 className='size-8 text-stone-300' />
         </div>
@@ -163,7 +163,7 @@ export default function GalleryGrid({
 
               {/* Top Right Icon */}
               <div className='absolute top-4 right-4 opacity-0 transition-opacity delay-100 duration-300 group-hover:opacity-100'>
-                <div className='rounded-full bg-white/20 p-2 text-white backdrop-blur-md'>
+                <div className='rounded-full bg-surface/20 p-2 text-white backdrop-blur-md'>
                   <Maximize2 className='size-4' />
                 </div>
               </div>
@@ -191,7 +191,7 @@ export default function GalleryGrid({
                   <div
                     key={item.id}
                     onClick={() => setSelectedItem(item)}
-                    className='group flex cursor-pointer flex-col justify-between rounded-2xl border border-stone-200/80 bg-white/80 p-4 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1'>
+                    className='group flex cursor-pointer flex-col justify-between rounded-2xl border border-stone-200/80 bg-surface/80 p-4 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1'>
                     <div>
                       <div className='relative mb-4 aspect-16/10 overflow-hidden rounded-xl bg-stone-100'>
                         <Image
@@ -238,7 +238,7 @@ export default function GalleryGrid({
         <div className='animate-in fade-in fixed inset-0 z-60 flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm duration-200'>
           <button
             onClick={() => setSelectedItem(null)}
-            className='absolute top-4 right-4 z-10 rounded-full p-3 text-white/70 transition-colors hover:bg-white/10 hover:text-white sm:top-8 sm:right-8'>
+            className='absolute top-4 right-4 z-10 rounded-full p-3 text-white/70 transition-colors hover:bg-surface/10 hover:text-white sm:top-8 sm:right-8'>
             <X className='size-6' />
           </button>
 
@@ -256,7 +256,7 @@ export default function GalleryGrid({
             </div>
 
             {/* Content Section */}
-            <div className='flex max-h-[40vh] w-full flex-col overflow-y-auto bg-white lg:max-h-none lg:w-96'>
+            <div className='flex max-h-[40vh] w-full flex-col overflow-y-auto bg-surface lg:max-h-none lg:w-96'>
               <div className='flex-1 p-6 sm:p-8'>
                 <h2 className='mb-4 text-2xl leading-tight font-semibold text-stone-800'>
                   {selectedItem.title}

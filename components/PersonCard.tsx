@@ -33,7 +33,7 @@ function PersonCard({ person }: PersonCardProps) {
     <button
       type='button'
       onClick={() => setMemberModalId(person.id)}
-      className={`group relative block overflow-hidden rounded-3xl border border-border bg-white/60 p-2 transition-all duration-300 hover:-translate-y-1 hover:border-tertiary hover:bg-surface/90 sm:p-4 ${isDeceased ? 'opacity-80 grayscale-[0.3]' : ''}`}>
+      className={`group relative block overflow-hidden rounded-3xl border border-border bg-surface/60 p-2 transition-all duration-300 hover:-translate-y-1 hover:border-tertiary hover:bg-surface/90 sm:p-4 ${isDeceased ? 'opacity-80 grayscale-[0.3]' : ''}`}>
       {/* Decorative gradient blob */}
       {/* <div
         className={`absolute -right-10 -top-10 w-32 h-32 rounded-full blur-[50px] opacity-20 transition-all duration-500 group-hover:opacity-40 group-hover:scale-125 ${person.gender === "male" ? "bg-sky-400" : person.gender === "female" ? "bg-rose-400" : "bg-stone-400"}`}
@@ -42,7 +42,7 @@ function PersonCard({ person }: PersonCardProps) {
       <div className='relative z-10 flex items-center space-x-4'>
         <div className='relative'>
           <div
-            className={`flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-full text-sm font-medium text-white shadow-lg ring-2 ring-white transition-transform duration-300 group-hover:scale-105 sm:size-16 ${getAvatarBg(person.gender)}`}>
+            className={`flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-full text-sm font-medium text-white shadow-lg ring-2 ring-surface transition-transform duration-300 group-hover:scale-105 sm:size-16 ${getAvatarBg(person.gender)}`}>
             {getAvatarUrl(person.avatar_url) ? (
               <Image
                 unoptimized
@@ -58,7 +58,7 @@ function PersonCard({ person }: PersonCardProps) {
           </div>
           {/* Gender Indicator Icon */}
           <div
-            className={`absolute right-0 bottom-0 flex size-5 items-center justify-center rounded-full shadow-sm ring-2 ring-white ${getGenderStyle(person.gender)}`}>
+            className={`absolute right-0 bottom-0 flex size-5 items-center justify-center rounded-full shadow-sm ring-2 ring-surface ${getGenderStyle(person.gender)}`}>
             {person.gender === 'male' ? (
               <MaleIcon className='size-5' />
             ) : person.gender === 'female' ? (

@@ -65,7 +65,7 @@ export default function GalleryClient({
               onClick={() => setViewMode('timeline')}
               className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-all ${
                 viewMode === 'timeline'
-                  ? 'bg-white text-stone-900 shadow-xs'
+                  ? 'bg-surface text-stone-900 shadow-xs'
                   : 'text-stone-500 hover:text-stone-800'
               }`}
               title={t('timelineView')}>
@@ -76,7 +76,7 @@ export default function GalleryClient({
               onClick={() => setViewMode('grid')}
               className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-all ${
                 viewMode === 'grid'
-                  ? 'bg-white text-stone-900 shadow-xs'
+                  ? 'bg-surface text-stone-900 shadow-xs'
                   : 'text-stone-500 hover:text-stone-800'
               }`}
               title={t('gridView')}>

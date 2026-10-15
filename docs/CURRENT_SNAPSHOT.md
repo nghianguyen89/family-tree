@@ -1,8 +1,11 @@
 # Family tree — Trạng thái hiện tại
 
-Ngày ghi nhận: 2026-10-14. Đây là trạng thái ở workspace, không phải xác nhận đã triển khai lên production.
+Ngày ghi nhận: 2026-10-15. Đây là trạng thái ở workspace, không phải xác nhận đã triển khai lên production.
 
 ## Đã thực hiện
+
+- Đã thêm dark mode với icon mặt trăng/mặt trời ở góc trên, cạnh ngôn ngữ trên các trang có thanh điều khiển; trang setup và form công khai cũng có nút chuyển.
+- Theme mặc định theo hệ thống, lưu lựa chọn vào trình duyệt, đồng bộ giữa các tab và áp dụng trước khi trang hiển thị. Màu được quản lý tập trung tại `app/themes.css`, theo token trong `DESIGN.md`; lớp surface và màu SVG sơ đồ đã theo theme.
 
 - Đã kiểm tra README và cài thư viện bằng `bun install --frozen-lockfile`.
 - Đã tạo cấu hình local. Chủ dự án đã bổ sung cấu hình Supabase và xác nhận kết nối, chạy web được.
@@ -30,6 +33,8 @@ Ngày ghi nhận: 2026-10-14. Đây là trạng thái ở workspace, không ph�
 | Tuổi và sự kiện            | Khoảng năm không tạo tuổi chính xác hoặc sự kiện ngày sinh/ngày giỗ                                  |
 
 Có kiểm tra render server của form, chưa kiểm tra tương tác browser bằng phiên đăng nhập thật sau khi thêm các tính năng mới.
+
+Dark mode (2026-10-15): TypeScript, ESLint, build production và 40 bài kiểm thử ở 8 file đều qua, gồm hai bài mới về lựa chọn theme/script trước hydration. CSS production đã được kiểm tra có quy tắc dark mode. Chưa xác nhận tương tác và hình thức dark mode trên trình duyệt với phiên đăng nhập thật. Xem [hướng dẫn chỉnh theme](THEME-HANDOFF.md).
 
 Chủ dự án đã thử chạy bundle trong SQL Editor và gặp lỗi `42723` do trùng hàm `private.handle_updated_at`. Đã sửa schema/migration để bundle chạy lại được, giữ dữ liệu và phụ thuộc, bổ sung `tests/migration-replay.test.ts`; kết quả chạy lại trên Supabase thật còn chờ xác nhận.
 

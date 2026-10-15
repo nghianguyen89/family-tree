@@ -252,7 +252,7 @@ export default function FamilyTree({
             data-level={level}>
             {/* Main Person & Spouses Row */}
             <div
-              className={`relative z-10 flex h-full items-stretch ${showAvatar ? 'rounded-2xl border border-stone-200/80 bg-white' : ''}`}>
+              className={`relative z-10 flex h-full items-stretch ${showAvatar ? 'rounded-2xl border border-stone-200/80 bg-surface' : ''}`}>
               <FamilyNodeCard person={data.person} level={level} />
 
               {data.spouses.map((spouseData, idx) => (
@@ -275,7 +275,7 @@ export default function FamilyTree({
                     e.preventDefault()
                     toggleCollapse(personId)
                   }}
-                  className='absolute -bottom-3 left-1/2 z-100 flex size-6 -translate-x-1/2 items-center justify-center rounded-full border border-stone-200/80 bg-white text-stone-500 transition-colors hover:border-amber-300 hover:text-amber-600'
+                  className='absolute -bottom-3 left-1/2 z-100 flex size-6 -translate-x-1/2 items-center justify-center rounded-full border border-stone-200/80 bg-surface text-stone-500 transition-colors hover:border-amber-300 hover:text-amber-600'
                   title={isCollapsed ? t('expand') : t('collapse')}
                   aria-label={isCollapsed ? t('expand') : t('collapse')}
                   aria-expanded={!isCollapsed}>
@@ -384,12 +384,12 @@ export default function FamilyTree({
         .css-tree li::before, .css-tree li::after {
           content: '';
           position: absolute; top: 0; right: 50%;
-          border-top: 2px solid #d6d3d1;
+          border-top: 2px solid var(--color-stone-300);
           width: 50%; height: 30px;
         }
         .css-tree li::after {
           right: auto; left: 50%;
-          border-left: 2px solid #d6d3d1;
+          border-left: 2px solid var(--color-stone-300);
         }
 
         /* Remove left-right connectors from elements without siblings */
@@ -401,7 +401,7 @@ export default function FamilyTree({
           position: absolute;
           top: 0;
           left: 50%;
-          border-left: 2px solid #d6d3d1;
+          border-left: 2px solid var(--color-stone-300);
           width: 0;
           height: 30px;
         }
@@ -421,7 +421,7 @@ export default function FamilyTree({
 
         /* Add back the vertical connector to the last nodes */
         .css-tree li:last-child::before {
-          border-right: 2px solid #d6d3d1;
+          border-right: 2px solid var(--color-stone-300);
           border-radius: 0 12px 0 0;
         }
         .css-tree li:first-child::after {
@@ -432,7 +432,7 @@ export default function FamilyTree({
         .css-tree ul ul::before {
           content: '';
           position: absolute; top: 0; left: 50%;
-          border-left: 2px solid #d6d3d1;
+          border-left: 2px solid var(--color-stone-300);
           width: 0; height: 30px;
         }
       `

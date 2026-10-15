@@ -281,7 +281,7 @@ export default function BubbleMapTree({
         .data(links)
         .join('line')
         .attr('class', 'bubble-link')
-        .attr('stroke', '#d6d3d1')
+        .attr('stroke', 'var(--color-stone-300)')
         .attr('stroke-width', 2)
 
       // Draw nodes (Family Units)
@@ -333,7 +333,7 @@ export default function BubbleMapTree({
         .attr('ry', (d) => d.radius)
         .attr('width', (d) => d.width)
         .attr('height', (d) => d.radius * 2)
-        .attr('fill', 'white')
+        .attr('fill', 'var(--color-surface)')
         .attr('stroke', (d) =>
           d.people[0].gender === 'male' ? '#3b82f6' : '#ec4899'
         )
@@ -389,7 +389,7 @@ export default function BubbleMapTree({
         .append('text')
         .attr('dy', (d) => d.radius + 18)
         .attr('text-anchor', 'middle')
-        .attr('fill', '#44403c')
+        .attr('fill', 'var(--color-secondary)')
         .attr('font-size', (d) => (d.isRoot ? '14px' : '12px'))
         .attr('font-weight', (d) => (d.isRoot ? 'bold' : 'normal'))
         .style('pointer-events', 'none')
@@ -444,10 +444,12 @@ export default function BubbleMapTree({
       .transition()
       .duration(250)
       .attr('fill', (node) =>
-        effectiveSelectedNodeId === node.id ? '#fffbeb' : 'white'
+        effectiveSelectedNodeId === node.id
+          ? 'var(--color-amber-50)'
+          : 'var(--color-surface)'
       )
       .attr('stroke', (node) => {
-        if (effectiveSelectedNodeId === node.id) return '#d97706'
+        if (effectiveSelectedNodeId === node.id) return 'var(--color-tertiary)'
         return node.people[0].gender === 'male' ? '#3b82f6' : '#ec4899'
       })
       .attr('stroke-width', (node) => {
@@ -469,14 +471,16 @@ export default function BubbleMapTree({
         return isHighlighted ? 0.9 : 0.08
       })
       .attr('stroke', (link) => {
-        if (!highlightedNodeIds) return '#d6d3d1'
+        if (!highlightedNodeIds) return 'var(--color-stone-300)'
 
         const sourceId = getNodeId(link.source as string | GraphNode)
         const targetId = getNodeId(link.target as string | GraphNode)
         const isHighlighted =
           highlightedNodeIds.has(sourceId) && highlightedNodeIds.has(targetId)
 
-        return isHighlighted ? '#d97706' : '#d6d3d1'
+        return isHighlighted
+          ? 'var(--color-tertiary)'
+          : 'var(--color-stone-300)'
       })
       .attr('stroke-width', (link) => {
         if (!highlightedNodeIds) return 2
@@ -544,7 +548,7 @@ export default function BubbleMapTree({
         id='tree-toolbar-portal'
         className='absolute top-4 left-4 z-50'></div>
 
-      <div className='absolute top-4 right-4 z-50 flex items-center gap-1 rounded-xl border border-stone-200/70 bg-white/85 p-1.5 backdrop-blur-md'>
+      <div className='absolute top-4 right-4 z-50 flex items-center gap-1 rounded-xl border border-stone-200/70 bg-surface/85 p-1.5 backdrop-blur-md'>
         <button
           type='button'
           onClick={() => changeZoom(Math.max(0.1, zoomLevel - 0.1))}

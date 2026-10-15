@@ -6,6 +6,7 @@ import Link from 'next/link'
 
 import Footer from '@/components/Footer'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
+import ThemeToggle from '@/components/ThemeToggle'
 import { useI18n } from '@/lib/i18n/I18nProvider'
 
 export default function AboutPage() {
@@ -15,7 +16,8 @@ export default function AboutPage() {
     <div className='relative flex min-h-screen flex-col bg-neutral selection:bg-amber-200 selection:text-amber-900'>
       <div className='pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-size-[24px_24px]'></div>
 
-      <div className='absolute top-6 right-6 z-20'>
+      <div className='absolute top-6 right-6 z-20 flex items-center gap-2'>
+        <ThemeToggle />
         <LanguageSwitcher />
       </div>
 
@@ -29,7 +31,7 @@ export default function AboutPage() {
           initial={{ opacity: 0, scale: 0.98, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           className='w-full max-w-3xl'>
-          <div className='mt-6 mb-8 rounded-3xl border border-stone-200 bg-white p-8 sm:p-12'>
+          <div className='mt-6 mb-8 rounded-3xl border border-stone-200 bg-surface p-8 sm:p-12'>
             <div className='mb-6 flex items-center gap-3'>
               <div className='rounded-2xl bg-amber-100/50 p-3 text-amber-700'>
                 <Info className='size-6' />
@@ -53,7 +55,7 @@ export default function AboutPage() {
               </div>
 
               <div className='rounded-2xl border border-stone-200/60 bg-stone-50 p-6 text-sm leading-relaxed'>
-                <p className='mb-4 inline-block rounded-lg border border-stone-200 bg-white px-3 py-2 font-medium text-stone-800'>
+                <p className='mb-4 inline-block rounded-lg border border-stone-200 bg-surface px-3 py-2 font-medium text-stone-800'>
                   {t('sourceOnly')}
                 </p>
 

@@ -40,7 +40,7 @@ export default function YearRangeFields({
                   e.target.value ? Number(e.target.value) : ''
                 )
               }
-              className='block w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-900 outline-none focus:border-amber-600 focus:ring-2 focus:ring-amber-600/20'
+              className='block w-full rounded-xl border border-stone-200 bg-surface px-4 py-3 text-sm text-stone-900 outline-none focus:border-amber-600 focus:ring-2 focus:ring-amber-600/20'
             />
           </div>
         ))}
