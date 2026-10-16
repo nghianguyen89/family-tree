@@ -23,7 +23,14 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { ReactNode, useEffect, useRef, useState } from 'react'
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useRef,
+  useState
+} from 'react'
 
 import LogoutButton from '@/components/LogoutButton'
 import { useUser } from '@/components/UserProvider'
@@ -52,6 +59,31 @@ const icons = {
   home: Home,
   news: Newspaper,
   about: Info
+}
+
+const MobileMenuContext = createContext<{
+  expanded: boolean
+  toggle: () => void
+} | null>(null)
+
+export function MobileDashboardMenuButton() {
+  const menu = useContext(MobileMenuContext)
+  const { locale } = useI18n()
+  if (!menu) return null
+  const text = navigationMessages[locale]
+  return (
+    <button
+      id='dashboard-mobile-menu-trigger'
+      type='button'
+      aria-expanded={menu.expanded}
+      aria-controls='dashboard-navigation'
+      aria-label={text.expand}
+      title={text.expand}
+      onClick={menu.toggle}
+      className='inline-flex size-10 shrink-0 items-center justify-center rounded-xl text-secondary hover:bg-neutral hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tertiary md:hidden'>
+      <Menu className='size-5' aria-hidden='true' />
+    </button>
+  )
 }
 
 export default function DashboardShell({
@@ -90,7 +122,7 @@ export default function DashboardShell({
     const handleKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setExpanded(false)
-        toggleRef.current?.focus()
+        if (!mobile) toggleRef.current?.focus()
       }
       if (mobile && event.key === 'Tab') {
         const elements = panelRef.current?.querySelectorAll<HTMLElement>(
@@ -111,13 +143,13 @@ export default function DashboardShell({
     document.addEventListener('keydown', handleKey)
     if (mobile) {
       const previousOverflow = document.body.style.overflow
-      const toggle = toggleRef.current
+      const trigger = document.getElementById('dashboard-mobile-menu-trigger')
       document.body.style.overflow = 'hidden'
       toggleRef.current?.focus()
       return () => {
         document.body.style.overflow = previousOverflow
         document.removeEventListener('keydown', handleKey)
-        toggle?.focus()
+        trigger?.focus()
       }
     }
     return () => document.removeEventListener('keydown', handleKey)
@@ -145,7 +177,7 @@ export default function DashboardShell({
         aria-modal={mobile && expanded ? true : undefined}
         aria-label={text.navigation}
         data-expanded={expanded}
-        className={`fixed inset-y-0 left-0 z-40 flex flex-col border-r border-border bg-surface ${expanded ? 'w-64' : 'w-16'}`}>
+        className={`fixed inset-y-0 left-0 z-40 flex-col border-r border-border bg-surface ${expanded ? 'flex w-64' : 'hidden w-16 md:flex'}`}>
         <div className='flex h-16 shrink-0 items-center gap-3 border-b border-border px-2'>
           <button
             ref={toggleRef}
@@ -217,8 +249,14 @@ export default function DashboardShell({
       </aside>
       <div
         inert={mobile && expanded}
-        className={`flex min-h-dvh min-w-0 flex-col pl-16 ${expanded ? 'md:pl-64' : ''}`}>
-        {header}
+        className={`flex min-h-dvh min-w-0 flex-col ${expanded ? 'md:pl-64' : 'md:pl-16'}`}>
+        <MobileMenuContext.Provider
+          value={{
+            expanded,
+            toggle: () => setExpanded((value) => !value)
+          }}>
+          {header}
+        </MobileMenuContext.Provider>
         <div
           id='dashboard-content'
           tabIndex={-1}

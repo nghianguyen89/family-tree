@@ -4,6 +4,8 @@ Ngày ghi nhận: 2026-10-16. Đây là trạng thái ở workspace, không ph�
 
 ## Đã thực hiện
 
+- Đã tối ưu menu dashboard trên điện thoại: ẩn hẳn thanh icon khi đóng, bỏ khoảng trống bên trái để nội dung dùng toàn bộ chiều ngang; nút hamburger nằm trên header. Bấm mới mở panel, đóng trả focus về nút header; desktop giữ thanh icon và panel mở rộng. Không đổi quyền menu hoặc database. Xem [bàn giao điều hướng](DASHBOARD-NAVIGATION-HANDOFF.md).
+
 - Đã chuyển menu dropdown trên header dashboard sang panel bên trái, mặc định icon 64px, mở rộng 256px bằng hamburger. Đã bổ sung sự kiện, thư viện ảnh, thêm thành viên, thiết lập trang chủ và các mục còn thiếu; lọc nhóm theo member/editor/admin hoạt động, chọn đúng mục theo route con. Desktop dành chỗ cho panel; mobile mở đè, đóng khi chọn link/bấm ngoài/Escape, khóa cuộn và quản lý focus. Header giữ logo/theme/ngôn ngữ; đăng xuất nằm cuối panel. Xem [bàn giao điều hướng](DASHBOARD-NAVIGATION-HANDOFF.md). Không cần migration.
 
 - Đã tái hiện và sửa policy đọc `media_assets` chặn upload gallery ở bước `INSERT ... RETURNING`: admin/editor được đọc kết quả trực tiếp, giữ kiểm tra phạm vi cho member và không cấp đọc bảng cho khách. Bản sửa có trong migration thư viện gốc và migration nâng cấp `20261016010000_fix_media_insert_returning.sql`, đã thêm vào bundle `/setup`. Chủ dự án cung cấp ảnh policy thật; chưa chạy bản sửa trên Supabase thật.
@@ -37,6 +39,8 @@ Ngày ghi nhận: 2026-10-16. Đây là trạng thái ở workspace, không ph�
 - Đã bổ sung ngày cúng riêng hằng năm âm/dương lịch, tháng nhuận, không bắt buộc ngày hoặc năm mất; lịch cúng riêng ưu tiên trong sự kiện.
 
 ## Bằng chứng kiểm tra
+
+Menu mobile ẩn hoàn toàn (2026-10-16): TypeScript, ESLint các file sửa và 2 tests điều hướng qua. Edge headless với dữ liệu/profile/auth/router giả xác nhận thanh bên không chiếm chỗ khi đóng, nội dung rộng đủ 375px, nút mở nằm trên header, link ẩn không có vùng hiển thị; panel mở đè, giữ Tab/Escape/trả focus về header, đóng bằng link/bấm ngoài, scroll lock/inert, 320px/dark mode, đăng xuất, tiếng Anh và resize về desktop đều qua. Smoke test trang chủ/theme/kho tin/chuyển khách khỏi CMS tiếp tục qua, không lỗi runtime. Đã xem ảnh mobile; chưa deploy hoặc kiểm thử bằng phiên đăng nhập thật, không ghi Supabase.
 
 Panel điều hướng (2026-10-16): TypeScript, ESLint toàn repository, 80 tests ở 18 file và production build `next build --webpack` qua. Edge headless với component thật/profile/router/auth giả kiểm tra desktop thu gọn/mở rộng, vị trí nội dung, active link duy nhất theo route con, quyền member/editor/admin/inactive, mobile overlay/inert/khóa cuộn, Tab/Shift+Tab/Escape/trả focus, đóng bằng link/bấm ngoài, cuộn menu ở 320px, dark mode, logout và nhãn tiếng Anh. Smoke test trang chủ desktop/mobile/theme/kho tin/chuyển khách khỏi CMS qua, không có lỗi runtime. Đã xem ảnh panel desktop/mobile; không dùng phiên hoặc dữ liệu gia đình thật, không ghi Supabase, chưa deploy.
 

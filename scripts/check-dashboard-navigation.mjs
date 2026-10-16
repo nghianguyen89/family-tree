@@ -37,7 +37,7 @@ export async function checkDashboardNavigation({
   await waitFor(() =>
     evaluate(`document.querySelectorAll('#dashboard-navigation a').length===17`)
   )
-  const toggle = `document.querySelector('button[aria-controls="dashboard-navigation"]')`
+  const toggle = `Array.from(document.querySelectorAll('button[aria-controls="dashboard-navigation"]')).find(button=>button.getClientRects().length && !button.closest('[inert]'))`
   const panel = `document.querySelector('aside[data-expanded]')`
   const clickToggle = () => evaluate(`${toggle}.click()`)
   const expanded = (value) =>
@@ -144,6 +144,26 @@ export async function checkDashboardNavigation({
     mobile: true
   })
   await waitFor(() => evaluate(`window.innerWidth===375`))
+  assert.equal(await evaluate(`${panel}.getBoundingClientRect().width`), 0)
+  assert.equal(
+    await evaluate(
+      `document.querySelector('#dashboard-content').getBoundingClientRect().left`
+    ),
+    0
+  )
+  assert.equal(
+    await evaluate(
+      `document.querySelector('#dashboard-content').getBoundingClientRect().width`
+    ),
+    375
+  )
+  assert.equal(
+    await evaluate(
+      `getComputedStyle(document.querySelector('#dashboard-navigation')).display==='none'||document.querySelector('#dashboard-navigation a').getClientRects().length===0`
+    ),
+    true
+  )
+  assert.equal(await evaluate(`${toggle}.closest('header')!==null`), true)
   assert.equal(
     await evaluate(`document.documentElement.scrollWidth<=window.innerWidth`),
     true
@@ -163,7 +183,7 @@ export async function checkDashboardNavigation({
     await evaluate(
       `document.querySelector('#dashboard-content').getBoundingClientRect().left`
     ),
-    64
+    0
   )
   await key('Tab', 8)
   assert.equal(
@@ -178,6 +198,7 @@ export async function checkDashboardNavigation({
   await key('Escape')
   await expanded(false)
   assert.equal(await evaluate(`document.body.style.overflow`), '')
+  assert.equal(await evaluate(`document.activeElement===${toggle}`), true)
   assert.equal(
     await evaluate(
       `document.querySelector('#dashboard-content').parentElement.inert`
@@ -223,6 +244,8 @@ export async function checkDashboardNavigation({
   await screenshot('mobile-dark-short-screen')
   await key('Escape')
   await expanded(false)
+  await clickToggle()
+  await expanded(true)
   await evaluate(
     `document.querySelector('aside button[aria-label="Đăng xuất"]').click()`
   )
@@ -247,7 +270,27 @@ export async function checkDashboardNavigation({
   await waitFor(() =>
     evaluate(`!!document.querySelector('aside[data-expanded="false"]')`)
   )
+  assert.equal(await evaluate(`${panel}.getBoundingClientRect().width`), 0)
+  assert.equal(
+    await evaluate(
+      `document.querySelector('#dashboard-content').getBoundingClientRect().left`
+    ),
+    0
+  )
+  await send('Emulation.setDeviceMetricsOverride', {
+    width: 1280,
+    height: 900,
+    deviceScaleFactor: 1,
+    mobile: false
+  })
+  await waitFor(() => evaluate(`${panel}.getBoundingClientRect().width===64`))
+  assert.equal(
+    await evaluate(
+      `document.querySelector('#dashboard-content').getBoundingClientRect().left`
+    ),
+    64
+  )
   console.log(
-    'Navigation browser fixture passed: collapsed/expanded layout, active routes, role filtering, mobile overlay/inert/scroll lock, focus trap/Escape, link/outside closing, 320px dark mode, logout and English labels.'
+    'Navigation browser fixture passed: desktop icon rail/expanded panel, mobile hidden sidebar/full-width content/header trigger, active routes, role filtering, overlay/inert/scroll lock, focus trap/Escape/focus return, link/outside closing, 320px dark mode, logout, English labels and resizing.'
   )
 }
