@@ -35,10 +35,15 @@ export async function createIntakeLink(
     title: title.trim(),
     root_person_id: rootId,
     expires_at: new Date(Date.now() + days * 86400000).toISOString(),
+    share_token: token,
     token_hash: createHash('md5').update(token).digest('hex')
   })
   if (error)
-    return { error: error.code === 'PGRST205' ? 'migration' : error.message }
+    return {
+      error: ['PGRST205', 'PGRST204', '42703'].includes(error.code)
+        ? 'migration'
+        : error.message
+    }
   revalidatePath('/dashboard/intake')
   return { token }
 }
@@ -55,6 +60,44 @@ export async function disableIntakeLink(id: string) {
   if (error) return { error: error.message }
   revalidatePath('/dashboard/intake')
   return { success: true }
+}
+
+export async function deleteIntakeLink(id: string) {
+  const supabase = await editorClient()
+  if (!UUID.test(id)) return { error: 'Invalid link' }
+  const { error } = await supabase
+    .from('family_intake_links')
+    .update({ is_active: false, deleted_at: new Date().toISOString() })
+    .eq('id', id)
+    .is('deleted_at', null)
+    .select('id')
+    .single()
+  if (error) return { error: error.message }
+  revalidatePath('/dashboard/intake')
+  return { success: true }
+}
+
+// Legacy links stored only a hash. Replace their token once, without resetting quotas.
+export async function replaceLegacyIntakeLink(id: string) {
+  const supabase = await editorClient()
+  if (!UUID.test(id)) return { error: 'Invalid link' }
+  const token = randomBytes(32).toString('hex')
+  const { error } = await supabase
+    .from('family_intake_links')
+    .update({
+      share_token: token,
+      token_hash: createHash('md5').update(token).digest('hex')
+    })
+    .eq('id', id)
+    .eq('is_active', true)
+    .is('deleted_at', null)
+    .is('share_token', null)
+    .gt('expires_at', new Date().toISOString())
+    .select('id')
+    .single()
+  if (error) return { error: error.message }
+  revalidatePath('/dashboard/intake')
+  return { token }
 }
 
 export async function getIntakeSubmissions(status: string, page = 0) {

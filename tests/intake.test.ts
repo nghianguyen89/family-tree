@@ -48,6 +48,12 @@ before(async () => {
     .sort())
     await db.exec(readFileSync(`docs/migrations/${file}`, 'utf8'))
   await db.exec(newMigration)
+  await db.exec(
+    readFileSync(
+      'docs/migrations/20261016000000_intake_link_management.sql',
+      'utf8'
+    )
+  )
   for (const [id, role, active] of [
     [admin, 'admin', true],
     [editor, 'editor', true],
@@ -82,6 +88,159 @@ before(async () => {
 })
 after(async () => {
   await db.close()
+})
+
+test('shareable links restrict tokens to editors and preserve submissions on deletion', async () => {
+  const original = 'b'.repeat(64)
+  const replacement = 'c'.repeat(64)
+  const created = await asRole(
+    'authenticated',
+    editor,
+    `INSERT INTO family_intake_links(token_hash,share_token,title,root_person_id,expires_at)
+     VALUES (md5($1),$1,'Reusable link',$2,now()+interval '1 day') RETURNING id`,
+    [original, outside]
+  )
+  const id = created.rows[0].id
+  const sent = await asRole(
+    'anon',
+    null,
+    'SELECT submit_family_intake($1,$2::jsonb) AS id',
+    [original, JSON.stringify({ ...family(), anchor_id: outside })]
+  )
+  const sql = readFileSync(
+    'docs/migrations/20261016000000_intake_link_management.sql',
+    'utf8'
+  )
+  await db.exec(sql)
+  await db.exec(sql)
+  assert.equal(
+    (
+      await asRole(
+        'authenticated',
+        admin,
+        'SELECT share_token FROM family_intake_links WHERE id=$1',
+        [id]
+      )
+    ).rows[0].share_token,
+    original
+  )
+  assert.equal(
+    (
+      await asRole(
+        'authenticated',
+        member,
+        'SELECT share_token FROM family_intake_links WHERE id=$1',
+        [id]
+      )
+    ).rows.length,
+    0
+  )
+  await assert.rejects(
+    asRole(
+      'anon',
+      null,
+      'SELECT share_token FROM family_intake_links WHERE id=$1',
+      [id]
+    ),
+    /permission denied/
+  )
+  assert.equal(
+    (
+      await asRole(
+        'authenticated',
+        member,
+        'UPDATE family_intake_links SET is_active=false,deleted_at=now() WHERE id=$1 RETURNING id',
+        [id]
+      )
+    ).rows.length,
+    0
+  )
+  await assert.rejects(
+    asRole(
+      'authenticated',
+      editor,
+      'UPDATE family_intake_links SET share_token=$1 WHERE id=$2',
+      [replacement, id]
+    ),
+    /intake_share_token_check/
+  )
+  // Model an old link, then replace its token without resetting expiry or quotas.
+  await asRole(
+    'authenticated',
+    editor,
+    'UPDATE family_intake_links SET share_token=NULL WHERE id=$1',
+    [id]
+  )
+  await asRole(
+    'authenticated',
+    editor,
+    'UPDATE family_intake_links SET share_token=$1,token_hash=md5($1) WHERE id=$2 AND share_token IS NULL',
+    [replacement, id]
+  )
+  assert.equal(
+    (
+      await asRole(
+        'anon',
+        null,
+        'SELECT get_family_intake_options($1) AS options',
+        [original]
+      )
+    ).rows[0].options,
+    null
+  )
+  assert.ok(
+    (
+      await asRole(
+        'anon',
+        null,
+        'SELECT get_family_intake_options($1) AS options',
+        [replacement]
+      )
+    ).rows[0].options
+  )
+  await asRole(
+    'authenticated',
+    editor,
+    'UPDATE family_intake_links SET is_active=false,deleted_at=now() WHERE id=$1',
+    [id]
+  )
+  assert.equal(
+    (
+      await asRole(
+        'anon',
+        null,
+        'SELECT get_family_intake_options($1) AS options',
+        [replacement]
+      )
+    ).rows[0].options,
+    null
+  )
+  await assert.rejects(
+    asRole('anon', null, 'SELECT submit_family_intake($1,$2::jsonb)', [
+      replacement,
+      JSON.stringify({ ...family(), anchor_id: outside })
+    ])
+  )
+  assert.equal(
+    (
+      await asRole(
+        'authenticated',
+        editor,
+        'SELECT id FROM family_intake_submissions WHERE id=$1',
+        [sent.rows[0].id]
+      )
+    ).rows.length,
+    1
+  )
+  await assert.rejects(
+    asRole(
+      'authenticated',
+      editor,
+      'UPDATE family_intake_links SET is_active=true WHERE id=$1',
+      [id]
+    ),
+    /intake_deleted_link_check/
+  )
 })
 
 async function asRole(
@@ -430,7 +589,7 @@ test('disabled, expired and deleted-root links fail; member cannot create links,
   )
   await assert.rejects(send(), /expired collection link/)
   await db.query<Record<string, unknown>>(
-    "UPDATE family_intake_links SET is_active=true,expires_at=now()-interval '1 day'"
+    "UPDATE family_intake_links SET is_active=true,expires_at=now()-interval '1 day' WHERE deleted_at IS NULL"
   )
   await assert.rejects(send(), /expired collection link/)
   await db.query<Record<string, unknown>>(

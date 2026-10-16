@@ -8,6 +8,8 @@ Chạy [20261015010000_shared_media_library.sql](migrations/20261015010000_share
 
 Migration tạo danh mục `media_assets`, nhập metadata của gallery/CMS cũ và thêm `asset_id` cho các ảnh trong nội dung. Giữ file ở bucket/path cũ, giữ ID ảnh CMS và ảnh bìa đã lưu, không chuyển hoặc xóa file. Upload mới vào bucket private `media-library`; `gallery` và `home-content` được giữ để đọc các file cũ. Đường dẫn gallery không hợp lệ/URL ngoài Supabase không tự nhập vào thư viện mới. Không ghi nhận việc nhập dữ liệu thật hoàn tất trước khi migration được chạy và người dùng kiểm tra.
 
+Nếu đã cài thư viện nhưng upload báo từ chối quyền, chạy thêm [bản sửa policy trả kết quả sau khi thêm ảnh](migrations/20261016010000_fix_media_insert_returning.sql). Bản sửa chỉ thay policy đọc metadata, không thay ảnh, bucket hoặc dữ liệu. Đã cập nhật policy trong migration thư viện gốc và thêm bản sửa vào SQL bundle `/setup` cho cài đặt mới.
+
 ## Sử dụng
 
 - `/dashboard/gallery` là **Thư viện ảnh chung**. Admin/editor hoạt động tải ảnh, tìm kiếm, chỉnh tên/mô tả/ngày và quản lý file; member hoạt động chỉ xem những ảnh được phép. Không còn hai khu upload riêng trong luồng ứng dụng chính.
@@ -32,6 +34,25 @@ Upload mới tính SHA-256 của bytes thực nhận; cùng bytes dùng lại as
 Migration không tải toàn bộ file cũ về để tính hash, không tự xóa các bản sao vật lý đã tồn tại từ trước ở các bucket khác nhau. Chọn lại ảnh cũ qua thư viện sẽ dùng đúng file cũ. Chống upload trùng theo hash áp dụng cho các asset đã có hash từ luồng upload mới; không coi hai ảnh cùng tên hoặc nhìn giống nhau là cùng file.
 
 ## Kiểm tra và giới hạn
+
+### Chẩn đoán lỗi quyền upload (2026-10-16)
+
+API gallery `/api/media/upload` dùng bucket `media-library`. Thông báo cũ dùng chung với CMS nên nhắc nhầm `home-content`, đồng thời gộp lỗi quyền metadata vào lỗi Storage; mã nguồn đã tách `mediaStoragePermission` và `databasePermission`, chỉ đúng migration khi thiếu schema/bucket. Chưa xác nhận lỗi quyền thực tế được giải quyết trên Supabase.
+
+Ảnh kết quả SQL do chủ dự án cung cấp cho thấy policy Storage đã tồn tại, còn `media_assets_read` yêu cầu `is_active_user() AND can_read_media_asset(id)`. Đã tái hiện `42501` bằng PGlite khi editor dùng `INSERT ... RETURNING` giống API: hàm STABLE tự đọc bảng chưa thấy hàng vừa thêm trong cùng câu lệnh, nên SELECT policy chặn RETURNING. Kiểm thử trước đây chỉ thêm hàng không RETURNING hoặc dùng mock API nên bỏ sót trường hợp này.
+
+Bản sửa cho phép trực tiếp `is_admin() OR is_editor()` tại policy đọc; member vẫn phải hoạt động và qua `can_read_media_asset(id)`, anonymous vẫn không được SELECT bảng. Kiểm thử hồi quy tái hiện policy cũ bị chặn, áp dụng migration mới rồi INSERT RETURNING thành công; member/editor chưa hoạt động/anonymous vẫn bị chặn thêm ảnh. Chưa áp dụng bản sửa hoặc upload lại trên Supabase thật.
+
+Khi bucket/bảng đã tồn tại nhưng upload vẫn bị từ chối, kiểm tra policy thật trong SQL Editor bằng câu chỉ đọc sau; kết quả không chứa hồ sơ gia đình:
+
+```sql
+SELECT policyname, cmd, roles, qual, with_check
+FROM pg_policies
+WHERE schemaname = 'storage' AND tablename = 'objects'
+ORDER BY policyname;
+```
+
+So sánh `shared_media_upload` (`INSERT`, `authenticated`, bucket `media-library`, admin/editor hoạt động) với migration thư viện chung. Nếu thông báo là quyền database thì kiểm tra grant/RLS của `media_assets` thay vì đổi policy Storage. Không dùng service-role để bỏ qua lỗi quyền upload trong phiên người dùng.
 
 - `tests/shared-media.test.ts`: nhập dữ liệu cũ, replay migration, hai album dùng một file, trạng thái công khai/hết hạn/bìa, tách liên kết, xóa ảnh đang dùng, RLS/member/inactive editor và bảo vệ file Storage.
 - `tests/media-routes.test.ts`: quyền/origin/dung lượng/MIME, kích thước ảnh thật, hash/reuse, cleanup khi lỗi và service download sau kiểm tra quyền.

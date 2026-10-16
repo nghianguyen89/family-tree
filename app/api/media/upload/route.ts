@@ -5,8 +5,8 @@ import sharp from 'sharp'
 
 import { contentImageMime, MAX_CONTENT_IMAGE_BYTES } from '@/utils/content'
 import {
-  contentUploadFailure,
-  isContentUploadSameOrigin
+  isContentUploadSameOrigin,
+  mediaUploadFailure
 } from '@/utils/content-upload'
 import { imageFileTitle } from '@/utils/image-upload'
 import { getProfile, getSupabase } from '@/utils/supabase/queries'
@@ -72,7 +72,7 @@ export async function POST(request: Request) {
     .select(fields)
     .eq('content_hash', hash)
     .maybeSingle()
-  if (lookupError) return failure(contentUploadFailure(lookupError, 'database'))
+  if (lookupError) return failure(mediaUploadFailure(lookupError, 'database'))
   if (existing)
     return NextResponse.json(
       { asset: existing, reused: true },
@@ -102,7 +102,7 @@ export async function POST(request: Request) {
   const { error: uploadError } = await db.storage
     .from('media-library')
     .upload(path, bytes, { contentType: mime, upsert: false })
-  if (uploadError) return failure(contentUploadFailure(uploadError, 'storage'))
+  if (uploadError) return failure(mediaUploadFailure(uploadError, 'storage'))
   const { data, error } = await db
     .from('media_assets')
     .insert({
@@ -131,7 +131,7 @@ export async function POST(request: Request) {
           { headers: { 'Cache-Control': 'no-store' } }
         )
     }
-    return failure(contentUploadFailure(error, 'database'))
+    return failure(mediaUploadFailure(error, 'database'))
   }
   return NextResponse.json(
     { asset: data, reused: false },

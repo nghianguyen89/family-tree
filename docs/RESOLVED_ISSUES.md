@@ -2,6 +2,13 @@
 
 Ngày ghi nhận: 2026-10-15. Phần này lưu lại nguyên nhân và cách xử lý để các phiên làm việc sau không phải tìm lại.
 
+## Gallery từ chối quyền khi thêm ảnh mới (2026-10-16)
+
+- **Hiện tượng:** upload gallery báo kiểm tra Storage `home-content`, dù đã có bucket và policy `media-library`.
+- **Nguyên nhân tái hiện:** `media_assets_read` gọi `can_read_media_asset(id)` STABLE để tự tìm hàng. API dùng INSERT RETURNING; hàng mới chưa hiện trong truy vấn của hàm STABLE trong cùng câu lệnh, khiến SELECT policy từ chối RETURNING với `42501`. Thông báo cũ ánh xạ lỗi database này sang lỗi Storage.
+- **Sửa:** policy đọc cho phép trực tiếp admin/editor hoạt động; member vẫn qua kiểm tra phạm vi hiện có, khách không đọc bảng. Migration `20261016010000_fix_media_insert_returning.sql` sửa database đã cài; migration thư viện gốc và bundle cài mới cũng đã cập nhật. Thông báo phân biệt lỗi database/Storage và đúng bucket.
+- **Xác minh:** bài test PGlite dựng policy cũ, tái hiện lỗi rồi áp dụng bản sửa và thêm ảnh RETURNING thành công; kiểm tra caller không đủ quyền vẫn bị chặn. Ảnh policy thật được chủ dự án cung cấp; chưa chạy SQL sửa hoặc upload lại trên Supabase thật.
+
 ## Upload ảnh trang chủ báo lỗi chung
 
 - **Hiện tượng báo cáo:** tải ảnh đầu tiên ở phần thiết lập trang chủ local chỉ hiện thông báo chung về định dạng/dung lượng/Storage.

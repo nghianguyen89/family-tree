@@ -11,13 +11,21 @@ export const intakeMessages = {
     days: 'Hiệu lực (ngày)',
     expiry: 'Hết hạn',
     disable: 'Tắt link',
+    deleteLink: 'Xóa link',
+    deleteConfirmation:
+      'Xóa link này khỏi danh sách? Link sẽ ngừng nhận thông tin. Các hồ sơ đã gửi vẫn được giữ để duyệt.',
+    replaceLink: 'Tạo link thay thế',
+    replaceConfirmation:
+      'Link cũ chỉ lưu mã băm nên không thể khôi phục. Tạo link thay thế sẽ làm địa chỉ cũ ngừng hoạt động; hiệu lực và hồ sơ đã gửi được giữ nguyên. Tiếp tục?',
+    copyFallback:
+      'Chưa sao chép được tự động. Chọn ô link công khai và sao chép thủ công.',
     enabled: 'Đang mở',
     disabled: 'Đã tắt',
-    copy: 'Copy link',
-    copied: 'Đã copy',
-    publicLink: 'Link công khai vừa tạo',
+    copy: 'Sao chép link',
+    copied: 'Đã sao chép',
+    publicLink: 'Link công khai',
     keepLink:
-      'Lưu link này để gửi cho gia đình. Khi tải lại trang, hệ thống không hiển thị lại link đầy đủ.',
+      'Gửi link này cho gia đình. Có thể sao chép lại từ danh sách khi link còn mở và còn hiệu lực.',
     sender: 'Tên người gửi',
     contact: 'Số điện thoại hoặc email liên hệ',
     contactHint: 'Chỉ người duyệt xem thông tin liên hệ để hỏi lại khi cần.',
@@ -78,7 +86,7 @@ export const intakeMessages = {
       'Kiểm tra họ tên, quan hệ, ngày tháng và khoảng năm. Mỗi người phải nối với người đã chọn hoặc người khai phía trước.',
     unavailable: 'Link không tồn tại, đã tắt hoặc đã hết hạn.',
     migration:
-      'Chưa có chức năng thu thập trong database. Chạy migration thu thập thông tin và ngày cúng trước khi sử dụng.',
+      'Cần cập nhật database: chạy các migration thu thập thông tin và quản lý link (20261016000000_intake_link_management.sql).',
     error:
       'Không thể xử lý lúc này. Vui lòng thử lại hoặc liên hệ người quản lý gia phả.',
     limited:
@@ -134,13 +142,21 @@ export const intakeMessages = {
     days: 'Validity (days)',
     expiry: 'Expires',
     disable: 'Disable link',
+    deleteLink: 'Delete link',
+    deleteConfirmation:
+      'Remove this link from the list and stop accepting submissions? Existing submissions will remain available for review.',
+    replaceLink: 'Create replacement link',
+    replaceConfirmation:
+      'The original token cannot be recovered from its hash. Replacing it will invalidate the old URL while keeping its expiry and submissions. Continue?',
+    copyFallback:
+      'Automatic copying failed. Select the public link field and copy it manually.',
     enabled: 'Active',
     disabled: 'Disabled',
     copy: 'Copy link',
     copied: 'Copied',
-    publicLink: 'New public link',
+    publicLink: 'Public link',
     keepLink:
-      'Save this link to share. The full link will not be shown again after reloading.',
+      'Share this link with your family. Copy it again from the list while it is active and unexpired.',
     sender: 'Sender name',
     contact: 'Contact phone or email',
     contactHint: 'Only reviewers see your contact information.',
@@ -201,7 +217,7 @@ export const intakeMessages = {
       'Check names, relationships, dates and year ranges. Each person must connect to the anchor or an earlier person.',
     unavailable: 'This link is invalid, disabled or expired.',
     migration:
-      'Apply the collection and memorial migration before using this feature.',
+      'Apply the collection migrations, including 20261016000000_intake_link_management.sql, before using this feature.',
     error:
       'Unable to process this request. Try again or contact the family administrator.',
     limited:

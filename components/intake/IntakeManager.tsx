@@ -6,8 +6,10 @@ import { FormEvent, useEffect, useRef, useState } from 'react'
 
 import {
   createIntakeLink,
+  deleteIntakeLink,
   disableIntakeLink,
   getIntakeSubmissions,
+  replaceLegacyIntakeLink,
   reviewIntakeSubmission
 } from '@/app/actions/intake'
 import FamilyEditor from '@/components/intake/FamilyEditor'
@@ -30,9 +32,10 @@ export default function IntakeManager({
   const [title, setTitle] = useState('')
   const [root, setRoot] = useState('')
   const [days, setDays] = useState(90)
-  const [checkedAt] = useState(() => Date.now())
+  const [checkedAt, setCheckedAt] = useState(() => Date.now())
   const [publicLink, setPublicLink] = useState('')
   const [copied, setCopied] = useState(false)
+  const [copiedId, setCopiedId] = useState('')
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
@@ -48,6 +51,10 @@ export default function IntakeManager({
   const requestVersion = useRef(0)
   const reviewRef = useRef<HTMLElement>(null)
   const errorRef = useRef<HTMLParagraphElement>(null)
+  useEffect(() => {
+    const timer = window.setInterval(() => setCheckedAt(Date.now()), 30000)
+    return () => window.clearInterval(timer)
+  }, [])
   useEffect(() => {
     if (error)
       errorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -109,11 +116,69 @@ export default function IntakeManager({
     try {
       const result = await disableIntakeLink(id)
       if (result.error) setError(errorText(result.error))
-      else router.refresh()
+      else {
+        setPublicLink('')
+        setCopiedId('')
+        router.refresh()
+      }
     } catch {
       setError(text.error)
     } finally {
       setBusy(false)
+    }
+  }
+  async function manageLink(id: string, action: 'delete' | 'replace') {
+    if (
+      busy ||
+      !window.confirm(
+        action === 'delete' ? text.deleteConfirmation : text.replaceConfirmation
+      )
+    )
+      return
+    setBusy(true)
+    setError('')
+    try {
+      const result =
+        action === 'delete'
+          ? await deleteIntakeLink(id)
+          : await replaceLegacyIntakeLink(id)
+      if (result.error) setError(errorText(result.error))
+      else {
+        setPublicLink(
+          'token' in result && result.token
+            ? `${window.location.origin}/contribute/${result.token}`
+            : ''
+        )
+        setCopied(false)
+        setCopiedId('')
+        router.refresh()
+      }
+    } catch {
+      setError(text.error)
+    } finally {
+      setBusy(false)
+    }
+  }
+  async function copyLink(link: IntakeLink) {
+    if (
+      !link.share_token ||
+      !link.is_active ||
+      new Date(link.expires_at).getTime() <= checkedAt
+    ) {
+      setError(text.unavailable)
+      router.refresh()
+      return
+    }
+    const url = `${window.location.origin}/contribute/${link.share_token}`
+    setPublicLink(url)
+    setCopied(false)
+    setCopiedId('')
+    try {
+      await navigator.clipboard.writeText(url)
+      setCopiedId(link.id)
+      setCopied(true)
+    } catch {
+      setError(text.copyFallback)
     }
   }
   async function review(decision: 'approved' | 'rejected' | 'needs_info') {
@@ -228,6 +293,7 @@ export default function IntakeManager({
                   setCopied(true)
                 } catch {
                   setCopied(false)
+                  setError(text.copyFallback)
                 }
               }}>
               {copied ? text.copied : text.copy}
@@ -253,15 +319,45 @@ export default function IntakeManager({
                   })}
                 </p>
               </div>
-              {link.is_active && (
+              <div className='flex flex-wrap gap-2'>
+                {link.is_active &&
+                  new Date(link.expires_at).getTime() > checkedAt &&
+                  people.some(
+                    (person) => person.id === link.root_person_id
+                  ) && (
+                    <button
+                      type='button'
+                      disabled={busy}
+                      onClick={() =>
+                        link.share_token
+                          ? copyLink(link)
+                          : manageLink(link.id, 'replace')
+                      }
+                      className='rounded-xl border border-border px-4 py-2'>
+                      {link.share_token
+                        ? copiedId === link.id
+                          ? text.copied
+                          : text.copy
+                        : text.replaceLink}
+                    </button>
+                  )}
+                {link.is_active && (
+                  <button
+                    type='button'
+                    disabled={busy}
+                    onClick={() => disable(link.id)}
+                    className='rounded-xl border border-border px-4 py-2'>
+                    {text.disable}
+                  </button>
+                )}
                 <button
                   type='button'
                   disabled={busy}
-                  onClick={() => disable(link.id)}
-                  className='rounded-xl border border-border px-4 py-2'>
-                  {text.disable}
+                  onClick={() => manageLink(link.id, 'delete')}
+                  className='rounded-xl border border-border px-4 py-2 text-error'>
+                  {text.deleteLink}
                 </button>
-              )}
+              </div>
             </li>
           ))}
         </ul>

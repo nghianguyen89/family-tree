@@ -28,7 +28,10 @@ export default async function IntakePage() {
     fetchAllRows<IntakeLink>((from, to) =>
       supabase
         .from('family_intake_links')
-        .select('id,title,root_person_id,is_active,expires_at,created_at')
+        .select(
+          'id,title,root_person_id,is_active,expires_at,created_at,share_token'
+        )
+        .is('deleted_at', null)
         .order('created_at', { ascending: false })
         .order('id')
         .range(from, to)

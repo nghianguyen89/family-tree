@@ -83,6 +83,12 @@ before(async () => {
     [legacyImage, albumA]
   )
   await db.exec(migration)
+  await db.exec(
+    readFileSync(
+      'docs/migrations/20261016010000_fix_media_insert_returning.sql',
+      'utf8'
+    )
+  )
   await asUser(
     editor,
     "INSERT INTO media_assets(id,storage_bucket,storage_path,title,library_visible) VALUES($1,'media-library','private.png','Shared photo',false)",
@@ -90,6 +96,42 @@ before(async () => {
   )
 })
 after(() => db.close())
+
+test('editor can insert an asset and return its metadata in the same statement used by upload', async () => {
+  // Reproduce the policy shown in the reported SQL screenshot before upgrading.
+  await db.exec(`DROP POLICY media_assets_read ON public.media_assets;
+    CREATE POLICY media_assets_read ON public.media_assets FOR SELECT TO authenticated
+    USING (public.is_active_user() AND public.can_read_media_asset(id));`)
+  await assert.rejects(
+    asUser(
+      editor,
+      "INSERT INTO media_assets(storage_bucket,storage_path,title) VALUES('media-library','returning-before-fix.png','Before fix') RETURNING id,title"
+    ),
+    /row-level security/
+  )
+  await db.exec(
+    readFileSync(
+      'docs/migrations/20261016010000_fix_media_insert_returning.sql',
+      'utf8'
+    )
+  )
+  const result = await asUser(
+    editor,
+    "INSERT INTO media_assets(storage_bucket,storage_path,title) VALUES('media-library','returning-regression.png','Returning regression') RETURNING id,title"
+  )
+  assert.equal(result.rows[0].title, 'Returning regression')
+  await asUser(editor, 'SELECT public.remove_media_asset($1)', [
+    result.rows[0].id
+  ])
+  for (const user of [null, member, pending]) {
+    await assert.rejects(
+      asUser(
+        user,
+        "INSERT INTO media_assets(storage_bucket,storage_path,title) VALUES('media-library','denied-returning.png','Denied') RETURNING id,title"
+      )
+    )
+  }
+})
 
 test('migration imports old files without moving them and never makes draft assets public', async () => {
   const assets = (

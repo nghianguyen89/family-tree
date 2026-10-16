@@ -81,7 +81,10 @@ GRANT SELECT,INSERT ON public.media_assets TO authenticated;
 GRANT ALL ON public.media_assets TO service_role;
 GRANT UPDATE(title,description,event_date,library_visible) ON public.media_assets TO authenticated;
 DROP POLICY IF EXISTS media_assets_read ON public.media_assets;
-CREATE POLICY media_assets_read ON public.media_assets FOR SELECT TO authenticated USING (public.is_active_user() AND public.can_read_media_asset(id));
+CREATE POLICY media_assets_read ON public.media_assets FOR SELECT TO authenticated USING (
+  public.is_admin() OR public.is_editor() OR
+  (public.is_active_user() AND public.can_read_media_asset(id))
+);
 DROP POLICY IF EXISTS media_assets_insert ON public.media_assets;
 CREATE POLICY media_assets_insert ON public.media_assets FOR INSERT TO authenticated WITH CHECK (public.is_admin() OR public.is_editor());
 DROP POLICY IF EXISTS media_assets_update ON public.media_assets;

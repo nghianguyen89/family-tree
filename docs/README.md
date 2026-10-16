@@ -15,6 +15,7 @@ Cập nhật: 2026-10-16.
 9. [Cắt ảnh đại diện](AVATAR-CROP-HANDOFF.md): chọn khuôn mặt trong ảnh chung khi thêm/sửa thành viên.
 10. [Tải nhiều ảnh](MULTI-IMAGE-UPLOAD-HANDOFF.md): thumbnail, tải theo lô và bổ sung mô tả sau cho CMS/thư viện ảnh.
 11. [Thư viện ảnh chung](SHARED-MEDIA-HANDOFF.md): migration ảnh cũ, dùng lại file cho album/trang chủ, masonry và PhotoSwipe.
+12. [Panel điều hướng dashboard](DASHBOARD-NAVIGATION-HANDOFF.md): hamburger, thanh icon thu gọn, panel mở rộng và link theo vai trò.
 
 ## Tài liệu và tài nguyên có sẵn
 

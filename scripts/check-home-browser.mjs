@@ -10,6 +10,7 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 const renderingFixture = process.argv.includes('--rendering-fixture')
 const avatarCropFixture = process.argv.includes('--avatar-crop-fixture')
 const imageUploadFixture = process.argv.includes('--image-upload-fixture')
+const navigationFixture = process.argv.includes('--navigation-fixture')
 async function freePort() {
   const server = net.createServer()
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
@@ -189,6 +190,19 @@ try {
   )
   await send('Page.navigate', { url: origin + '/dashboard/content' })
   await waitFor(() => evaluate("location.pathname==='/login'"))
+  if (navigationFixture) {
+    const { checkDashboardNavigation } =
+      await import('./check-dashboard-navigation.mjs')
+    await checkDashboardNavigation({
+      origin,
+      send,
+      evaluate,
+      waitFor,
+      setHtml: (html) => {
+        fixtureHtml = html
+      }
+    })
+  }
   if (imageUploadFixture) {
     const { checkImageUpload } = await import('./check-image-upload.mjs')
     await checkImageUpload({

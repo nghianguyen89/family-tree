@@ -60,6 +60,7 @@ export interface IntakeOptions {
 
 export interface IntakeLink {
   id: string
+  share_token: string | null
   title: string
   root_person_id: string
   is_active: boolean

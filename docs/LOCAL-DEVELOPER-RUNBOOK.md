@@ -65,6 +65,8 @@ Sau khi sửa `.env.local`, dừng rồi chạy lại để chắc chắn server
 
 Sau khi có admin/editor và chạy migration `20261014020000_family_intake_and_memorial.sql`, mở `/dashboard/intake` để tạo link thu thập và duyệt gia đình. Hướng dẫn đầy đủ trong [bàn giao form/ngày cúng](FAMILY-INTAKE-HANDOFF.md). Các route public dùng publishable/anon key hiện có, không yêu cầu service-role key riêng cho tính năng này.
 
+Để sao chép lại và xóa link từ danh sách, chạy thêm [migration quản lý link](migrations/20261016000000_intake_link_management.sql). Link cũ chỉ có hash cần tạo link thay thế một lần nếu không còn giữ địa chỉ gốc; thao tác này yêu cầu xác nhận và giữ hồ sơ đã gửi.
+
 ## Trang chủ và nội dung
 
 Chạy migration `20261015000000_home_content.sql` sau các migration hiện có. Admin/editor quản lý tại `/dashboard/content`, thiết lập giới thiệu và ảnh bìa tại `/dashboard/content/settings`. Ảnh cần `SUPABASE_SERVICE_ROLE_KEY` phía server. Khi deploy Vercel, push code không tự áp dụng migration Supabase; cấu hình key ở môi trường Production và chạy SQL riêng. Hướng dẫn đầy đủ trong [bàn giao trang chủ](HOME-CONTENT-HANDOFF.md).

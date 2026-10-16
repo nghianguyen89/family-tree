@@ -21,7 +21,7 @@ export function contentUploadFailure(
   if (stage === 'database') {
     if (['42P01', 'PGRST205', 'PGRST204'].includes(error.code || ''))
       return 'schema'
-    if (error.code === '42501') return 'storagePermission'
+    if (error.code === '42501') return 'databasePermission'
     if (error.code === '23503') return 'notFound'
     return 'save'
   }
@@ -46,4 +46,20 @@ export function contentUploadFailure(
   )
     return 'storagePermission'
   return 'upload'
+}
+
+export function mediaUploadFailure(
+  error: Parameters<typeof contentUploadFailure>[0],
+  stage: 'storage' | 'database'
+) {
+  const code = contentUploadFailure(error, stage)
+  return (
+    (
+      {
+        storagePermission: 'mediaStoragePermission',
+        bucket: 'mediaBucket',
+        schema: 'mediaSchema'
+      } as Record<string, string>
+    )[code] || code
+  )
 }

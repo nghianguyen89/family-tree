@@ -1,6 +1,6 @@
 # Bàn giao — Form công khai, duyệt gia đình và ngày cúng riêng
 
-- Ngày: 2026-10-14.
+- Ngày: 2026-10-16.
 - Trạng thái: đã triển khai trong mã nguồn và kiểm thử tự động; chưa áp dụng migration trên Supabase thật.
 - Vai trò duyệt: admin hoặc editor đang hoạt động. “Mod” trong yêu cầu dùng vai trò editor hiện có.
 
@@ -8,9 +8,13 @@
 
 1. Chạy [migration thu thập và ngày cúng](migrations/20261014020000_family_intake_and_memorial.sql) trên đúng project Supabase. Database đã cài phải có các migration trước đó, gồm [migration khoảng năm](migrations/20261014010000_add_person_year_ranges.sql). Với database mới hoặc chưa biết migration còn thiếu, dùng SQL bundle đầy đủ ở `/setup` theo runbook.
 2. Đăng nhập admin/editor, mở menu tài khoản → **Thông tin chờ duyệt**, hoặc truy cập `/dashboard/intake`.
-3. Nhập tên đợt thu thập, chọn người gốc của nhánh, số ngày hiệu lực rồi tạo link. Copy và lưu link ngay; sau khi tải lại không thể lấy lại token gốc từ danh sách.
+3. Chạy thêm [migration quản lý link](migrations/20261016000000_intake_link_management.sql) sau migration thu thập (hoặc dùng bundle `/setup` đã cập nhật). Nhập tên đợt thu thập, chọn người gốc của nhánh, số ngày hiệu lực rồi tạo link. Link mới còn mở/còn hạn có nút **Sao chép link** trong danh sách, dùng lại sau khi tải trang hoặc đổi thiết bị. Nếu clipboard bị chặn, chọn ô link công khai để sao chép thủ công.
 4. Gửi link cho người trong nhánh. Họ chọn đời/người nối, khai từng thành viên và quan hệ, xem lại rồi gửi, không cần đăng nhập.
 5. Người duyệt chọn một lượt gửi, kiểm tra nhánh, ghép người đã có nếu trùng, chỉnh thông tin và đời khi cần. Duyệt sẽ lưu cả gia đình và quan hệ trong một transaction.
+
+**Tắt link** ngừng nhận thông tin và giữ link trong danh sách. **Xóa link** yêu cầu xác nhận, tắt và gỡ link khỏi danh sách bằng `deleted_at`; các hồ sơ đã gửi, kết quả duyệt và thành viên trên cây được giữ nguyên. Không dùng DELETE vì FK cũ có cascade đến hồ sơ chờ.
+
+Link tạo trước bản cập nhật chỉ có hash nên không khôi phục được địa chỉ gốc. Khi còn mở/còn hạn, nút **Tạo link thay thế** đổi token sau khi xác nhận: địa chỉ cũ ngừng hoạt động, giữ nguyên ngày hết hạn, hồ sơ và quota; cần gửi địa chỉ mới cho gia đình. Link cũ chưa thay thế vẫn dùng được nếu người quản lý còn giữ địa chỉ đó.
 
 Link tạo trên `localhost` chỉ truy cập được từ máy chạy ứng dụng theo cấu hình mạng hiện tại. Muốn gửi cho người thân ở nơi khác, ứng dụng cần chạy trên một địa chỉ public và tạo link ở địa chỉ đó. Phiên này không thực hiện triển khai hoặc mở tunnel.
 
@@ -62,11 +66,11 @@ Các cột của `persons`:
 | ------------------------------------ | ---------------------------------------------------------------------- |
 | Không đăng nhập/người giữ link       | Xem tên/đời trong nhánh và gửi dữ liệu vào khu chờ qua RPC chuyên dụng |
 | Member hoặc tài khoản chưa hoạt động | Không đọc danh sách chờ, tạo link hoặc duyệt                           |
-| Admin/editor hoạt động               | Tạo/tắt link, đọc hồ sơ chờ và duyệt                                   |
+| Admin/editor hoạt động               | Tạo/sao chép/tắt/xóa link, đọc hồ sơ chờ và duyệt                       |
 
 Không mở quyền đọc/ghi trực tiếp bảng gia phả hoặc bảng chờ cho anonymous. Public client dùng publishable/anon key, không dùng cookie phiên hay service-role key.
 
-- Token link ngẫu nhiên 32 byte, chỉ lưu hash trong database. Link mặc định 90 ngày, UI cho chọn 1–365 ngày; có thể tắt trước hạn.
+- Token link ngẫu nhiên 32 byte; link mới lưu thêm `share_token` để admin/editor sao chép lại, ràng buộc khớp `token_hash`. RLS hiện có chỉ cho admin/editor hoạt động đọc token, anonymous/member không đọc được bảng; RPC công khai không trả token. Link mặc định 90 ngày, UI cho chọn 1–365 ngày; có thể tắt hoặc xóa trước hạn. Link đã xóa bị ràng buộc luôn tắt.
 - Danh sách công khai tối đa 500 người là người gốc và con cháu theo quan hệ sinh học/nhận nuôi; không tự công khai toàn bộ người của các nhánh khác hoặc danh sách vợ/chồng ngoài nhánh.
 - Tối đa 30 lượt/link/giờ, 100 lượt/ngày và 1000 lượt tổng; quota trong database có khoá để không bị bỏ qua bằng gọi RPC trực tiếp.
 - API giới hạn JSON 64 KiB, kiểm tra consent, honeypot và origin. Chưa tích hợp CAPTCHA bên ngoài.
@@ -102,4 +106,5 @@ Kết quả kiểm tra và build mới nhất xem [CURRENT_SNAPSHOT.md](CURRENT_
 - [ ] Duyệt, ghép người trùng, kiểm tra nhánh/đời và quan hệ trên cây.
 - [ ] Khai người không rõ ngày mất nhưng có ngày cúng; kiểm tra lịch sự kiện.
 - [ ] Tắt link và kiểm tra không nhận thêm lượt gửi.
+- [ ] Chạy migration quản lý link; tạo link, tải lại trang rồi sao chép; thử link cũ/thay thế và xóa link, kiểm tra hồ sơ vẫn chờ duyệt được.
 - [ ] Kiểm tra thao tác trên điện thoại và địa chỉ website public trước khi gửi link rộng rãi.

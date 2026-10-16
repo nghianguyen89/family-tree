@@ -127,6 +127,14 @@ const vi = {
     'Chưa tìm thấy kho ảnh trang chủ. Cần chạy migration trang chủ để tạo bucket home-content.',
   uploadStoragePermission:
     'Supabase từ chối quyền lưu ảnh. Kiểm tra policy Storage home-content trong migration trang chủ và đăng nhập lại.',
+  uploadMediaStoragePermission:
+    'Supabase từ chối tải file vào kho ảnh chung media-library. Cần kiểm tra policy shared_media_upload và quyền Storage trong migration thư viện ảnh chung.',
+  uploadDatabasePermission:
+    'Supabase từ chối quyền đọc hoặc lưu thông tin ảnh trong database. Cần kiểm tra quyền bảng và policy RLS của thư viện ảnh; đây không phải lỗi quyền Storage.',
+  uploadMediaBucket:
+    'Chưa tìm thấy kho ảnh chung media-library. Cần chạy migration 20261015010000_shared_media_library.sql trên Supabase.',
+  uploadMediaSchema:
+    'Cấu trúc thư viện ảnh chung chưa được cập nhật. Cần chạy migration 20261015010000_shared_media_library.sql trên Supabase.',
   uploadSchema:
     'Cấu trúc dữ liệu ảnh chưa được cập nhật. Cần chạy migration trang chủ trên Supabase.',
   uploadLimit: 'Thư viện này đã có 100 ảnh. Xóa bớt ảnh trước khi tải thêm.',
@@ -271,6 +279,14 @@ const en: typeof vi = {
     'The homepage image bucket was not found. Apply the homepage migration to create home-content.',
   uploadStoragePermission:
     'Supabase denied permission to save the image. Check the home-content Storage policy in the homepage migration and sign in again.',
+  uploadMediaStoragePermission:
+    'Supabase denied the file upload to media-library. Check the shared_media_upload policy and Storage grants in the shared media migration.',
+  uploadDatabasePermission:
+    'Supabase denied access to the image metadata in the database. Check the library table grants and RLS policies; this is not a Storage permission error.',
+  uploadMediaBucket:
+    'The media-library bucket is missing. Apply 20261015010000_shared_media_library.sql in Supabase.',
+  uploadMediaSchema:
+    'The shared media schema is not up to date. Apply 20261015010000_shared_media_library.sql in Supabase.',
   uploadSchema:
     'The image database schema is not up to date. Apply the homepage migration in Supabase.',
   uploadLimit:
@@ -307,6 +323,10 @@ export function contentUploadErrorText(
     invalid: t.uploadInvalid,
     bucket: t.uploadBucket,
     storagePermission: t.uploadStoragePermission,
+    mediaStoragePermission: t.uploadMediaStoragePermission,
+    databasePermission: t.uploadDatabasePermission,
+    mediaBucket: t.uploadMediaBucket,
+    mediaSchema: t.uploadMediaSchema,
     schema: t.uploadSchema,
     limit: t.uploadLimit,
     notFound: t.uploadNotFound,

@@ -15,6 +15,8 @@ let active = true,
   failSave = false,
   removed = 0
 let saved: Record<string, unknown> | null = null
+let storageFailure: { statusCode: string; message: string } | null = null
+let lookupFailure: { code: string } | null = null
 let path = 'safe.png',
   bucket = 'media-library'
 mock.module('../utils/supabase/queries', () => ({
@@ -26,7 +28,7 @@ mock.module('../utils/supabase/queries', () => ({
       const query = {
         select: () => query,
         eq: () => query,
-        maybeSingle: async () => ({ data: saved, error: null }),
+        maybeSingle: async () => ({ data: saved, error: lookupFailure }),
         insert: (value: Record<string, unknown>) => {
           insert = value
           return query
@@ -43,7 +45,7 @@ mock.module('../utils/supabase/queries', () => ({
       from: () => ({
         upload: async () => {
           uploads++
-          return { error: null }
+          return { error: storageFailure }
         },
         remove: async () => {
           removed++
@@ -162,16 +164,35 @@ test('identical file uploads reuse the asset and never change its internal/priva
   assert.equal(uploads, 1)
   saved = null
   failSave = true
-  assert.equal(
-    (
-      await upload.POST(
-        uploadRequest(new File([photo], 'Failure.png', { type: 'image/png' }))
-      )
-    ).status,
-    400
+  const failedSave = await upload.POST(
+    uploadRequest(new File([photo], 'Failure.png', { type: 'image/png' }))
   )
+  assert.equal(failedSave.status, 400)
+  assert.equal((await failedSave.json()).error, 'databasePermission')
   assert.equal(removed, 1)
   failSave = false
+})
+
+test('shared upload reports Storage and metadata lookup denials separately', async () => {
+  const file = new File([photo], 'Denied.png', { type: 'image/png' })
+  const before = uploads
+  try {
+    lookupFailure = { code: '42501' }
+    const lookup = await upload.POST(uploadRequest(file))
+    assert.equal((await lookup.json()).error, 'databasePermission')
+    assert.equal(uploads, before)
+    lookupFailure = null
+    storageFailure = {
+      statusCode: '403',
+      message: 'new row violates row-level security policy'
+    }
+    const storage = await upload.POST(uploadRequest(file))
+    assert.equal((await storage.json()).error, 'mediaStoragePermission')
+    assert.equal(saved, null)
+  } finally {
+    lookupFailure = null
+    storageFailure = null
+  }
 })
 
 test('shared image proxy checks permission before service access, validates paths and never caches private bytes', async () => {

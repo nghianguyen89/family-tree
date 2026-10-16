@@ -4,7 +4,8 @@ import { test } from 'node:test'
 import { contentText, contentUploadErrorText } from '../lib/i18n/content'
 import {
   contentUploadFailure,
-  isContentUploadSameOrigin
+  isContentUploadSameOrigin,
+  mediaUploadFailure
 } from '../utils/content-upload'
 
 test('upload origin uses the requested Host when Next canonicalizes a loopback URL', () => {
@@ -67,7 +68,7 @@ test('upload failures distinguish schema, policies, missing bucket and limits wi
       { code: '42501', message: 'sensitive database detail' },
       'database'
     ),
-    'storagePermission'
+    'databasePermission'
   )
   assert.equal(contentUploadFailure({ code: 'PGRST205' }, 'database'), 'schema')
   assert.equal(
@@ -108,4 +109,40 @@ test('upload failures distinguish schema, policies, missing bucket and limits wi
     contentUploadErrorText('__proto__', 'en'),
     contentText('en').imageError
   )
+})
+
+test('shared media errors identify the current bucket and distinguish database permissions from Storage', () => {
+  assert.equal(
+    mediaUploadFailure({ statusCode: '403' }, 'storage'),
+    'mediaStoragePermission'
+  )
+  assert.equal(
+    mediaUploadFailure({ code: '42501' }, 'database'),
+    'databasePermission'
+  )
+  assert.equal(
+    mediaUploadFailure({ code: 'PGRST205' }, 'database'),
+    'mediaSchema'
+  )
+  assert.equal(
+    mediaUploadFailure(
+      { statusCode: '404', message: 'Bucket not found' },
+      'storage'
+    ),
+    'mediaBucket'
+  )
+  for (const locale of ['vi', 'en']) {
+    assert.match(
+      contentUploadErrorText('mediaStoragePermission', locale),
+      /media-library/
+    )
+    assert.doesNotMatch(
+      contentUploadErrorText('mediaStoragePermission', locale),
+      /home-content/
+    )
+    assert.match(
+      contentUploadErrorText('mediaSchema', locale),
+      /20261015010000_shared_media_library.sql/
+    )
+  }
 })
