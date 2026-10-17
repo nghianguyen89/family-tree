@@ -4,6 +4,8 @@ Ngày ghi nhận: 2026-10-17. Đây là trạng thái ở workspace, không ph�
 
 ## Đã thực hiện
 
+- Đăng nhập: chủ dự án xác nhận đăng nhập Google thành công. Đã bỏ nút Facebook khỏi form đăng nhập/đăng ký và để nút Google rộng toàn hàng theo yêu cầu; giữ luồng OAuth hiện có. ESLint file sửa và kiểm tra diff qua; chưa deploy thay đổi giao diện, không thay đổi cấu hình Supabase.
+
 - Form thu thập: chuyển nhóm nút **Thêm người / Bỏ người cuối** xuống ngay sau danh sách thành viên gia đình để tiếp tục nhập mà không cuộn lên đầu. Component dùng chung nên khu duyệt cũng có vị trí nút tương tự. ESLint component và `git diff --check` qua; chưa xác nhận tương tác browser, không thay đổi database hoặc ghi Supabase.
 
 - Thêm nhanh con và vợ/chồng trong chi tiết thành viên đã có ngày/tháng/năm sinh, lưu vào các cột ngày sinh hiện có để hồ sơ hiển thị ngày sinh và cung hoàng đạo. Cho phép bỏ trống từng phần; kiểm tra ngày hợp lệ trước khi ghi, kiểm tra toàn bộ dòng con có tên trước khi bắt đầu lưu. Không cần migration. Xem [bàn giao ngày thành viên](YEAR-RANGES-HANDOFF.md).

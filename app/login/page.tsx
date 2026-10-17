@@ -368,7 +368,7 @@ export default function LoginPage() {
                     <div className='grow border-t border-stone-200'></div>
                   </div>
 
-                  <div className='grid grid-cols-1 gap-3 sm:grid-cols-2'>
+                  <div className='grid grid-cols-1 gap-3'>
                     <button
                       type='button'
                       disabled={loading}
@@ -396,23 +396,6 @@ export default function LoginPage() {
                         />
                       </svg>
                       Google
-                    </button>
-
-                    <button
-                      type='button'
-                      disabled={loading}
-                      onClick={() => handleOAuthLogin('facebook')}
-                      className='flex w-full items-center justify-center gap-2.5 rounded-xl border border-stone-200/80 bg-surface py-3.5 text-sm font-medium text-stone-700 transition-all duration-200 hover:bg-stone-50 hover:text-stone-900 focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:outline-none disabled:cursor-wait disabled:opacity-60'>
-                      <svg
-                        aria-hidden='true'
-                        className='size-4'
-                        viewBox='0 0 24 24'>
-                        <path
-                          fill='#1877F2'
-                          d='M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.04 1.8-4.72 4.57-4.72 1.32 0 2.7.24 2.7.24v2.98h-1.52c-1.5 0-1.98.94-1.98 1.9v2.26h3.37l-.54 3.49H13.9V24C19.61 23.1 24 18.1 24 12.07Z'
-                        />
-                      </svg>
-                      Facebook
                     </button>
                   </div>
                 </>
