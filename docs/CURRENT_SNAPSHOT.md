@@ -1,8 +1,12 @@
 # Family tree — Trạng thái hiện tại
 
-Ngày ghi nhận: 2026-10-16. Đây là trạng thái ở workspace, không phải xác nhận đã triển khai lên production.
+Ngày ghi nhận: 2026-10-17. Đây là trạng thái ở workspace, không phải xác nhận đã triển khai lên production.
 
 ## Đã thực hiện
+
+- Form thu thập: chuyển nhóm nút **Thêm người / Bỏ người cuối** xuống ngay sau danh sách thành viên gia đình để tiếp tục nhập mà không cuộn lên đầu. Component dùng chung nên khu duyệt cũng có vị trí nút tương tự. ESLint component và `git diff --check` qua; chưa xác nhận tương tác browser, không thay đổi database hoặc ghi Supabase.
+
+- Thêm nhanh con và vợ/chồng trong chi tiết thành viên đã có ngày/tháng/năm sinh, lưu vào các cột ngày sinh hiện có để hồ sơ hiển thị ngày sinh và cung hoàng đạo. Cho phép bỏ trống từng phần; kiểm tra ngày hợp lệ trước khi ghi, kiểm tra toàn bộ dòng con có tên trước khi bắt đầu lưu. Không cần migration. Xem [bàn giao ngày thành viên](YEAR-RANGES-HANDOFF.md).
 
 - Đã tối ưu menu dashboard trên điện thoại: ẩn hẳn thanh icon khi đóng, bỏ khoảng trống bên trái để nội dung dùng toàn bộ chiều ngang; nút hamburger nằm trên header. Bấm mới mở panel, đóng trả focus về nút header; desktop giữ thanh icon và panel mở rộng. Không đổi quyền menu hoặc database. Xem [bàn giao điều hướng](DASHBOARD-NAVIGATION-HANDOFF.md).
 
@@ -39,6 +43,8 @@ Ngày ghi nhận: 2026-10-16. Đây là trạng thái ở workspace, không ph�
 - Đã bổ sung ngày cúng riêng hằng năm âm/dương lịch, tháng nhuận, không bắt buộc ngày hoặc năm mất; lịch cúng riêng ưu tiên trong sự kiện.
 
 ## Bằng chứng kiểm tra
+
+Thêm nhanh ngày sinh (2026-10-17): TypeScript, ESLint component, `git diff --check`, 8 tests khoảng năm/ngày cúng và 13 kiểm tra validator ngày sinh trực tiếp đều qua (ngày thiếu một phần, tháng sai, ngày 31/4, năm nhuận/không nhuận, năm dưới 100). Chưa kiểm thử tương tác bằng trình duyệt hoặc lưu bằng phiên đăng nhập thật; không ghi Supabase, không chạy migration, chưa deploy.
 
 Menu mobile ẩn hoàn toàn (2026-10-16): TypeScript, ESLint các file sửa và 2 tests điều hướng qua. Edge headless với dữ liệu/profile/auth/router giả xác nhận thanh bên không chiếm chỗ khi đóng, nội dung rộng đủ 375px, nút mở nằm trên header, link ẩn không có vùng hiển thị; panel mở đè, giữ Tab/Escape/trả focus về header, đóng bằng link/bấm ngoài, scroll lock/inert, 320px/dark mode, đăng xuất, tiếng Anh và resize về desktop đều qua. Smoke test trang chủ/theme/kho tin/chuyển khách khỏi CMS tiếp tục qua, không lỗi runtime. Đã xem ảnh mobile; chưa deploy hoặc kiểm thử bằng phiên đăng nhập thật, không ghi Supabase.
 

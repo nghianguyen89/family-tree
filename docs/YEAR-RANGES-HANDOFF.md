@@ -14,6 +14,14 @@ Tính năng [ngày cúng riêng](FAMILY-INTAKE-HANDOFF.md) cho phép thiết l�
 
 ## Quy ước dữ liệu
 
+### Thêm nhanh ngày sinh (2026-10-17)
+
+Trong chi tiết thành viên, **Thêm con** và **Thêm vợ/chồng nhanh** có ba ô ngày, tháng, năm sinh dương lịch. Từng ô có thể bỏ trống; dữ liệu được lưu vào `birth_day`, `birth_month`, `birth_year` hiện có, không cần migration. Hồ sơ dùng ngày/tháng để hiển thị cung hoàng đạo, và đủ ngày/tháng/năm để tính ngày âm theo luồng hiện có.
+
+Kiểm tra ngày trước khi lưu; lô thêm con được kiểm tra tất cả dòng có tên trước khi tạo người đầu tiên. Không chấp nhận ngày ngoài tháng hoặc 29/2 trong năm không nhuận; khi chưa biết năm, cho phép 29/2 mà không tự điền năm. Thêm dòng, hủy hoặc lưu thành công đều khởi tạo lại ngày/tháng cùng các trường cũ.
+
+TypeScript, ESLint component, 8 tests khoảng năm/ngày cúng và 13 kiểm tra validator trực tiếp đã qua. Chưa xác nhận tương tác browser hoặc lưu vào Supabase thật, chưa deploy.
+
 | Trường                             | Ý nghĩa                 |
 | ---------------------------------- | ----------------------- |
 | `birth_year_from`, `birth_year_to` | Hai đầu khoảng năm sinh |

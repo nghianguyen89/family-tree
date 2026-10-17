@@ -26,6 +26,7 @@ Link tạo trên `localhost` chỉ truy cập được từ máy chạy ứng d�
 - Con có thể chọn thêm cha/mẹ còn lại nếu người đó đã khai phía trước hoặc là người nối đã chọn.
 - Họ tên, giới tính; ngày sinh/ngày mất biết một phần hoặc khoảng năm; tên thường gọi, ghi chú; tình trạng đã mất và ngày cúng riêng.
 - Số người được tính từ các mục đã thêm. Nút bỏ người chỉ bỏ mục cuối để không làm đứt các tham chiếu quan hệ phía sau.
+- Từ 2026-10-17, nhóm nút **Thêm người / Bỏ người cuối** nằm ngay dưới danh sách thành viên, áp dụng cho form công khai và component dùng chung ở khu duyệt. Giữ giới hạn 1–30 người. ESLint component và kiểm tra diff qua; chưa kiểm tra tương tác browser sau khi dời nút, không thay đổi Supabase.
 - Có bước xem lại, đồng ý gửi và mã biên nhận. Không có trang công khai tra cứu hồ sơ chờ duyệt bằng mã biên nhận.
 
 ## Duyệt và xử lý trùng

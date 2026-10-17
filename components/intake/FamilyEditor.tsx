@@ -42,32 +42,6 @@ export default function FamilyEditor({
         <h2 className='text-lg font-semibold'>
           {text.people} ({value.people.length})
         </h2>
-        <div className='flex gap-2'>
-          <button
-            type='button'
-            disabled={value.people.length >= 30}
-            className='rounded-xl border border-border bg-surface px-4 py-2 text-sm disabled:opacity-50'
-            onClick={() =>
-              onChange({
-                ...value,
-                people: [
-                  ...value.people,
-                  newIntakePerson(value.people[0]?.client_id)
-                ]
-              })
-            }>
-            {text.add}
-          </button>
-          <button
-            type='button'
-            disabled={value.people.length <= 1}
-            className='rounded-xl border border-border px-4 py-2 text-sm disabled:opacity-50'
-            onClick={() =>
-              onChange({ ...value, people: value.people.slice(0, -1) })
-            }>
-            {text.remove}
-          </button>
-        </div>
       </div>
       {value.people.map((person, index) => {
         const relatives = [
@@ -280,6 +254,32 @@ export default function FamilyEditor({
           </section>
         )
       })}
+      <div className='flex flex-wrap gap-2'>
+        <button
+          type='button'
+          disabled={value.people.length >= 30}
+          className='rounded-xl border border-border bg-surface px-4 py-2 text-sm disabled:opacity-50'
+          onClick={() =>
+            onChange({
+              ...value,
+              people: [
+                ...value.people,
+                newIntakePerson(value.people[0]?.client_id)
+              ]
+            })
+          }>
+          {text.add}
+        </button>
+        <button
+          type='button'
+          disabled={value.people.length <= 1}
+          className='rounded-xl border border-border px-4 py-2 text-sm disabled:opacity-50'
+          onClick={() =>
+            onChange({ ...value, people: value.people.slice(0, -1) })
+          }>
+          {text.remove}
+        </button>
+      </div>
       <p className='text-sm text-secondary'>{text.generationHint}</p>
     </div>
   )

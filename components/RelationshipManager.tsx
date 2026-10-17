@@ -17,6 +17,21 @@ import { createClient } from '@/utils/supabase/client'
 
 import DefaultAvatar from './DefaultAvatar'
 
+function isValidQuickBirthDate(year: string, month: string, day: string) {
+  const validPart = (value: string, max: number) =>
+    value === '' ||
+    (/^\d+$/.test(value) && Number(value) >= 1 && Number(value) <= max)
+  if (!validPart(year, 9999) || !validPart(month, 12) || !validPart(day, 31))
+    return false
+  if (month && day) {
+    // An unknown year allows February 29 without inventing a birth year.
+    const date = new Date(0)
+    date.setFullYear(Number(year || 2000), Number(month), 0)
+    return Number(day) <= date.getDate()
+  }
+  return true
+}
+
 interface RelationshipManagerProps {
   person: Person
   isAdmin: boolean
@@ -90,6 +105,8 @@ export default function RelationshipManager({
       name: string
       gender: 'male' | 'female' | 'other'
       birthYear: string
+      birthMonth: string
+      birthDay: string
       birthOrder: string
       isProcessing: boolean
     }[]
@@ -98,6 +115,8 @@ export default function RelationshipManager({
       name: '',
       gender: 'male',
       birthYear: '',
+      birthMonth: '',
+      birthDay: '',
       birthOrder: '1',
       isProcessing: false
     }
@@ -107,6 +126,8 @@ export default function RelationshipManager({
   const [isAddingSpouse, setIsAddingSpouse] = useState(false)
   const [newSpouseName, setNewSpouseName] = useState('')
   const [newSpouseBirthYear, setNewSpouseBirthYear] = useState('')
+  const [newSpouseBirthMonth, setNewSpouseBirthMonth] = useState('')
+  const [newSpouseBirthDay, setNewSpouseBirthDay] = useState('')
   const [newSpouseNote, setNewSpouseNote] = useState('')
 
   // Fetch relationships
@@ -431,6 +452,20 @@ export default function RelationshipManager({
       return
     }
 
+    if (
+      validChildren.some(
+        (child) =>
+          !isValidQuickBirthDate(
+            child.birthYear,
+            child.birthMonth,
+            child.birthDay
+          )
+      )
+    ) {
+      setError(t('invalidBirthDate'))
+      return
+    }
+
     setProcessing(true)
     setError(null)
     let successCount = 0
@@ -445,6 +480,8 @@ export default function RelationshipManager({
           full_name: string
           gender: 'male' | 'female' | 'other'
           birth_year?: number
+          birth_month?: number
+          birth_day?: number
           birth_order?: number
           is_in_law?: boolean
           generation?: number
@@ -461,6 +498,10 @@ export default function RelationshipManager({
           const year = parseInt(child.birthYear)
           if (!isNaN(year)) personPayload.birth_year = year
         }
+        if (child.birthMonth !== '')
+          personPayload.birth_month = Number(child.birthMonth)
+        if (child.birthDay !== '')
+          personPayload.birth_day = Number(child.birthDay)
         if (child.birthOrder.trim() !== '') {
           const order = parseInt(child.birthOrder)
           if (!isNaN(order)) personPayload.birth_order = order
@@ -505,6 +546,8 @@ export default function RelationshipManager({
             name: '',
             gender: 'male',
             birthYear: '',
+            birthMonth: '',
+            birthDay: '',
             birthOrder: '1',
             isProcessing: false
           }
@@ -539,6 +582,17 @@ export default function RelationshipManager({
       return
     }
 
+    if (
+      !isValidQuickBirthDate(
+        newSpouseBirthYear,
+        newSpouseBirthMonth,
+        newSpouseBirthDay
+      )
+    ) {
+      setError(t('invalidBirthDate'))
+      return
+    }
+
     setProcessing(true)
     setError(null)
     try {
@@ -555,6 +609,8 @@ export default function RelationshipManager({
         full_name: string
         gender: 'male' | 'female' | 'other'
         birth_year?: number
+        birth_month?: number
+        birth_day?: number
         is_in_law?: boolean
         generation?: number
       } = {
@@ -571,6 +627,11 @@ export default function RelationshipManager({
         const year = parseInt(newSpouseBirthYear)
         if (!isNaN(year)) personPayload.birth_year = year
       }
+
+      if (newSpouseBirthMonth !== '')
+        personPayload.birth_month = Number(newSpouseBirthMonth)
+      if (newSpouseBirthDay !== '')
+        personPayload.birth_day = Number(newSpouseBirthDay)
 
       // 1. Insert Person
       const { data: newPersonData, error: insertError } = await supabase
@@ -596,6 +657,8 @@ export default function RelationshipManager({
       setIsAddingSpouse(false)
       setNewSpouseName('')
       setNewSpouseBirthYear('')
+      setNewSpouseBirthMonth('')
+      setNewSpouseBirthDay('')
       setNewSpouseNote('')
       fetchRelationships()
       router.refresh()
@@ -1037,6 +1100,8 @@ export default function RelationshipManager({
                             name: '',
                             gender: 'male',
                             birthYear: '',
+                            birthMonth: '',
+                            birthDay: '',
                             birthOrder: '1',
                             isProcessing: false
                           })
@@ -1049,7 +1114,7 @@ export default function RelationshipManager({
                     </button>
                   </div>
                   {/* Fields */}
-                  <div className='flex flex-wrap gap-2 sm:flex-nowrap'>
+                  <div className='flex flex-wrap gap-2'>
                     <input
                       id={`child-birth-order-${index}`}
                       name={`child-birth-order-${index}`}
@@ -1092,19 +1157,64 @@ export default function RelationshipManager({
                       <option value='female'>{t('female')}</option>
                       <option value='other'>{t('otherGender')}</option>
                     </select>
-                    <input
-                      id={`child-birth-year-${index}`}
-                      name={`child-birth-year-${index}`}
-                      type='number'
-                      placeholder={t('birthYear')}
-                      value={child.birthYear}
-                      onChange={(e) => {
-                        const newBulk = [...bulkChildren]
-                        newBulk[index].birthYear = e.target.value
-                        setBulkChildren(newBulk)
-                      }}
-                      className='w-[calc(50%-0.25rem)] shrink-0 rounded-lg border border-stone-300 bg-stone-50 px-2 py-2 text-sm text-stone-900 placeholder-stone-400 transition-colors focus:border-sky-500 focus:ring-sky-500 sm:w-24'
-                    />
+                  </div>
+                  <div className='mt-2 grid grid-cols-3 gap-2'>
+                    {(
+                      [
+                        ['birthDay', 'day', 31],
+                        ['birthMonth', 'month', 12]
+                      ] as const
+                    ).map(([field, label, max]) => (
+                      <div key={field}>
+                        <label
+                          htmlFor={`child-${field}-${index}`}
+                          className='mb-1 block text-sm font-medium text-secondary'>
+                          {t(label)}
+                        </label>
+                        <input
+                          id={`child-${field}-${index}`}
+                          name={`child-${field}-${index}`}
+                          type='number'
+                          min='1'
+                          max={max}
+                          step='1'
+                          placeholder={t(label)}
+                          value={child[field]}
+                          onChange={(e) =>
+                            setBulkChildren((children) =>
+                              children.map((row, i) =>
+                                i === index
+                                  ? { ...row, [field]: e.target.value }
+                                  : row
+                              )
+                            )
+                          }
+                          className='block w-full min-w-0 rounded-lg border border-border bg-neutral px-2 py-2 text-sm text-primary placeholder:text-secondary focus:border-tertiary focus:ring-tertiary'
+                        />
+                      </div>
+                    ))}
+                    <div>
+                      <label
+                        htmlFor={`child-birth-year-${index}`}
+                        className='mb-1 block text-sm font-medium text-secondary'>
+                        {t('birthYear')}
+                      </label>
+                      <input
+                        id={`child-birth-year-${index}`}
+                        name={`child-birth-year-${index}`}
+                        type='number'
+                        placeholder={t('birthYear')}
+                        min='1'
+                        max='9999'
+                        value={child.birthYear}
+                        onChange={(e) => {
+                          const newBulk = [...bulkChildren]
+                          newBulk[index].birthYear = e.target.value
+                          setBulkChildren(newBulk)
+                        }}
+                        className='block w-full min-w-0 rounded-lg border border-border bg-neutral px-2 py-2 text-sm text-primary placeholder:text-secondary focus:border-tertiary focus:ring-tertiary'
+                      />
+                    </div>
                   </div>
                 </div>
               ))}
@@ -1118,6 +1228,8 @@ export default function RelationshipManager({
                       name: '',
                       gender: 'male',
                       birthYear: '',
+                      birthMonth: '',
+                      birthDay: '',
                       birthOrder: nextOrder,
                       isProcessing: false
                     }
@@ -1145,6 +1257,8 @@ export default function RelationshipManager({
                       name: '',
                       gender: 'male',
                       birthYear: '',
+                      birthMonth: '',
+                      birthDay: '',
                       birthOrder: '1',
                       isProcessing: false
                     }
@@ -1155,6 +1269,11 @@ export default function RelationshipManager({
                 {t('cancel')}
               </button>
             </div>
+            {error && (
+              <p role='alert' className='text-sm text-error'>
+                {error}
+              </p>
+            )}
           </div>
         </div>
       )}
@@ -1184,21 +1303,51 @@ export default function RelationshipManager({
               />
             </div>
 
-            <div>
-              <label
-                htmlFor='spouse-birth-year'
-                className='mb-1 block text-sm font-medium text-stone-600'>
-                {t('optionalBirthYear')}
-              </label>
-              <input
-                id='spouse-birth-year'
-                name='spouse-birth-year'
-                type='number'
-                placeholder={t('birthYearExample')}
-                value={newSpouseBirthYear}
-                onChange={(e) => setNewSpouseBirthYear(e.target.value)}
-                className='block w-full rounded-lg border border-stone-300 bg-surface p-2 text-sm text-stone-900 placeholder-stone-400 transition-colors focus:border-rose-500 focus:ring-rose-500 sm:p-2.5'
-              />
+            <div className='grid grid-cols-3 gap-2'>
+              {(
+                [
+                  ['day', newSpouseBirthDay, setNewSpouseBirthDay, 31],
+                  ['month', newSpouseBirthMonth, setNewSpouseBirthMonth, 12]
+                ] as const
+              ).map(([label, value, setValue, max]) => (
+                <div key={label}>
+                  <label
+                    htmlFor={`spouse-${label}`}
+                    className='mb-1 block text-sm font-medium text-secondary'>
+                    {t(label)}
+                  </label>
+                  <input
+                    id={`spouse-${label}`}
+                    name={`spouse-${label}`}
+                    type='number'
+                    min='1'
+                    max={max}
+                    step='1'
+                    placeholder={t(label)}
+                    value={value}
+                    onChange={(e) => setValue(e.target.value)}
+                    className='block w-full min-w-0 rounded-lg border border-border bg-surface p-2 text-sm text-primary placeholder:text-secondary focus:border-tertiary focus:ring-tertiary sm:p-2.5'
+                  />
+                </div>
+              ))}
+              <div>
+                <label
+                  htmlFor='spouse-birth-year'
+                  className='mb-1 block text-sm font-medium text-stone-600'>
+                  {t('birthYear')}
+                </label>
+                <input
+                  id='spouse-birth-year'
+                  name='spouse-birth-year'
+                  type='number'
+                  min='1'
+                  max='9999'
+                  placeholder={t('birthYearExample')}
+                  value={newSpouseBirthYear}
+                  onChange={(e) => setNewSpouseBirthYear(e.target.value)}
+                  className='block w-full rounded-lg border border-stone-300 bg-surface p-2 text-sm text-stone-900 placeholder-stone-400 transition-colors focus:border-rose-500 focus:ring-rose-500 sm:p-2.5'
+                />
+              </div>
             </div>
 
             <div>
@@ -1241,6 +1390,8 @@ export default function RelationshipManager({
                   setIsAddingSpouse(false)
                   setNewSpouseName('')
                   setNewSpouseBirthYear('')
+                  setNewSpouseBirthMonth('')
+                  setNewSpouseBirthDay('')
                   setNewSpouseNote('')
                 }}
                 className='rounded-md border border-stone-300 bg-surface px-4 py-2 text-sm text-stone-700 transition-colors hover:bg-stone-50 sm:rounded-lg sm:py-2.5'>
