@@ -18,7 +18,8 @@ export default function DashboardHeader() {
             className='group flex items-center gap-2 sm:gap-3'>
             <div className='relative size-10 shrink-0 overflow-hidden rounded-xl transition-all'>
               <Image
-                src='/icon.png'
+                src={config.logo || '/icon.png'}
+                unoptimized
                 alt='Logo'
                 fill
                 className='object-contain'

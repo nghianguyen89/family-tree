@@ -1,12 +1,14 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+import { deploymentError } from '@/utils/deployment'
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY
 
 export async function updateSession(request: NextRequest) {
   // If env vars are missing, we cannot create a supabase client
-  if (!supabaseUrl || !supabaseKey) {
+  if (deploymentError() || !supabaseUrl || !supabaseKey) {
     if (request.nextUrl.pathname !== '/missing-db-config') {
       const url = request.nextUrl.clone()
       url.pathname = '/missing-db-config'

@@ -1,6 +1,7 @@
 import { BookOpen, Settings2 } from 'lucide-react'
 import Link from 'next/link'
 
+import config from '@/app/config'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import ThemeToggle from '@/components/ThemeToggle'
 import { contentText } from '@/lib/i18n/content'
@@ -21,10 +22,21 @@ export default function PublicHeader({
     <header className='sticky top-0 z-30 border-b border-border bg-surface'>
       <div className='mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8'>
         <Link href='/' className='flex min-w-0 flex-1 items-center gap-3'>
-          <BookOpen
-            className='size-6 shrink-0 text-tertiary'
-            aria-hidden='true'
-          />
+          {config.logo ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={config.logo}
+              alt=''
+              width={32}
+              height={32}
+              className='size-8 shrink-0 rounded-md'
+            />
+          ) : (
+            <BookOpen
+              className='size-6 shrink-0 text-tertiary'
+              aria-hidden='true'
+            />
+          )}
           <span className='truncate font-serif text-xl font-semibold text-primary'>
             {title}
           </span>

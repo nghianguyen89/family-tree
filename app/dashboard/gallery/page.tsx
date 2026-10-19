@@ -1,3 +1,4 @@
+import config from '@/app/config'
 import MediaLibrary from '@/components/media/MediaLibrary'
 import { getServerTranslations } from '@/lib/i18n/server'
 import type { MediaAsset } from '@/types/media'
@@ -6,7 +7,7 @@ import { getProfile, getSupabase } from '@/utils/supabase/queries'
 export async function generateMetadata() {
   const { t } = await getServerTranslations()
   return {
-    title: `${t('galleryTitle')} | Gia Phả OS`,
+    title: `${t('galleryTitle')} | ${config.siteName}`,
     description: t('galleryDescription')
   }
 }

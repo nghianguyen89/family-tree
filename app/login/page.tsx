@@ -18,13 +18,9 @@ const ssoGuideUrl =
 
 export default function LoginPage() {
   const { t } = useI18n()
-  const isDemo =
-    typeof window !== 'undefined' &&
-    window.location.hostname === config.demoDomain
-  const [email, setEmail] = useState(
-    isDemo ? 'nguyentrongnghia1989@gmail.com' : ''
-  )
-  const [password, setPassword] = useState(isDemo ? 'giaphaos' : '')
+  const isDemo = config.isDemo
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -39,11 +35,6 @@ export default function LoginPage() {
   const ssoDisabled = process.env.NEXT_PUBLIC_DISABLE_SSO !== 'false'
 
   const handleOAuthLogin = async (provider: 'google' | 'facebook') => {
-    if (isDemo) {
-      setError(t('demoOAuthNotice'))
-      return
-    }
-
     setLoading(true)
     setError(null)
     setSuccessMessage(null)
@@ -52,7 +43,7 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`
+        redirectTo: `${config.appUrl}/auth/callback`
       }
     })
 
@@ -99,7 +90,7 @@ export default function LoginPage() {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback`
+            emailRedirectTo: `${config.appUrl}/auth/callback`
           }
         })
 
@@ -404,10 +395,6 @@ export default function LoginPage() {
               <button
                 type='button'
                 onClick={() => {
-                  if (isLogin && isDemo) {
-                    setError(t('demoLoginNotice'))
-                    return
-                  }
                   setIsLogin(!isLogin)
                   setError(null)
                   setSuccessMessage(null)

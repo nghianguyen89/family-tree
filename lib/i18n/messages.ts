@@ -498,9 +498,15 @@ export const messages = {
     cancel: 'Hủy bỏ',
     saving: 'Đang lưu...',
     saveChanges: 'Lưu thay đổi',
-    dbMissingTitle: 'Chưa kết nối cơ sở dữ liệu',
+    dbMissingTitle: 'Cấu hình triển khai chưa hợp lệ',
     dbMissingDescription:
-      'Ứng dụng hiện chưa được cấu hình biến môi trường kết nối đến Supabase.',
+      'Cần xác minh cấu hình gia tộc và project Supabase trước khi truy cập dữ liệu.',
+    deploymentConfigBlocked:
+      'Thao tác dữ liệu đang bị chặn. Kiểm tra cấu hình phía triển khai; không dùng project gia đình khác để thử.',
+    checkFamilyConfig:
+      'Chọn FAMILY_ID tồn tại trong families/<family-id>/ và cấu hình APP_URL đúng địa chỉ website này.',
+    checkProjectBinding:
+      'Xác minh URL, publishable key và các key phía server đều thuộc project Supabase đã gắn với gia tộc được chọn. Xem docs-multi-family/README.md để cấu hình.',
     troubleshooting: 'Hướng dẫn khắc phục:',
     signInTo: 'Đăng nhập vào',
     getKeys:
@@ -684,10 +690,17 @@ export const messages = {
       'Kiểm tra source code và database trước khi áp dụng các thay đổi cần thiết.',
     checkAgain: 'Kiểm tra lại',
     sourceUpdated: 'Source code đã được cập nhật',
-    sourceOutdated: 'Cần cập nhật source code trước khi tiếp tục',
+    sourceOutdated: 'Có bản phát hành mới, có thể chọn thời điểm cập nhật',
+    sourceMandatory: 'Bắt buộc cập nhật',
+    releaseFeedMissing: 'Chưa cấu hình kênh phát hành sản phẩm đã xác minh.',
+    migrationTargetError:
+      'Cấu hình đích migration không khớp gia tộc/project đã chọn.',
+    schemaIncompatible:
+      'Database có migration ngoài phiên bản code đã chọn. Cần kiểm tra tương thích trước khi tiếp tục.',
+    selectedSchema: 'Schema của code đã chọn',
     sourceUnknown: 'Chưa thể kiểm tra version source code',
     runningVersion: 'Đang chạy:',
-    latestVersion: 'GitHub:',
+    latestVersion: 'Bản phát hành:',
     unknownVersion: 'không xác định',
     sourceUpdateGuide: 'Xem hướng dẫn cập nhật source code',
     database: 'Database',
@@ -700,7 +713,7 @@ export const messages = {
     sourceVersionUnknownError:
       'Không xác định được version trong package.json hiện tại.',
     sourceVersionFetchError:
-      'Không thể kiểm tra version source code trên GitHub.',
+      'Không thể kiểm tra kênh phát hành sản phẩm; trạng thái chưa xác định.',
     migrationAccessDenied: 'Từ chối truy cập.',
     databaseConfigMissing: 'Chưa cấu hình SUPABASE_DB_URL trên server.',
     migrationStatusError: 'Không thể kết nối hoặc đọc trạng thái migration.',
@@ -726,7 +739,7 @@ export const messages = {
     applyChanges: 'Áp dụng thay đổi',
     systemUpdated: 'Hệ thống đã được cập nhật',
     systemSynced:
-      'Source code và database đang đồng bộ. Hiện không có thay đổi nào cần áp dụng.',
+      'Không còn migration chờ trong phiên bản code đã chọn. Trạng thái bản phát hành được hiển thị riêng ở trên.',
     inLawFemale: 'Dâu',
     inLawMale: 'Rể',
     inLawOther: 'Khách',
@@ -1319,9 +1332,15 @@ export const messages = {
     cancel: 'Cancel',
     saving: 'Saving...',
     saveChanges: 'Save changes',
-    dbMissingTitle: 'Database is not connected',
+    dbMissingTitle: 'Deployment configuration is invalid',
     dbMissingDescription:
-      'The application has not been configured with the environment variables required to connect to Supabase.',
+      'Verify the family configuration and Supabase project before accessing data.',
+    deploymentConfigBlocked:
+      'Data operations are blocked. Check the deployment configuration; do not test using another family’s project.',
+    checkFamilyConfig:
+      'Select a FAMILY_ID that exists in families/<family-id>/ and set APP_URL to this website’s canonical address.',
+    checkProjectBinding:
+      'Verify that the URL, publishable key and server keys belong to the Supabase project bound to the selected family. See docs-multi-family/README.md for setup.',
     troubleshooting: 'How to fix it:',
     signInTo: 'Sign in to',
     getKeys:
@@ -1503,10 +1522,18 @@ export const messages = {
       'Check the source code and database before applying required changes.',
     checkAgain: 'Check again',
     sourceUpdated: 'Source code is up to date',
-    sourceOutdated: 'Update the source code before continuing',
+    sourceOutdated: 'A new release is available; choose when to update',
+    sourceMandatory: 'Update required',
+    releaseFeedMissing:
+      'A verified product release feed has not been configured.',
+    migrationTargetError:
+      'The migration target does not match the selected family/project.',
+    schemaIncompatible:
+      'The database has migrations outside the selected code version. Check compatibility before continuing.',
+    selectedSchema: 'Selected code schema',
     sourceUnknown: 'Could not check the source code version',
     runningVersion: 'Running:',
-    latestVersion: 'GitHub:',
+    latestVersion: 'Published:',
     unknownVersion: 'unknown',
     sourceUpdateGuide: 'View source code update guide',
     database: 'Database',
@@ -1519,7 +1546,7 @@ export const messages = {
     sourceVersionUnknownError:
       'Could not determine the version in the current package.json.',
     sourceVersionFetchError:
-      'Could not check the source code version on GitHub.',
+      'Could not check the product release feed; release status is unknown.',
     migrationAccessDenied: 'Access denied.',
     databaseConfigMissing: 'SUPABASE_DB_URL is not configured on the server.',
     migrationStatusError: 'Could not connect to or read migration status.',
@@ -1545,7 +1572,7 @@ export const messages = {
     applyChanges: 'Apply changes',
     systemUpdated: 'System is up to date',
     systemSynced:
-      'Source code and database are synchronized. No changes need to be applied.',
+      'No migrations are pending for the selected code version. Release status is shown separately above.',
     inLawFemale: 'Daughter-in-law',
     inLawMale: 'Son-in-law',
     inLawOther: 'In-law',

@@ -13,7 +13,7 @@ export default function MissingDBConfigPage() {
   const { t } = useI18n()
 
   return (
-    <div className='relative flex min-h-screen flex-col overflow-hidden bg-neutral select-none selection:bg-amber-200 selection:text-amber-900'>
+    <div className='relative flex min-h-screen flex-col overflow-hidden bg-neutral text-sm select-none selection:bg-amber-200 selection:text-amber-900'>
       {/* Decorative background grid and blurs */}
       <div className='pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-size-[24px_24px]'></div>
       <div className='pointer-events-none absolute inset-x-0 top-0 flex h-screen justify-center overflow-hidden'>
@@ -40,20 +40,29 @@ export default function MissingDBConfigPage() {
               <h2 className='text-2xl font-semibold text-stone-900 sm:text-3xl'>
                 {t('dbMissingTitle')}
               </h2>
-              <p className='font-medium text-stone-500'>
+              <p className='text-sm font-medium text-stone-500'>
                 {t('dbMissingDescription')}
               </p>
             </div>
           </div>
 
           <div className='space-y-6'>
+            {
+              <p
+                role='alert'
+                className='rounded-xl border border-border bg-neutral p-4 text-sm text-error'>
+                {t('deploymentConfigBlocked')}
+              </p>
+            }
             <div className='rounded-2xl border border-stone-200 bg-stone-50 p-6'>
               <h3 className='mb-4 flex items-center gap-2 font-semibold text-stone-900'>
                 <Settings className='size-5 text-stone-500' />
                 {t('troubleshooting')}
               </h3>
 
-              <ol className='list-inside list-decimal space-y-4 text-stone-600'>
+              <ol className='list-inside list-decimal space-y-4 text-sm text-stone-600'>
+                <li className='leading-relaxed'>{t('checkFamilyConfig')}</li>
+                <li className='leading-relaxed'>{t('checkProjectBinding')}</li>
                 <li className='leading-relaxed'>
                   {t('signInTo')}{' '}
                   <a
@@ -73,7 +82,9 @@ export default function MissingDBConfigPage() {
                     <Terminal className='mt-0.5 size-5 shrink-0 text-stone-400' />
                     <pre>
                       <code>
-                        {`NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+                        {`FAMILY_ID=your_family_id
+APP_URL=https://your-family.example
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your_supabase_anon_key`}
                       </code>
                     </pre>

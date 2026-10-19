@@ -1,6 +1,6 @@
 # Family tree — Hướng dẫn chạy local
 
-Cập nhật: 2026-10-14. Thực hiện từ thư mục gốc dự án trong terminal VS Code.
+Cập nhật: 2026-10-18. Thực hiện từ thư mục gốc dự án trong terminal VS Code. Với nhánh `multi-family-tree`, đọc thêm [bàn giao giai đoạn 1](../docs-multi-family/PHASE-1-HANDOFF.md); dùng worktree và Supabase thử riêng, không sao chép `.env.local` từ `main`.
 
 ## Công cụ và thư viện
 
@@ -31,17 +31,17 @@ Chỉ copy mẫu nếu chưa có `.env.local`; không ghi đè cấu hình đã 
 if (!(Test-Path .env.local)) { Copy-Item .env.example .env.local }
 ```
 
-| Biến                                           | Ý nghĩa                                                                        |
-| ---------------------------------------------- | ------------------------------------------------------------------------------ |
-| `SITE_NAME`                                    | Tên hiển thị, ví dụ `Gia Phả OS`                                               |
-| `APP_URL`                                      | Local dùng `http://localhost:3000`                                             |
-| `NEXT_PUBLIC_SUPABASE_URL`                     | Project URL của Supabase                                                       |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` | Publishable key hoặc legacy anon key; phải dùng đúng tên biến này              |
-| `NEXT_PUBLIC_DISABLE_SSO`                      | `true` khi chưa cấu hình Google/Facebook                                       |
-| `SUPABASE_SERVICE_ROLE_KEY`                    | Server-only, cần cho ảnh Gallery, ảnh trang chủ và chức năng dùng admin client |
-| `SUPABASE_DB_URL`                              | Server-only, kết nối PostgreSQL cho migration trong Dashboard                  |
-| `RESEND_API_KEY`, `RESEND_FROM_EMAIL`          | Tuỳ chọn, gửi thông báo email                                                  |
-| `ADMIN_NOTIFICATION_EMAIL`                     | Tuỳ chọn, chỉ định người nhận thông báo                                        |
+| Biến                                           | Ý nghĩa                                                                                        |
+| ---------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `FAMILY_ID`                                    | Chọn `families/<id>/config.json` lúc build; tên/branding lấy từ config, không dùng `SITE_NAME` |
+| `APP_URL`                                      | Local dùng `http://localhost:3000`                                                             |
+| `NEXT_PUBLIC_SUPABASE_URL`                     | Project URL của Supabase                                                                       |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` | Publishable key hoặc legacy anon key; phải dùng đúng tên biến này                              |
+| `NEXT_PUBLIC_DISABLE_SSO`                      | `true` khi chưa cấu hình Google/Facebook                                                       |
+| `SUPABASE_SERVICE_ROLE_KEY`                    | Server-only, cần cho ảnh Gallery, ảnh trang chủ và chức năng dùng admin client                 |
+| `SUPABASE_DB_URL`                              | Server-only, kết nối PostgreSQL cho migration trong Dashboard                                  |
+| `RESEND_API_KEY`, `RESEND_FROM_EMAIL`          | Tuỳ chọn, gửi thông báo email                                                                  |
+| `ADMIN_NOTIFICATION_EMAIL`                     | Tuỳ chọn, chỉ định người nhận thông báo                                                        |
 
 Không dùng tiền tố `NEXT_PUBLIC_` cho secret/service-role/database key. Không copy giá trị thật vào tài liệu, ảnh chụp hoặc Git.
 

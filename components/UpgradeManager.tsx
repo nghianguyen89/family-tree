@@ -41,7 +41,7 @@ export default function UpgradeManager({
     hasPendingMigrations &&
     status.configured &&
     status.databaseReachable &&
-    !sourceNeedsUpdate
+    status.schemaCompatible
 
   const refreshStatus = async () => {
     setIsRefreshing(true)
@@ -78,9 +78,11 @@ export default function UpgradeManager({
   const sourceStatusLabel =
     status.source.state === 'current'
       ? t('sourceUpdated')
-      : status.source.state === 'outdated'
-        ? t('sourceOutdated')
-        : t('sourceUnknown')
+      : status.source.state === 'mandatory'
+        ? t('sourceMandatory')
+        : status.source.state === 'outdated'
+          ? t('sourceOutdated')
+          : t('sourceUnknown')
 
   return (
     <div className='space-y-5'>
@@ -145,6 +147,22 @@ export default function UpgradeManager({
                   {status.source.error}
                 </p>
               )}
+              {status.source.mandatoryReleases?.map((release) => (
+                <p
+                  key={release.version}
+                  role='alert'
+                  className='mt-3 text-sm font-medium text-error'>
+                  {t('sourceMandatory')} ({release.version}):{' '}
+                  {release.mandatory?.reason}
+                </p>
+              ))}
+              {status.source.releases?.map((release) => (
+                <p
+                  key={release.version}
+                  className='mt-2 text-sm text-stone-600'>
+                  {release.version}: {release.notes}
+                </p>
+              ))}
               {sourceNeedsUpdate && (
                 <a
                   href={status.source.readmeUrl}
@@ -186,6 +204,9 @@ export default function UpgradeManager({
                     ? t('databaseRetryConnection')
                     : t('databaseNeedsConfig')}
               </p>
+              <p className='mt-2 text-sm break-all text-stone-600'>
+                {t('selectedSchema')}: {status.schemaVersion}
+              </p>
             </div>
           </div>
         </section>
@@ -197,7 +218,7 @@ export default function UpgradeManager({
         </div>
       )}
 
-      {!status.databaseReachable ? (
+      {!status.databaseReachable || !status.schemaCompatible ? (
         <section className='rounded-2xl border border-amber-200 bg-amber-50/70 p-5 sm:p-6'>
           <div className='flex items-start gap-3'>
             <AlertTriangle className='mt-0.5 size-5 shrink-0 text-amber-700' />
@@ -206,7 +227,12 @@ export default function UpgradeManager({
                 {t('migrationUnavailable')}
               </h2>
               <p className='mt-1 text-sm text-stone-600'>
-                {status.error || t('migrationConfigureRetry')}
+                {status.error ||
+                  t(
+                    status.databaseReachable
+                      ? 'schemaIncompatible'
+                      : 'migrationConfigureRetry'
+                  )}
               </p>
               {!status.configured && (
                 <a
@@ -249,9 +275,9 @@ export default function UpgradeManager({
             ))}
           </div>
 
-          {sourceNeedsUpdate ? (
+          {!status.schemaCompatible ? (
             <p className='mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800'>
-              {t('updateSourceFirst')}
+              {status.error || t('schemaIncompatible')}
             </p>
           ) : (
             <button

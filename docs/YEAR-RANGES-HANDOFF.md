@@ -1,5 +1,7 @@
 # Bàn giao — Khoảng năm sinh và năm mất
 
+Cập nhật 2026-10-19: đã áp dụng migration trong bundle khởi tạo hai project mới `demo` và `legiatrang`, hậu kiểm schema PASS. Đây không phải xác nhận database gia đình trên `main` đã nâng cấp hoặc luồng nhập ngày trên UI thật đã được kiểm thử. Xem [snapshot](CURRENT_SNAPSHOT.md).
+
 - Ngày: 2026-10-14.
 - Trạng thái: mã nguồn và kiểm thử hoàn tất; chưa xác nhận áp dụng trên Supabase thật.
 - Phạm vi: thêm/sửa thành viên, chi tiết hồ sơ, thẻ thành viên, mindmap, danh sách chọn quan hệ và sao lưu.

@@ -12,6 +12,7 @@ import {
   replaceLegacyIntakeLink,
   reviewIntakeSubmission
 } from '@/app/actions/intake'
+import config from '@/app/config'
 import FamilyEditor from '@/components/intake/FamilyEditor'
 import { basicInputClass } from '@/components/MemorialFields'
 import { useI18n } from '@/lib/i18n/I18nProvider'
@@ -100,7 +101,7 @@ export default function IntakeManager({
       const result = await createIntakeLink(title, root, days)
       if (result.error) setError(errorText(result.error))
       else {
-        setPublicLink(`${window.location.origin}/contribute/${result.token}`)
+        setPublicLink(`${config.appUrl}/contribute/${result.token}`)
         setCopied(false)
         router.refresh()
       }
@@ -146,7 +147,7 @@ export default function IntakeManager({
       else {
         setPublicLink(
           'token' in result && result.token
-            ? `${window.location.origin}/contribute/${result.token}`
+            ? `${config.appUrl}/contribute/${result.token}`
             : ''
         )
         setCopied(false)
@@ -169,7 +170,7 @@ export default function IntakeManager({
       router.refresh()
       return
     }
-    const url = `${window.location.origin}/contribute/${link.share_token}`
+    const url = `${config.appUrl}/contribute/${link.share_token}`
     setPublicLink(url)
     setCopied(false)
     setCopiedId('')

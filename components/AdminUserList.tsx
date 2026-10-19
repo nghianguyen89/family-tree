@@ -10,7 +10,6 @@ import {
   deleteUser,
   toggleUserStatus
 } from '@/app/actions/user'
-import config from '@/app/config'
 import UserPersonLink, {
   type UserPersonOption
 } from '@/components/admin/UserPersonLink'
@@ -36,9 +35,6 @@ export default function AdminUserList({
   personLinkUnavailable
 }: AdminUserListProps) {
   const { t, locale } = useI18n()
-  const isDemo =
-    typeof window !== 'undefined' &&
-    window.location.hostname === config.demoDomain
   const [users, setUsers] = useState<AdminUserData[]>(initialUsers)
   const [loadingId, setLoadingId] = useState<string | null>(null)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
@@ -54,10 +50,6 @@ export default function AdminUserList({
   }
 
   const handleRoleChange = async (userId: string, newRole: UserRole) => {
-    if (isDemo) {
-      showNotification(t('adminDemoNotice'), 'info')
-      return
-    }
     try {
       setLoadingId(userId)
       const result = await changeUserRole(userId, newRole)
@@ -81,10 +73,6 @@ export default function AdminUserList({
   }
 
   const handleStatusChange = async (userId: string, newStatus: boolean) => {
-    if (isDemo) {
-      showNotification(t('adminDemoNotice'), 'info')
-      return
-    }
     try {
       setLoadingId(userId)
       const result = await toggleUserStatus(userId, newStatus)
@@ -111,10 +99,6 @@ export default function AdminUserList({
   }
 
   const handleDelete = async (userId: string) => {
-    if (isDemo) {
-      showNotification(t('adminDemoNotice'), 'info')
-      return
-    }
     if (!confirm(t('adminConfirmDelete'))) return
     try {
       setLoadingId(userId)
@@ -138,11 +122,6 @@ export default function AdminUserList({
 
   const handleCreateUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (isDemo) {
-      showNotification(t('adminDemoCreateNotice'), 'info')
-      setIsCreateModalOpen(false)
-      return
-    }
     setIsCreating(true)
     const formData = new FormData(e.currentTarget)
     try {
@@ -298,9 +277,7 @@ export default function AdminUserList({
                       user={user}
                       persons={persons}
                       disabled={
-                        personLinkUnavailable ||
-                        user.person_id === undefined ||
-                        isDemo
+                        personLinkUnavailable || user.person_id === undefined
                       }
                       onSaved={(personId) =>
                         setUsers((current) =>

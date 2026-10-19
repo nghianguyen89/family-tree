@@ -82,10 +82,10 @@ You can set up a family genealogy system in about 10–15 minutes.
 
 ## Option 1: Quick deploy to Vercel
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fhomielab%2Fgiapha-os&env=SITE_NAME,NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY,NEXT_PUBLIC_DISABLE_SSO,APP_URL,SUPABASE_SERVICE_ROLE_KEY,SUPABASE_DB_URL,RESEND_API_KEY,RESEND_FROM_EMAIL,ADMIN_NOTIFICATION_EMAIL)
+For `multi-family-tree`, follow the [phase 1 runbook](docs-multi-family/PHASE-1-HANDOFF.md): use separate projects, select `FAMILY_ID`, and pin a reviewed commit/tag. Do not change the family deployment on `main`.
 
 1. Create a free account at https://vercel.com if you do not already have one. Signing up with GitHub is recommended for a faster setup.
-2. Click the Deploy button above.
+2. Import the product repository into a new Vercel project and select a reviewed commit/tag using the phase 1 runbook.
 3. Enter the environment variables saved in **step 1**:
    - `NEXT_PUBLIC_SUPABASE_URL` = `Project URL`
    - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` = `Publishable key` (or the `anon` key under **Legacy API Keys** in older projects)

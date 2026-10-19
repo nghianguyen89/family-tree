@@ -86,10 +86,10 @@ Chỉ cần khoảng 10 -> 15 phút là bạn có thể tự dựng hệ thống
 
 ## Cách 1: Deploy nhanh lên Vercel
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fhomielab%2Fgiapha-os&env=SITE_NAME,NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY,NEXT_PUBLIC_DISABLE_SSO,APP_URL,SUPABASE_SERVICE_ROLE_KEY,SUPABASE_DB_URL,RESEND_API_KEY,RESEND_FROM_EMAIL,ADMIN_NOTIFICATION_EMAIL)
+Nhánh `multi-family-tree`: dùng [runbook giai đoạn 1](docs-multi-family/PHASE-1-HANDOFF.md) để chuẩn bị project riêng, config `FAMILY_ID` và pin commit/tag. Chưa deploy từ nhánh phát triển; không thay project gia đình trên `main`.
 
 1. Tạo tài khoản miễn phí tại https://vercel.com nếu chưa có (khuyên dùng đăng ký bằng tài khoản GitHub cho nhanh).
-2. Nhấn nút Deploy bên trên.
+2. Import repo sản phẩm vào project Vercel mới và chọn commit/tag đã duyệt theo runbook giai đoạn 1.
 3. Điền các biến môi trường đã lưu ở **bước 1**:
    - `NEXT_PUBLIC_SUPABASE_URL` = `Project URL`
    - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` = `Publishable key` (hoặc key `anon` trong **Legacy API Keys**)

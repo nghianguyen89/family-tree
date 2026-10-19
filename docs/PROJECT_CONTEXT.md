@@ -57,3 +57,5 @@ Phiên bản package ứng dụng tại thời điểm ghi chú: `2.3.0`. Lấy 
 - Form công khai chỉ dùng RPC có phạm vi theo link; không mở bảng gia phả hoặc hồ sơ chờ cho anonymous. Ngày cúng hằng năm không suy ra ngày mất.
 
 Xem [trạng thái hiện tại](CURRENT_SNAPSHOT.md) và [bàn giao khoảng năm](YEAR-RANGES-HANDOFF.md) trước khi tiếp tục phát triển.
+
+Nhánh `multi-family-tree` đã bổ sung nền tảng giai đoạn 1: mỗi deployment chọn một config Git bằng `FAMILY_ID`, dùng Supabase/Auth/Storage riêng và pin phiên bản riêng. Ngày 2026-10-19 đã khởi tạo schema/migration trên hai project mới `demo` và `legiatrang` theo cho phép của chủ dự án; chưa có tài khoản hoặc dữ liệu gia đình, chưa xác nhận CRUD/đăng nhập/upload bằng phiên người dùng. Xem [hợp đồng và runbook](../docs-multi-family/PHASE-1-HANDOFF.md). Không thay đổi website gia đình trên `main`; chưa triển khai quản trị hệ thống/tự động hóa giai đoạn 2–3.

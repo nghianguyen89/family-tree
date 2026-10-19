@@ -1,0 +1,8 @@
+{
+  "configVersion": 1,
+  "id": "legiatrang",
+  "siteName": "Lê Gia Trang",
+  "domain": "legiatrang.example.com",
+  "isDemo": false,
+  "supabaseProjectRef": "bludnhpzfnitoexbzodf"
+}

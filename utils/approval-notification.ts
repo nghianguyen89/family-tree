@@ -3,6 +3,7 @@ import {
   getApprovalTokenExpiry,
   hashApprovalToken
 } from '@/utils/approval'
+import { getDeploymentConfig } from '@/utils/deployment'
 import { getAdminSupabase } from '@/utils/supabase/admin'
 
 import 'server-only'
@@ -69,22 +70,14 @@ export async function notifyAdminOfPendingUser({
 }: PendingUser): Promise<NotificationResult> {
   const apiKey = process.env.RESEND_API_KEY
   const from = process.env.RESEND_FROM_EMAIL
-  // Never derive an approval URL from the request Host header. APP_URL must be
-  // an explicitly configured trusted origin to prevent poisoned email links.
-  const configuredAppUrl = process.env.APP_URL?.trim()
-  let appUrl: string | null = null
-  if (configuredAppUrl) {
-    try {
-      const parsedAppUrl = new URL(configuredAppUrl)
-      if (
-        parsedAppUrl.protocol === 'https:' ||
-        (parsedAppUrl.protocol === 'http:' &&
-          ['localhost', '127.0.0.1', '[::1]'].includes(parsedAppUrl.hostname))
-      ) {
-        appUrl = parsedAppUrl.origin
-      }
-    } catch {
-      appUrl = null
+  let appUrl: string
+  try {
+    appUrl = getDeploymentConfig().appUrl
+  } catch {
+    return {
+      sent: false,
+      configured: false,
+      reason: 'invalid_deployment_configuration'
     }
   }
 

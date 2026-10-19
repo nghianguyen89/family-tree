@@ -1,5 +1,7 @@
 # Bàn giao trang chủ và quản lý nội dung
 
+Cập nhật 2026-10-19: bundle schema/migration đã chạy trên hai project mới `demo` và `legiatrang`; bảng CMS, thiết lập mặc định và bucket/policy đã có, API đọc settings công khai PASS. Chưa có tài khoản/nội dung/ảnh, chưa kiểm thử CRUD/upload bằng phiên đăng nhập thật; không áp dụng lên project gia đình trên `main`. Xem [snapshot](CURRENT_SNAPSHOT.md).
+
 Ngày: 2026-10-15. Mã nguồn trong workspace; chưa áp dụng migration trên Supabase thật và chưa deploy Vercel.
 
 Thư viện ảnh đã được hợp nhất với phòng trưng bày: áp dụng thêm [migration thư viện chung](migrations/20261015010000_shared_media_library.sql). Quy trình dùng lại ảnh, PhotoSwipe và quyền file xem [bàn giao thư viện chung](SHARED-MEDIA-HANDOFF.md).

@@ -7,13 +7,15 @@ import postgres from 'postgres'
 
 import { getServerTranslations } from '@/lib/i18n/server'
 import packageJson from '@/package.json'
+import { assertDatabaseTarget } from '@/utils/deployment'
+import {
+  evaluateReleases,
+  isSchemaCompatible,
+  parseReleaseManifest,
+  PRODUCT_UPDATE_GUIDE,
+  type SourceVersionStatus
+} from '@/utils/releases'
 import { getIsAdmin } from '@/utils/supabase/queries'
-
-const SOURCE_REPOSITORY = 'homielab/giapha-os'
-const SOURCE_BRANCH = 'main'
-const SOURCE_README_URL = `https://github.com/${SOURCE_REPOSITORY}/blob/${SOURCE_BRANCH}/README.md#hướng-dẫn-cập-nhật-source-code`
-const SOURCE_README_EN_URL = `https://github.com/${SOURCE_REPOSITORY}/blob/${SOURCE_BRANCH}/README.en.md#source-code-updates`
-const SOURCE_PACKAGE_URL = `https://raw.githubusercontent.com/${SOURCE_REPOSITORY}/${SOURCE_BRANCH}/package.json`
 
 const MIGRATION_FILES = [
   'docs/schema.sql',
@@ -49,6 +51,8 @@ export interface MigrationStatus {
   databaseReachable: boolean
   error?: string
   source: SourceVersionStatus
+  schemaVersion: string
+  schemaCompatible: boolean
   migrations: Array<{
     id: string
     file: string
@@ -56,120 +60,37 @@ export interface MigrationStatus {
   }>
 }
 
-export type SourceVersionState = 'current' | 'outdated' | 'unknown'
-
-export interface SourceVersionStatus {
-  state: SourceVersionState
-  currentVersion: string | null
-  latestVersion: string | null
-  readmeUrl: string
-  error?: string
-}
-
-interface ParsedVersion {
-  major: number
-  minor: number
-  patch: number
-  prerelease: string[]
-}
-
-function parseVersion(value: unknown): ParsedVersion | null {
-  if (typeof value !== 'string') return null
-
-  const match = value
-    .trim()
-    .match(/^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?(?:\+[0-9A-Za-z.-]+)?$/)
-  if (!match) return null
-
-  return {
-    major: Number(match[1]),
-    minor: Number(match[2]),
-    patch: Number(match[3]),
-    prerelease: match[4] ? match[4].split('.') : []
-  }
-}
-
-function compareVersions(left: ParsedVersion, right: ParsedVersion) {
-  for (const key of ['major', 'minor', 'patch'] as const) {
-    if (left[key] !== right[key]) return left[key] > right[key] ? 1 : -1
-  }
-
-  if (!left.prerelease.length && !right.prerelease.length) return 0
-  if (!left.prerelease.length) return 1
-  if (!right.prerelease.length) return -1
-
-  const length = Math.max(left.prerelease.length, right.prerelease.length)
-  for (let index = 0; index < length; index += 1) {
-    const leftPart = left.prerelease[index]
-    const rightPart = right.prerelease[index]
-    if (leftPart === undefined) return -1
-    if (rightPart === undefined) return 1
-    if (leftPart === rightPart) continue
-
-    const leftNumber = /^\d+$/.test(leftPart) ? Number(leftPart) : null
-    const rightNumber = /^\d+$/.test(rightPart) ? Number(rightPart) : null
-    if (leftNumber !== null && rightNumber !== null) {
-      return leftNumber > rightNumber ? 1 : -1
-    }
-    if (leftNumber !== null) return -1
-    if (rightNumber !== null) return 1
-    return leftPart > rightPart ? 1 : -1
-  }
-
-  return 0
-}
-
 export async function getSourceVersionStatus(): Promise<SourceVersionStatus> {
-  const { locale, t } = await getServerTranslations()
-  const sourceReadmeUrl =
-    locale === 'en' ? SOURCE_README_EN_URL : SOURCE_README_URL
-  const currentVersion = parseVersion(packageJson.version)
-  const currentVersionLabel =
-    typeof packageJson.version === 'string' ? packageJson.version : null
-
+  const { t } = await getServerTranslations()
+  const unknown = (error: string): SourceVersionStatus => ({
+    state: 'unknown',
+    currentVersion: packageJson.version,
+    latestVersion: null,
+    readmeUrl: PRODUCT_UPDATE_GUIDE,
+    error
+  })
+  if (!(await getIsAdmin())) return unknown(t('migrationAccessDenied'))
+  // Explicit operator-selected publication feed; development commits are not releases.
+  const feed = process.env.PRODUCT_RELEASE_MANIFEST_URL?.trim()
+  if (!feed) return unknown(t('releaseFeedMissing'))
   try {
-    const response = await fetch(SOURCE_PACKAGE_URL, {
-      next: { revalidate: 300 }
+    const url = new URL(feed)
+    if (url.protocol !== 'https:' || url.username || url.password)
+      throw new Error('Invalid release feed URL.')
+    const response = await fetch(url, {
+      cache: 'no-store',
+      signal: AbortSignal.timeout(10000)
     })
-
-    if (!response.ok) {
-      throw new Error(`GitHub returned ${response.status}`)
-    }
-
-    const data = (await response.json()) as { version?: unknown }
-    const latestVersionLabel =
-      typeof data.version === 'string' ? data.version : null
-    const latestVersion = parseVersion(data.version)
-
-    if (!latestVersion || !latestVersionLabel) {
-      throw new Error('GitHub package.json did not include a valid version.')
-    }
-
-    const comparison = currentVersion
-      ? compareVersions(currentVersion, latestVersion)
-      : null
-
-    return {
-      state:
-        comparison === null
-          ? 'unknown'
-          : comparison < 0
-            ? 'outdated'
-            : 'current',
-      currentVersion: currentVersionLabel,
-      latestVersion: latestVersionLabel,
-      readmeUrl: sourceReadmeUrl,
-      ...(comparison !== null ? {} : { error: t('sourceVersionUnknownError') })
-    }
-  } catch (error) {
-    console.error('Cannot inspect source version:', error)
-    return {
-      state: 'unknown',
-      currentVersion: currentVersionLabel,
-      latestVersion: null,
-      readmeUrl: sourceReadmeUrl,
-      error: t('sourceVersionFetchError')
-    }
+    if (!response.ok) throw new Error('Release feed unavailable.')
+    const body = await response.text()
+    if (body.length > 256000)
+      throw new Error('Release feed exceeds size limit.')
+    return evaluateReleases(
+      packageJson.version,
+      parseReleaseManifest(JSON.parse(body))
+    )
+  } catch {
+    return unknown(t('sourceVersionFetchError'))
   }
 }
 
@@ -178,12 +99,21 @@ async function getMigrationDefinitions(): Promise<MigrationDefinition[]> {
     MIGRATION_FILES.map(async (file) => ({
       id: file,
       file,
-      sql: await fs.readFile(
-        file === 'docs/schema.sql'
-          ? path.join(process.cwd(), 'docs', 'schema.sql')
-          : path.join(process.cwd(), 'docs', 'migrations', path.basename(file)),
-        'utf8'
-      )
+      // SQL Editor files carry their own transaction wrappers. The runner owns
+      // one transaction for the whole batch, so they must not commit it early.
+      sql: (
+        await fs.readFile(
+          file === 'docs/schema.sql'
+            ? path.join(process.cwd(), 'docs', 'schema.sql')
+            : path.join(
+                process.cwd(),
+                'docs',
+                'migrations',
+                path.basename(file)
+              ),
+          'utf8'
+        )
+      ).replace(/^(?:BEGIN|COMMIT);[ \t]*\r?$/gm, '')
     }))
   )
 }
@@ -192,11 +122,10 @@ function createDatabaseClient() {
   const databaseUrl = process.env.SUPABASE_DB_URL?.trim()
   if (!databaseUrl) return null
 
-  if (!/^postgres(?:ql)?:\/\//i.test(databaseUrl)) {
-    throw new Error('SUPABASE_DB_URL must be a PostgreSQL connection string.')
-  }
+  assertDatabaseTarget(databaseUrl)
 
   return postgres(databaseUrl, {
+    ssl: 'require',
     max: 1,
     connect_timeout: 10,
     idle_timeout: 5,
@@ -223,9 +152,7 @@ async function ensureMigrationTable(sql: ReturnType<typeof postgres>) {
 }
 
 export async function getMigrationStatus(): Promise<MigrationStatus> {
-  const { locale, t } = await getServerTranslations()
-  const sourceReadmeUrl =
-    locale === 'en' ? SOURCE_README_EN_URL : SOURCE_README_URL
+  const { t } = await getServerTranslations()
   const isAdmin = await getIsAdmin()
   const definitions = await getMigrationDefinitions()
 
@@ -234,11 +161,13 @@ export async function getMigrationStatus(): Promise<MigrationStatus> {
       configured: Boolean(process.env.SUPABASE_DB_URL),
       databaseReachable: false,
       error: t('migrationAccessDenied'),
+      schemaVersion: MIGRATION_FILES[MIGRATION_FILES.length - 1],
+      schemaCompatible: false,
       source: {
         state: 'unknown',
         currentVersion: null,
         latestVersion: null,
-        readmeUrl: sourceReadmeUrl
+        readmeUrl: PRODUCT_UPDATE_GUIDE
       },
       migrations: definitions.map(({ id, file }) => ({
         id,
@@ -250,13 +179,32 @@ export async function getMigrationStatus(): Promise<MigrationStatus> {
 
   const source = await getSourceVersionStatus()
 
-  const sql = createDatabaseClient()
+  let sql: ReturnType<typeof postgres> | null = null
+  try {
+    sql = createDatabaseClient()
+  } catch {
+    return {
+      configured: true,
+      databaseReachable: false,
+      source,
+      schemaVersion: MIGRATION_FILES[MIGRATION_FILES.length - 1],
+      schemaCompatible: false,
+      error: t('migrationTargetError'),
+      migrations: definitions.map(({ id, file }) => ({
+        id,
+        file,
+        appliedAt: null
+      }))
+    }
+  }
   if (!sql) {
     return {
       configured: false,
       databaseReachable: false,
       error: t('databaseConfigMissing'),
       source,
+      schemaVersion: MIGRATION_FILES[MIGRATION_FILES.length - 1],
+      schemaCompatible: false,
       migrations: definitions.map(({ id, file }) => ({
         id,
         file,
@@ -286,6 +234,14 @@ export async function getMigrationStatus(): Promise<MigrationStatus> {
       configured: true,
       databaseReachable: true,
       source,
+      schemaVersion: MIGRATION_FILES[MIGRATION_FILES.length - 1],
+      schemaCompatible: isSchemaCompatible(
+        [...applied.keys()],
+        MIGRATION_FILES
+      ),
+      ...(!isSchemaCompatible([...applied.keys()], MIGRATION_FILES)
+        ? { error: t('schemaIncompatible') }
+        : {}),
       migrations: definitions.map((migration) => ({
         id: migration.id,
         file: migration.file,
@@ -299,6 +255,8 @@ export async function getMigrationStatus(): Promise<MigrationStatus> {
       databaseReachable: false,
       error: t('migrationStatusError'),
       source,
+      schemaVersion: MIGRATION_FILES[MIGRATION_FILES.length - 1],
+      schemaCompatible: false,
       migrations: definitions.map(({ id, file }) => ({
         id,
         file,
@@ -315,24 +273,13 @@ export async function runPendingMigrations() {
   const isAdmin = await getIsAdmin()
   if (!isAdmin) return { success: false, error: t('migrationAccessDenied') }
 
-  const source = await getSourceVersionStatus()
-  if (source.state !== 'current') {
-    return {
-      success: false,
-      error:
-        source.state === 'outdated'
-          ? t('sourceOutdatedError')
-          : t('sourceVersionCheckError')
-    }
+  let sql: ReturnType<typeof postgres> | null = null
+  try {
+    sql = createDatabaseClient()
+  } catch {
+    return { success: false, error: t('migrationTargetError') }
   }
-
-  const sql = createDatabaseClient()
-  if (!sql) {
-    return {
-      success: false,
-      error: t('databaseConfigMissing')
-    }
-  }
+  if (!sql) return { success: false, error: t('databaseConfigMissing') }
 
   try {
     const definitions = await getMigrationDefinitions()
@@ -360,6 +307,9 @@ export async function runPendingMigrations() {
       const applied = new Map(
         rows.map((row) => [row.migration_id, row.applied_at])
       )
+      if (!isSchemaCompatible([...applied.keys()], MIGRATION_FILES)) {
+        throw new Error('SCHEMA_INCOMPATIBLE')
+      }
       const appliedNow: string[] = []
 
       for (const migration of definitions) {
@@ -394,11 +344,14 @@ export async function runPendingMigrations() {
     return {
       success: false,
       error:
-        error instanceof Error && error.message.startsWith('Migration failed:')
-          ? t('migrationFailed', {
-              file: error.message.replace('Migration failed: ', '')
-            })
-          : t('migrationRunError')
+        error instanceof Error && error.message === 'SCHEMA_INCOMPATIBLE'
+          ? t('schemaIncompatible')
+          : error instanceof Error &&
+              error.message.startsWith('Migration failed:')
+            ? t('migrationFailed', {
+                file: error.message.replace('Migration failed: ', '')
+              })
+            : t('migrationRunError')
     }
   } finally {
     await sql.end({ timeout: 5 })

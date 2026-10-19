@@ -1,5 +1,7 @@
 # Bàn giao — Form công khai, duyệt gia đình và ngày cúng riêng
 
+Cập nhật 2026-10-19: đã áp dụng các migration thu thập/ngày cúng và quản lý link trong bundle khởi tạo hai project mới `demo` và `legiatrang`. Chưa có link/hồ sơ hoặc tài khoản; chưa kiểm thử gửi/duyệt trên UI thật, không phải xác nhận thay đổi database gia đình trên `main`. Xem [snapshot](CURRENT_SNAPSHOT.md).
+
 - Ngày: 2026-10-16.
 - Trạng thái: đã triển khai trong mã nguồn và kiểm thử tự động; chưa áp dụng migration trên Supabase thật.
 - Vai trò duyệt: admin hoặc editor đang hoạt động. “Mod” trong yêu cầu dùng vai trò editor hiện có.

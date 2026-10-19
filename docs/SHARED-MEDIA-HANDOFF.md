@@ -1,5 +1,7 @@
 # Thư viện ảnh chung và trình xem ảnh
 
+Cập nhật 2026-10-19: hai project mới `demo` và `legiatrang` đã chạy migration thư viện và bản sửa policy INSERT RETURNING trong bundle; hậu kiểm bảng, nhánh admin/editor của policy và bốn bucket private PASS. Chưa có ảnh hoặc tài khoản và chưa upload bằng phiên thật; không phải xác nhận nâng cấp project gia đình trên `main`. Xem [snapshot](CURRENT_SNAPSHOT.md).
+
 Ngày: 2026-10-16. Đã cập nhật mã nguồn; chưa chạy migration trên Supabase thật, chưa deploy Vercel.
 
 ## Kích hoạt

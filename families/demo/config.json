@@ -1,0 +1,8 @@
+{
+  "configVersion": 1,
+  "id": "demo",
+  "siteName": "Gia tộc An — Demo",
+  "domain": "demo.example.com",
+  "isDemo": true,
+  "supabaseProjectRef": "owwuvellerhfpqyzpkdw"
+}

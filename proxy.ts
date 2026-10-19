@@ -1,8 +1,26 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
+import { deploymentError } from '@/utils/deployment'
 import { updateSession } from '@/utils/supabase/middleware'
 
 export async function proxy(request: NextRequest) {
+  if (deploymentError()) {
+    if (
+      request.nextUrl.pathname.startsWith('/api/') ||
+      request.method !== 'GET'
+    ) {
+      return NextResponse.json(
+        { error: 'Invalid family deployment configuration' },
+        { status: 503 }
+      )
+    }
+    if (request.nextUrl.pathname !== '/missing-db-config') {
+      return NextResponse.redirect(new URL('/missing-db-config', request.url))
+    }
+    return NextResponse.next()
+  }
+  if (request.nextUrl.pathname === '/family-assets/logo')
+    return NextResponse.next()
   // Public intake uses only scoped RPCs and must not require a login or profiles table lookup.
   if (
     request.nextUrl.pathname.startsWith('/contribute/') ||

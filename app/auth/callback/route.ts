@@ -2,16 +2,26 @@ import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 
 import { notifyAdminOfPendingUser } from '@/utils/approval-notification'
+import { getDeploymentConfig } from '@/utils/deployment'
 import { createClient } from '@/utils/supabase/server'
 
 export async function GET(request: Request) {
+  let appUrl: string
+  try {
+    appUrl = getDeploymentConfig().appUrl
+  } catch {
+    return NextResponse.json(
+      { error: 'Deployment configuration is invalid.' },
+      { status: 503 }
+    )
+  }
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
   const authError = requestUrl.searchParams.get('error')
 
   if (authError) {
     return NextResponse.redirect(
-      new URL('/login?error=auth_callback_failed', requestUrl.origin)
+      new URL('/login?error=auth_callback_failed', appUrl)
     )
   }
 
@@ -21,7 +31,7 @@ export async function GET(request: Request) {
 
     if (error) {
       return NextResponse.redirect(
-        new URL('/login?error=auth_callback_failed', requestUrl.origin)
+        new URL('/login?error=auth_callback_failed', appUrl)
       )
     }
 
@@ -45,5 +55,5 @@ export async function GET(request: Request) {
     }
   }
 
-  return NextResponse.redirect(new URL('/dashboard', requestUrl.origin))
+  return NextResponse.redirect(new URL('/dashboard', appUrl))
 }

@@ -1,8 +1,19 @@
+import { getPublicDeploymentConfig } from '@/utils/deployment'
+
+let family: ReturnType<typeof getPublicDeploymentConfig> | null = null
+let configError: string | null = null
+try {
+  family = getPublicDeploymentConfig()
+} catch (error) {
+  configError = (error as Error).message
+}
 const config = {
-  siteName: process.env.SITE_NAME || 'Gia Phả',
-  exampleEmail: process.env.EXAMPLE_EMAIL || '',
-  examplePassword: process.env.EXAMPLE_PASSWORD || '',
-  demoDomain: process.env.DEMO_DOMAIN || ''
+  siteName: family?.siteName || 'Gia Phả',
+  familyId: family?.id || '',
+  isDemo: family?.isDemo || false,
+  appUrl: family?.appUrl || '',
+  logo: family?.logo ? '/family-assets/logo' : '',
+  configError
 }
 
 export default config

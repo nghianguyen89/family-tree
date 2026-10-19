@@ -19,7 +19,8 @@ const playfair = Playfair_Display({
 })
 export const metadata: Metadata = {
   title: config.siteName,
-  description: config.siteName
+  description: config.siteName,
+  icons: config.logo ? { icon: config.logo, apple: config.logo } : undefined
 }
 
 export default async function RootLayout({
