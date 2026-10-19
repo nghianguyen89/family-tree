@@ -14,6 +14,8 @@ Thư viện ảnh đã được hợp nhất với phòng trưng bày: áp dụn
 
 Trang chưa có migration vẫn hiện phần giới thiệu mặc định và trạng thái nội dung chưa khả dụng. Đây không phải xác nhận database thật đã được nâng cấp.
 
+Từ 2026-10-19, **Quê quán / nơi phát tích** có hai ô nhiều dòng: **Địa chỉ hiện nay** (`origin`) và **Địa chỉ cũ (trước sáp nhập)** (`origin_previous`), mỗi ô tối đa 300 ký tự, không bắt buộc nhập. Trang chủ hiện hai mục riêng và giữ xuống dòng. Chạy thêm [migration địa chỉ cũ](migrations/20261019020000_home_origin_previous.sql) sau migration CMS; địa chỉ đang có được giữ nguyên, ô địa chỉ cũ mặc định trống. Chỉ mã nguồn/migration đã được cập nhật, chưa ghi dữ liệu hoặc áp dụng lên Supabase thật.
+
 ## Quy ước nội dung
 
 - Trang chủ `/` gồm giới thiệu và ảnh bìa, lịch sử, thông báo/sự kiện sắp tới, bài viết, album và liên hệ nếu có nội dung.

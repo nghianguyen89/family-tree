@@ -57,7 +57,8 @@ test('homepage settings and image details use distinct save labels', () => {
           id: 1,
           title: 'Family homepage',
           subtitle: '',
-          origin: '',
+          origin: 'Xã mới\nTỉnh mới',
+          origin_previous: 'Xã cũ\nHuyện cũ, tỉnh cũ',
           introduction: '',
           contact: '',
           cover_image_id: null,
@@ -81,6 +82,10 @@ test('homepage settings and image details use distinct save labels', () => {
   assert.match(html, /Lưu mô tả ảnh/)
   assert.doesNotMatch(html, />Lưu thay đổi</)
   assert.match(html, /Không dùng ảnh bìa/)
+  assert.match(html, /Địa chỉ hiện nay/)
+  assert.match(html, /Địa chỉ cũ \(trước sáp nhập\)/)
+  assert.match(html, /<textarea[^>]*>Xã mới\nTỉnh mới<\/textarea>/)
+  assert.match(html, /<textarea[^>]*>Xã cũ\nHuyện cũ, tỉnh cũ<\/textarea>/)
 })
 
 test('a pending cover has an explicit save button bound to the homepage settings form outside image metadata forms', () => {

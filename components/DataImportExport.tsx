@@ -5,13 +5,14 @@ import { AlertTriangle, CheckCircle2, Download, Upload } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 import { exportData, importData } from '@/app/actions/data'
+import { branchesMessages } from '@/lib/i18n/branches'
 import { useI18n } from '@/lib/i18n/I18nProvider'
 import { Person } from '@/types'
 
 import PersonSelector from './PersonSelector'
 
 export default function DataImportExport() {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const [isExporting, setIsExporting] = useState(false)
   const [isImporting, setIsImporting] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -66,6 +67,19 @@ export default function DataImportExport() {
       if ('error' in data) {
         setExportError(data.error)
         setTimeout(() => setExportError(null), 5000)
+        return
+      }
+
+      if (
+        format !== 'json' &&
+        (data.family_branches?.length ||
+          data.family_branch_members?.length ||
+          data.persons.some((person) => person.family_branch_id) ||
+          data.relationships.some(
+            (relationship) => relationship.family_branch_id
+          ))
+      ) {
+        setExportError(branchesMessages[locale].backupJsonOnly)
         return
       }
 
@@ -178,11 +192,29 @@ export default function DataImportExport() {
         throw new Error(t('invalidBackupFile'))
       }
 
+      if (
+        !selectedFile.name.toLowerCase().endsWith('.json') &&
+        (payload.family_branches?.length ||
+          payload.family_branch_members?.length ||
+          payload.persons.some(
+            (person: { family_branch_id?: string | null }) =>
+              person.family_branch_id
+          ) ||
+          payload.relationships.some(
+            (relationship: { family_branch_id?: string | null }) =>
+              relationship.family_branch_id
+          ))
+      ) {
+        throw new Error(branchesMessages[locale].backupJsonOnly)
+      }
+
       const result = await importData({
         persons: payload.persons,
         relationships: payload.relationships,
         person_details_private: payload.person_details_private,
-        custom_events: payload.custom_events
+        custom_events: payload.custom_events,
+        family_branches: payload.family_branches,
+        family_branch_members: payload.family_branch_members
       })
 
       if ('error' in result) {

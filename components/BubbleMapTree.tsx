@@ -4,6 +4,9 @@ import * as d3 from 'd3'
 import { Maximize2, Minimize2, Minus, Plus, RotateCcw } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
+import BranchNodeLinks from '@/components/branches/BranchNodeLinks'
+import { useMemberListView } from '@/context/MemberListContext'
+import { branchesMessages } from '@/lib/i18n/branches'
 import { useI18n } from '@/lib/i18n/I18nProvider'
 import { Person, Relationship } from '@/types'
 import { getAvatarUrl } from '@/utils/avatar'
@@ -38,7 +41,8 @@ export default function BubbleMapTree({
   relationships,
   roots
 }: BubbleMapTreeProps) {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
+  const { branches } = useMemberListView()
   const containerRef = useRef<HTMLDivElement>(null)
   const fullscreenRef = useRef<HTMLDivElement>(null)
   const svgRef = useRef<SVGSVGElement>(null)
@@ -494,6 +498,25 @@ export default function BubbleMapTree({
       })
   }, [effectiveSelectedNodeId, highlightedNodeIds])
 
+  useEffect(() => {
+    if (!svgRef.current) return
+    const anchors = new Set(branches.map((branch) => branch.anchor_person_id))
+    const nodeSelection = d3
+      .select(svgRef.current)
+      .selectAll<SVGGElement, GraphNode>('.bubble-node')
+    nodeSelection.selectAll('.auxiliary-marker').remove()
+    nodeSelection
+      .filter((node) => node.people.some((person) => anchors.has(person.id)))
+      .append('circle')
+      .attr('class', 'auxiliary-marker')
+      .attr('cx', (node) => node.width / 2)
+      .attr('cy', (node) => -node.radius)
+      .attr('r', 6)
+      .attr('fill', 'var(--color-tertiary)')
+      .append('title')
+      .text(branchesMessages[locale].title)
+  }, [nodes, branches, locale, isFullscreen])
+
   const changeZoom = (nextLevel: number) => {
     if (!svgRef.current || !zoomRef.current) return
 
@@ -536,6 +559,12 @@ export default function BubbleMapTree({
     )
   }
 
+  const selectedBranchPeople = nodes
+    .filter((node) => node.id === effectiveSelectedNodeId)
+    .flatMap((node) => node.people)
+    .filter((person) =>
+      branches.some((branch) => branch.anchor_person_id === person.id)
+    )
   return (
     <div
       ref={fullscreenRef}
@@ -544,6 +573,13 @@ export default function BubbleMapTree({
           ? 'rounded-none border-0'
           : 'rounded-2xl border border-stone-200/60'
       }`}>
+      {selectedBranchPeople.length > 0 && (
+        <div className='absolute bottom-4 left-4 z-50 max-h-[70%] overflow-auto rounded-xl bg-surface p-2'>
+          {selectedBranchPeople.map((person) => (
+            <BranchNodeLinks key={person.id} personId={person.id} />
+          ))}
+        </div>
+      )}
       <div
         id='tree-toolbar-portal'
         className='absolute top-4 left-4 z-50'></div>

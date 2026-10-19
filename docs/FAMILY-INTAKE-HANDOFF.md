@@ -67,7 +67,7 @@ Các cột của `persons`:
 | ------------------------------------ | ---------------------------------------------------------------------- |
 | Không đăng nhập/người giữ link       | Xem tên/đời trong nhánh và gửi dữ liệu vào khu chờ qua RPC chuyên dụng |
 | Member hoặc tài khoản chưa hoạt động | Không đọc danh sách chờ, tạo link hoặc duyệt                           |
-| Admin/editor hoạt động               | Tạo/sao chép/tắt/xóa link, đọc hồ sơ chờ và duyệt                       |
+| Admin/editor hoạt động               | Tạo/sao chép/tắt/xóa link, đọc hồ sơ chờ và duyệt                      |
 
 Không mở quyền đọc/ghi trực tiếp bảng gia phả hoặc bảng chờ cho anonymous. Public client dùng publishable/anon key, không dùng cookie phiên hay service-role key.
 
@@ -78,6 +78,8 @@ Không mở quyền đọc/ghi trực tiếp bảng gia phả hoặc bảng ch�
 - Trang public có `noindex`, `nofollow`, không gửi referrer; API trả `no-store`.
 
 ## Persistence và sao lưu
+
+Từ tính năng [nhánh phụ bên dâu/rể](FAMILY-BRANCHES-HANDOFF.md), form công khai và duyệt tiếp tục dành cho họ chính. Migration nhánh phụ giới hạn truy vấn con cháu theo quan hệ họ chính và chặn duyệt hồ sơ thuộc nhánh phụ vào họ chính. Muốn thêm người bên dâu/rể, dùng trang nhánh phụ sau khi đăng nhập.
 
 `family_intake_links` lưu cấu hình link; `family_intake_submissions` lưu khu chờ và kết quả duyệt. Người gốc không có FK cascade từ `persons`: xoá/thay thế cây không xoá âm thầm lịch sử thu thập. Link có người gốc không còn tồn tại sẽ không hoạt động; người duyệt phải đổi người nối cho hồ sơ chờ nếu cần.
 

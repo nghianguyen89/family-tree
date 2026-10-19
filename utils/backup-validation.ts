@@ -9,6 +9,8 @@ const MAX_PERSONS = 10000
 const MAX_RELATIONSHIPS = 30000
 const MAX_PRIVATE_DETAILS = 10000
 const MAX_CUSTOM_EVENTS = 10000
+const MAX_BRANCHES = 10000
+const MAX_BRANCH_MEMBERS = 30000
 
 function isShortText(value: unknown, maxLength: number) {
   return (
@@ -60,6 +62,7 @@ export function validateImportPayload(
     return t('tooManyRelationships', { count: MAX_RELATIONSHIPS })
 
   const personIds = new Set<string>()
+  const ownedPersonBranches = new Map<string, string>()
   for (const person of persons) {
     if (!person || typeof person !== 'object') return t('invalidPersonRecord')
     const row = person as Record<string, unknown>
@@ -67,6 +70,15 @@ export function validateImportPayload(
       return t('invalidPersonId')
     if (personIds.has(row.id)) return t('duplicatePersonId')
     personIds.add(row.id)
+    if (row.family_branch_id != null) {
+      if (
+        typeof row.family_branch_id !== 'string' ||
+        !UUID_PATTERN.test(row.family_branch_id)
+      )
+        return t('invalidPersonRecord')
+      ownedPersonBranches.set(row.id, row.family_branch_id)
+      if (row.generation != null) return t('invalidPersonRecord')
+    }
     if (
       typeof row.full_name !== 'string' ||
       row.full_name.trim().length === 0 ||
@@ -114,11 +126,99 @@ export function validateImportPayload(
     }
   }
 
+  const branches = payload.family_branches ?? []
+  const members = payload.family_branch_members ?? []
+  if (
+    !Array.isArray(branches) ||
+    branches.length > MAX_BRANCHES ||
+    !Array.isArray(members) ||
+    members.length > MAX_BRANCH_MEMBERS
+  ) {
+    return t('invalidDataStructure')
+  }
+  const branchIds = new Set<string>()
+  const branchAnchors = new Map<string, string>()
+  const branchRoots = new Map<string, string | null>()
+  const branchPartners = new Map<string, string>()
+  for (const branch of branches) {
+    if (!branch || typeof branch !== 'object') return t('invalidDataStructure')
+    const row = branch as Record<string, unknown>
+    if (
+      typeof row.id !== 'string' ||
+      !UUID_PATTERN.test(row.id) ||
+      branchIds.has(row.id) ||
+      typeof row.name !== 'string' ||
+      !row.name.trim() ||
+      row.name.length > 150 ||
+      typeof row.anchor_person_id !== 'string' ||
+      !personIds.has(row.anchor_person_id) ||
+      (row.partner_person_id != null &&
+        (typeof row.partner_person_id !== 'string' ||
+          !UUID_PATTERN.test(row.partner_person_id) ||
+          !personIds.has(row.partner_person_id) ||
+          ownedPersonBranches.has(row.partner_person_id) ||
+          row.partner_person_id === row.anchor_person_id)) ||
+      (row.root_person_id != null &&
+        (typeof row.root_person_id !== 'string' ||
+          !personIds.has(row.root_person_id)))
+    ) {
+      return t('invalidDataStructure')
+    }
+    branchIds.add(row.id)
+    branchAnchors.set(row.id, row.anchor_person_id)
+    branchRoots.set(row.id, (row.root_person_id as string | null) ?? null)
+    if (typeof row.partner_person_id === 'string')
+      branchPartners.set(row.id, row.partner_person_id)
+  }
+  for (const branchId of ownedPersonBranches.values()) {
+    if (!branchIds.has(branchId)) return t('invalidDataStructure')
+  }
+  const memberKeys = new Set<string>()
+  for (const member of members) {
+    if (!member || typeof member !== 'object') return t('invalidDataStructure')
+    const row = member as Record<string, unknown>
+    if (
+      typeof row.branch_id !== 'string' ||
+      !branchIds.has(row.branch_id) ||
+      typeof row.person_id !== 'string' ||
+      !personIds.has(row.person_id) ||
+      !isOptionalInteger(row.generation, 1, 10000)
+    )
+      return t('invalidDataStructure')
+    const key = `${row.branch_id}:${row.person_id}`
+    if (memberKeys.has(key)) return t('invalidDataStructure')
+    memberKeys.add(key)
+  }
+  for (const [personId, branchId] of ownedPersonBranches) {
+    if (!memberKeys.has(`${branchId}:${personId}`))
+      return t('invalidDataStructure')
+  }
+  for (const [branchId, anchorId] of branchAnchors) {
+    if (!memberKeys.has(`${branchId}:${anchorId}`))
+      return t('invalidDataStructure')
+    const rootId = branchRoots.get(branchId)
+    if (rootId && !memberKeys.has(`${branchId}:${rootId}`))
+      return t('invalidDataStructure')
+  }
+
   const relationshipKeys = new Set<string>()
+  const mainMarriages = new Set<string>()
   for (const relationship of relationships) {
     if (!relationship || typeof relationship !== 'object')
       return t('invalidRelationship')
     const row = relationship as Record<string, unknown>
+    if (
+      row.family_branch_id != null &&
+      (typeof row.family_branch_id !== 'string' ||
+        !branchIds.has(row.family_branch_id))
+    )
+      return t('invalidRelationshipData')
+    if (
+      row.family_branch_id != null &&
+      (!memberKeys.has(`${row.family_branch_id}:${row.person_a}`) ||
+        !memberKeys.has(`${row.family_branch_id}:${row.person_b}`))
+    )
+      return t('invalidRelationshipData')
     if (
       typeof row.person_a !== 'string' ||
       !personIds.has(row.person_a) ||
@@ -131,9 +231,22 @@ export function validateImportPayload(
     )
       return t('invalidRelationshipData')
     if (!isShortText(row.note, 2000)) return t('relationshipNoteTooLong')
-    const key = `${row.person_a}:${row.person_b}:${row.type}`
+    const key = `${row.person_a}:${row.person_b}:${row.type}:${row.family_branch_id ?? ''}`
     if (relationshipKeys.has(key)) return t('invalidRelationshipData')
     relationshipKeys.add(key)
+    if (row.type === 'marriage' && row.family_branch_id == null) {
+      mainMarriages.add(`${row.person_a}:${row.person_b}`)
+      mainMarriages.add(`${row.person_b}:${row.person_a}`)
+    }
+  }
+
+  for (const [branchId, partnerId] of branchPartners) {
+    const anchorId = branchAnchors.get(branchId)!
+    if (
+      ownedPersonBranches.has(anchorId) ||
+      !mainMarriages.has(`${anchorId}:${partnerId}`)
+    )
+      return t('invalidDataStructure')
   }
 
   const privateDetails = payload.person_details_private

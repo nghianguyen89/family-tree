@@ -11,12 +11,17 @@ import {
   toggleUserStatus
 } from '@/app/actions/user'
 import config from '@/app/config'
+import UserPersonLink, {
+  type UserPersonOption
+} from '@/components/admin/UserPersonLink'
 import { useI18n } from '@/lib/i18n/I18nProvider'
 import { AdminUserData, UserRole } from '@/types'
 
 interface AdminUserListProps {
   initialUsers: AdminUserData[]
   currentUserId: string
+  persons: UserPersonOption[]
+  personLinkUnavailable: boolean
 }
 
 interface Notification {
@@ -26,9 +31,11 @@ interface Notification {
 
 export default function AdminUserList({
   initialUsers,
-  currentUserId
+  currentUserId,
+  persons,
+  personLinkUnavailable
 }: AdminUserListProps) {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const isDemo =
     typeof window !== 'undefined' &&
     window.location.hostname === config.demoDomain
@@ -220,6 +227,19 @@ export default function AdminUserList({
         )}
       </AnimatePresence>
 
+      <p className='text-sm text-secondary'>
+        {locale === 'vi'
+          ? 'Admin xác nhận mỗi tài khoản đại diện cho ai trên cây họ chính. Không tự ghép theo email hoặc tên. Mỗi người chỉ liên kết với một tài khoản.'
+          : 'An admin confirms who each account represents in the main family tree. Accounts are never matched by email or name. Each person can be linked to one account.'}
+      </p>
+      {personLinkUnavailable && (
+        <p role='alert' className='text-sm text-error'>
+          {locale === 'vi'
+            ? 'Không tải được liên kết tài khoản hoặc danh sách người. Kiểm tra kết nối, quyền và migration liên kết tài khoản trước khi thử lại.'
+            : 'Account links or people could not be loaded. Check the connection, permissions and account-link migration before retrying.'}
+        </p>
+      )}
+
       <div className='flex justify-end'>
         <button
           onClick={() => setIsCreateModalOpen(true)}
@@ -249,6 +269,9 @@ export default function AdminUserList({
                   {t('adminEmail')}
                 </th>
                 <th className='px-6 py-4 text-sm font-medium text-stone-500'>
+                  {locale === 'vi' ? 'Người trên cây' : 'Tree person'}
+                </th>
+                <th className='px-6 py-4 text-sm font-medium text-stone-500'>
                   {t('adminRole')}
                 </th>
                 <th className='px-6 py-4 text-sm font-medium text-stone-500'>
@@ -269,6 +292,26 @@ export default function AdminUserList({
                   className='transition-colors hover:bg-stone-50/80'>
                   <td className='px-6 py-4 font-medium text-stone-900'>
                     {user.email}
+                  </td>
+                  <td className='px-6 py-4'>
+                    <UserPersonLink
+                      user={user}
+                      persons={persons}
+                      disabled={
+                        personLinkUnavailable ||
+                        user.person_id === undefined ||
+                        isDemo
+                      }
+                      onSaved={(personId) =>
+                        setUsers((current) =>
+                          current.map((item) =>
+                            item.id === user.id
+                              ? { ...item, person_id: personId }
+                              : item
+                          )
+                        )
+                      }
+                    />
                   </td>
                   <td className='px-6 py-4'>
                     {user.id === currentUserId ? (
@@ -353,7 +396,7 @@ export default function AdminUserList({
               {users.length === 0 && (
                 <tr>
                   <td
-                    colSpan={4}
+                    colSpan={6}
                     className='px-6 py-8 text-center text-stone-500'>
                     {t('adminNoUsers')}
                   </td>

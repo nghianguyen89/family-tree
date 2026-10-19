@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 
 import LineageManager from '@/components/LineageManager'
 import { getServerTranslations } from '@/lib/i18n/server'
+import { mainFamilyScope } from '@/utils/familyBranches'
 import { fetchAllRows } from '@/utils/supabase/fetchAll'
 import { getProfile, getSupabase } from '@/utils/supabase/queries'
 
@@ -30,8 +31,10 @@ export default async function LineagePage() {
   ])
 
   // Identify "roots" - people with no parents
-  const persons = personsData || []
-  const relationships = relsData || []
+  const { persons, relationships } = mainFamilyScope(
+    personsData || [],
+    relsData || []
+  )
 
   return (
     <main className='relative flex w-full flex-1 flex-col overflow-auto bg-stone-50/50 pt-8'>

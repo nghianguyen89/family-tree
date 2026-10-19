@@ -15,6 +15,7 @@ import {
 import Image from 'next/image'
 import { useCallback, useState } from 'react'
 
+import BranchLinks from '@/components/branches/BranchLinks'
 import DefaultAvatar from '@/components/DefaultAvatar'
 import { FemaleIcon, MaleIcon } from '@/components/GenderIcons'
 import RelationshipManager from '@/components/RelationshipManager'
@@ -47,6 +48,7 @@ export default function MemberDetailContent({
 }: MemberDetailContentProps) {
   const { t, locale } = useI18n()
   const [isNoteExpanded, setIsNoteExpanded] = useState(false)
+  const [relationshipRevision, setRelationshipRevision] = useState(0)
   const [relStats, setRelStats] = useState<{
     biologicalChildren: number
     maleBiologicalChildren: number
@@ -579,13 +581,22 @@ export default function MemberDetailContent({
               </h2>
               <div className='relative z-0 rounded-2xl border border-stone-200/60 bg-surface p-4 sm:p-6'>
                 <RelationshipManager
+                  key={`${person.id}-${relationshipRevision}`}
                   person={person}
                   isAdmin={isAdmin}
-                  canEdit={canEdit}
+                  canEdit={canEdit && !person.family_branch_id}
                   onStatsLoaded={handleStatsLoaded}
                 />
               </div>
             </motion.section>
+            <BranchLinks
+              key={person.id}
+              person={person}
+              canEdit={canEdit}
+              onRelationshipsChange={() =>
+                setRelationshipRevision((value) => value + 1)
+              }
+            />
           </div>
 
           {/* Sidebar / Private Info */}

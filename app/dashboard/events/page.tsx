@@ -1,7 +1,7 @@
 import EventsList from '@/components/EventsList'
 import MemberDetailModal from '@/components/modal/MemberDetailModal'
 import { MemberListProvider } from '@/context/MemberListContext'
-import { getServerTranslations } from '@/lib/i18n/server'
+import { getServerLocale, getServerTranslations } from '@/lib/i18n/server'
 import { fetchAllRows } from '@/utils/supabase/fetchAll'
 import { getSupabase } from '@/utils/supabase/queries'
 
@@ -10,28 +10,44 @@ export async function generateMetadata() {
   return { title: t('eventsTitle') }
 }
 
-export default async function EventsPage() {
+export default async function EventsPage({
+  searchParams
+}: {
+  searchParams: Promise<{ branchId?: string }>
+}) {
   const { t } = await getServerTranslations()
+  const locale = await getServerLocale()
+  const { branchId } = await searchParams
   const supabase = await getSupabase()
 
-  const [personsRes, customEventsRes] = await Promise.all([
-    fetchAllRows((from, to) =>
-      supabase
-        .from('persons')
-        .select(
-          'id, full_name, memorial_day, memorial_month, memorial_calendar, memorial_is_leap_month, memorial_note, birth_year, birth_month, birth_day, death_year, death_month, death_day, death_lunar_year, death_lunar_month, death_lunar_day, is_deceased, avatar_url'
-        )
-        .order('id')
-        .range(from, to)
-    ),
-    fetchAllRows((from, to) =>
-      supabase
-        .from('custom_events')
-        .select('id, name, content, event_date, location, created_by')
-        .order('id')
-        .range(from, to)
-    )
-  ])
+  const [personsRes, customEventsRes, branchesRes, membersRes] =
+    await Promise.all([
+      fetchAllRows((from, to) =>
+        supabase.from('persons').select('*').order('id').range(from, to)
+      ),
+      fetchAllRows((from, to) =>
+        supabase
+          .from('custom_events')
+          .select('id, name, content, event_date, location, created_by')
+          .order('id')
+          .range(from, to)
+      ),
+      fetchAllRows<{ id: string; name: string }>((from, to) =>
+        supabase
+          .from('family_branches')
+          .select('id,name')
+          .order('id')
+          .range(from, to)
+      ),
+      fetchAllRows<{ branch_id: string; person_id: string }>((from, to) =>
+        supabase
+          .from('family_branch_members')
+          .select('branch_id,person_id')
+          .order('branch_id')
+          .order('person_id')
+          .range(from, to)
+      )
+    ])
 
   const persons = personsRes.data || []
   const customEvents = customEventsRes.data || []
@@ -47,9 +63,30 @@ export default async function EventsPage() {
         </div>
 
         <main className='mx-auto w-full max-w-3xl flex-1 px-4 sm:px-6 lg:px-8'>
+          {(personsRes.error ||
+            customEventsRes.error ||
+            branchesRes.error ||
+            membersRes.error) && (
+            <p
+              role='alert'
+              className='mb-4 rounded-xl border border-border bg-surface p-4 text-sm text-secondary'>
+              {locale === 'vi'
+                ? 'Chưa tải được đầy đủ lịch. Nếu chưa nâng cấp, cần chạy migration nhánh phụ 20261019000000_family_branches.sql.'
+                : 'The calendar could not be fully loaded. If not upgraded, apply the family branches migration 20261019000000_family_branches.sql.'}
+            </p>
+          )}
           <EventsList
+            key={branchId || 'all'}
             persons={persons ?? []}
             customEvents={customEvents ?? []}
+            branches={branchesRes.data}
+            branchMembers={membersRes.data}
+            initialBranchId={
+              branchId === 'main' ||
+              branchesRes.data.some((branch) => branch.id === branchId)
+                ? branchId
+                : 'all'
+            }
           />
         </main>
       </div>

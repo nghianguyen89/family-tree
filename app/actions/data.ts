@@ -17,6 +17,7 @@ import { getIsAdmin, getSupabase } from '@/utils/supabase/queries'
  */
 interface PersonExport {
   id: string
+  family_branch_id?: string | null
   full_name: string
   gender: 'male' | 'female' | 'other'
   memorial_day?: number | null
@@ -51,6 +52,7 @@ interface PersonExport {
 
 interface RelationshipExport {
   id?: string
+  family_branch_id?: string | null
   type: string
   person_a: string
   person_b: string
@@ -75,6 +77,20 @@ interface CustomEventExport {
   created_by: string | null
 }
 
+interface FamilyBranchExport {
+  id: string
+  name: string
+  anchor_person_id: string
+  partner_person_id?: string | null
+  root_person_id: string | null
+}
+
+interface FamilyBranchMemberExport {
+  branch_id: string
+  person_id: string
+  generation: number | null
+}
+
 interface BackupPayload {
   version: number
   timestamp: string
@@ -82,6 +98,8 @@ interface BackupPayload {
   relationships: RelationshipExport[]
   person_details_private?: PersonDetailsPrivateExport[]
   custom_events?: CustomEventExport[]
+  family_branches?: FamilyBranchExport[]
+  family_branch_members?: FamilyBranchMemberExport[]
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -92,6 +110,7 @@ function sanitizePerson(
 ): Omit<PersonExport, 'created_at' | 'updated_at'> {
   return {
     id: p.id,
+    family_branch_id: p.family_branch_id ?? null,
     full_name: p.full_name,
     gender: p.gender,
     memorial_day: p.memorial_day ?? null,
@@ -127,6 +146,7 @@ function sanitizeRelationship(
 ): Omit<RelationshipExport, 'id' | 'created_at' | 'updated_at'> {
   return {
     type: r.type,
+    family_branch_id: r.family_branch_id ?? null,
     person_a: r.person_a,
     person_b: r.person_b,
     note: r.note ?? null
@@ -185,16 +205,18 @@ export async function exportData(
   let allRels: RelationshipExport[] = []
   let allPrivateDetails: PersonDetailsPrivateExport[] = []
   let allCustomEvents: CustomEventExport[] = []
+  let allBranches: FamilyBranchExport[] = []
+  let allBranchMembers: FamilyBranchMemberExport[] = []
 
   try {
     allPersons = await fetchAll<PersonExport>(
       'persons',
-      'id, full_name, gender, memorial_day, memorial_month, memorial_calendar, memorial_is_leap_month, memorial_note, birth_year_from, birth_year_to, death_year_from, death_year_to, birth_year, birth_month, birth_day, death_year, death_month, death_day, death_lunar_year, death_lunar_month, death_lunar_day, is_deceased, is_in_law, birth_order, generation, other_names, avatar_url, note, created_at, updated_at',
+      'id, family_branch_id, full_name, gender, memorial_day, memorial_month, memorial_calendar, memorial_is_leap_month, memorial_note, birth_year_from, birth_year_to, death_year_from, death_year_to, birth_year, birth_month, birth_day, death_year, death_month, death_day, death_lunar_year, death_lunar_month, death_lunar_day, is_deceased, is_in_law, birth_order, generation, other_names, avatar_url, note, created_at, updated_at',
       'created_at'
     )
     allRels = await fetchAll<RelationshipExport>(
       'relationships',
-      'id, type, person_a, person_b, note, created_at, updated_at',
+      'id, family_branch_id, type, person_a, person_b, note, created_at, updated_at',
       'created_at'
     )
     // person_details_private might not have created_at, order by person_id
@@ -209,6 +231,17 @@ export async function exportData(
       'id, name, content, event_date, location, created_by',
       'event_date'
     )
+    allBranches = await fetchAll<FamilyBranchExport>(
+      'family_branches',
+      'id, name, anchor_person_id, partner_person_id, root_person_id',
+      'id'
+    )
+    allBranchMembers = await fetchAll<FamilyBranchMemberExport>(
+      'family_branch_members',
+      'branch_id, person_id, generation',
+      'branch_id',
+      'person_id'
+    )
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error)
     return { error: t('loadDataError', { error: message }) }
@@ -217,27 +250,37 @@ export async function exportData(
   let exportPersons = allPersons
   let exportRels = allRels
   let exportPrivateDetails = allPrivateDetails
+  let exportBranches = allBranches
+  let exportBranchMembers = allBranchMembers
   const exportCustomEvents = allCustomEvents
 
   // If a root person is selected, filter the export to only their subtree
   if (exportRootId && exportPersons.some((p) => p.id === exportRootId)) {
     const includedPersonIds = new Set<string>([exportRootId])
+    const mainPersonIds = new Set(
+      allPersons.filter((p) => !p.family_branch_id).map((p) => p.id)
+    )
 
     // Pre-calculate adjacency lists for O(1) lookup to improve performance with large datasets
     const childrenMap = new Map<string, string[]>()
     const spouseMap = new Map<string, string[]>()
 
-    exportRels.forEach((r) => {
-      if (r.type === 'biological_child' || r.type === 'adopted_child') {
-        if (!childrenMap.has(r.person_a)) childrenMap.set(r.person_a, [])
-        childrenMap.get(r.person_a)!.push(r.person_b)
-      } else if (r.type === 'marriage') {
-        if (!spouseMap.has(r.person_a)) spouseMap.set(r.person_a, [])
-        if (!spouseMap.has(r.person_b)) spouseMap.set(r.person_b, [])
-        spouseMap.get(r.person_a)!.push(r.person_b)
-        spouseMap.get(r.person_b)!.push(r.person_a)
-      }
-    })
+    exportRels
+      .filter((r) => !r.family_branch_id)
+      .forEach((r) => {
+        if (r.type === 'biological_child' || r.type === 'adopted_child') {
+          if (!mainPersonIds.has(r.person_b)) return
+          if (!childrenMap.has(r.person_a)) childrenMap.set(r.person_a, [])
+          childrenMap.get(r.person_a)!.push(r.person_b)
+        } else if (r.type === 'marriage') {
+          if (!mainPersonIds.has(r.person_a) || !mainPersonIds.has(r.person_b))
+            return
+          if (!spouseMap.has(r.person_a)) spouseMap.set(r.person_a, [])
+          if (!spouseMap.has(r.person_b)) spouseMap.set(r.person_b, [])
+          spouseMap.get(r.person_a)!.push(r.person_b)
+          spouseMap.get(r.person_b)!.push(r.person_a)
+        }
+      })
 
     // 1. Traverse biological and adopted children recursively
     const findDescendants = (parentId: string) => {
@@ -260,11 +303,51 @@ export async function exportData(
       })
     })
 
+    // Include each branch attached to the selected main subtree. A person can
+    // belong to several branches, so repeat until all attached branches close.
+    const includedBranchIds = new Set<string>()
+    let changed = true
+    while (changed) {
+      changed = false
+      for (const branch of allBranches) {
+        if (
+          includedBranchIds.has(branch.id) ||
+          (!includedPersonIds.has(branch.anchor_person_id) &&
+            !allPersons.some(
+              (person) =>
+                includedPersonIds.has(person.id) &&
+                person.family_branch_id === branch.id
+            ))
+        )
+          continue
+        includedBranchIds.add(branch.id)
+        changed = true
+        includedPersonIds.add(branch.anchor_person_id)
+        if (branch.partner_person_id)
+          includedPersonIds.add(branch.partner_person_id)
+        if (branch.root_person_id) includedPersonIds.add(branch.root_person_id)
+        for (const member of allBranchMembers) {
+          if (member.branch_id === branch.id)
+            includedPersonIds.add(member.person_id)
+        }
+        for (const person of allPersons) {
+          if (person.family_branch_id === branch.id)
+            includedPersonIds.add(person.id)
+        }
+      }
+    }
+    exportBranches = allBranches.filter((b) => includedBranchIds.has(b.id))
+    exportBranchMembers = allBranchMembers.filter((m) =>
+      includedBranchIds.has(m.branch_id)
+    )
+
     // 3. Filter the payload
     exportPersons = exportPersons.filter((p) => includedPersonIds.has(p.id))
     exportRels = exportRels.filter(
       (r) =>
-        includedPersonIds.has(r.person_a) && includedPersonIds.has(r.person_b)
+        includedPersonIds.has(r.person_a) &&
+        includedPersonIds.has(r.person_b) &&
+        (!r.family_branch_id || includedBranchIds.has(r.family_branch_id))
     )
     exportPrivateDetails = exportPrivateDetails.filter((d) =>
       includedPersonIds.has(d.person_id)
@@ -273,12 +356,14 @@ export async function exportData(
   }
 
   return {
-    version: 3, // v3: adds death_lunar_*, person_details_private, relationship note, custom_events
+    version: 4,
     timestamp: new Date().toISOString(),
     persons: exportPersons,
     relationships: exportRels,
     person_details_private: exportPrivateDetails,
-    custom_events: exportCustomEvents
+    custom_events: exportCustomEvents,
+    family_branches: exportBranches,
+    family_branch_members: exportBranchMembers
   }
 }
 
@@ -292,6 +377,8 @@ export async function importData(
         relationships: Relationship[]
         person_details_private?: PersonDetailsPrivateExport[]
         custom_events?: CustomEventExport[]
+        family_branches?: FamilyBranchExport[]
+        family_branch_members?: FamilyBranchMemberExport[]
       }
 ) {
   const { t } = await getServerTranslations()
@@ -311,12 +398,28 @@ export async function importData(
   const customEvents = (importPayload.custom_events ?? []).map(
     sanitizeCustomEvent
   )
+  const branches = (importPayload.family_branches ?? []).map((branch) => ({
+    id: branch.id,
+    name: branch.name,
+    anchor_person_id: branch.anchor_person_id,
+    partner_person_id: branch.partner_person_id ?? null,
+    root_person_id: branch.root_person_id ?? null
+  }))
+  const branchMembers = (importPayload.family_branch_members ?? []).map(
+    (member) => ({
+      branch_id: member.branch_id,
+      person_id: member.person_id,
+      generation: member.generation ?? null
+    })
+  )
   const { error } = await supabase.rpc('import_family_backup', {
     payload: {
       persons,
       relationships,
       person_details_private: privateDetails,
-      custom_events: customEvents
+      custom_events: customEvents,
+      family_branches: branches,
+      family_branch_members: branchMembers
     }
   })
   if (error) {

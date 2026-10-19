@@ -130,6 +130,7 @@ export async function saveHomeSettings(input: HomeSettings) {
     title,
     subtitle,
     origin,
+    origin_previous,
     introduction,
     contact,
     cover_image_id,
@@ -141,6 +142,7 @@ export async function saveHomeSettings(input: HomeSettings) {
       title: title.trim(),
       subtitle,
       origin,
+      origin_previous: origin_previous ?? '',
       introduction,
       contact,
       cover_image_id,
@@ -150,7 +152,10 @@ export async function saveHomeSettings(input: HomeSettings) {
     .eq('revision', input.revision)
     .select('revision')
     .maybeSingle()
-  if (error) return failed
+  if (error)
+    return ['PGRST204', '42703'].includes(error.code)
+      ? { error: 'migration' }
+      : failed
   if (!data) return { error: 'conflict' }
   refreshContent()
   return { revision: data.revision as number }

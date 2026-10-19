@@ -18,7 +18,7 @@ export default async function MemberDetailPage({ params }: PageProps) {
   const profile = await getProfile()
 
   const isAdmin = profile?.role === 'admin' && profile.is_active
-  const canEdit =
+  let canEdit =
     profile?.is_active === true &&
     (profile.role === 'admin' || profile.role === 'editor')
 
@@ -33,6 +33,12 @@ export default async function MemberDetailPage({ params }: PageProps) {
 
   if (error || !person) {
     notFound()
+  }
+  if (canEdit && person.family_branch_id) {
+    const permission = await supabase.rpc('can_edit_person', {
+      p_person_id: id
+    })
+    canEdit = !permission.error && permission.data === true
   }
 
   // Fetch Private Data if Admin

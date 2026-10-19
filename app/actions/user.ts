@@ -4,7 +4,35 @@ import { revalidatePath } from 'next/cache'
 
 import { getServerTranslations } from '@/lib/i18n/server'
 import { UserRole } from '@/types'
-import { getSupabase } from '@/utils/supabase/queries'
+import { UUID } from '@/utils/intake'
+import { getProfile, getSupabase } from '@/utils/supabase/queries'
+
+export async function linkUserPerson(userId: string, personId: string | null) {
+  const profile = await getProfile()
+  if (profile?.role !== 'admin' || !profile.is_active)
+    return { error: 'permission' }
+  if (
+    typeof userId !== 'string' ||
+    !UUID.test(userId) ||
+    (personId !== null &&
+      (typeof personId !== 'string' || !UUID.test(personId)))
+  )
+    return { error: 'invalid' }
+
+  const supabase = await getSupabase()
+  const { error } = await supabase.rpc('set_user_person', {
+    p_user_id: userId,
+    p_person_id: personId
+  })
+  if (error) {
+    if (['PGRST202', 'PGRST204', '42703', '42883'].includes(error.code))
+      return { error: 'migration' }
+    if (error.code === '23505') return { error: 'alreadyLinked' }
+    return { error: 'saveFailed' }
+  }
+  revalidatePath('/dashboard', 'layout')
+  return { success: true as const }
+}
 
 export async function changeUserRole(userId: string, newRole: UserRole) {
   const supabase = await getSupabase()

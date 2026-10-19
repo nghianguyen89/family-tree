@@ -29,7 +29,11 @@ const MIGRATION_FILES = [
   'docs/migrations/20261015000000_home_content.sql',
   'docs/migrations/20261015010000_shared_media_library.sql',
   'docs/migrations/20261016000000_intake_link_management.sql',
-  'docs/migrations/20261016010000_fix_media_insert_returning.sql'
+  'docs/migrations/20261016010000_fix_media_insert_returning.sql',
+  'docs/migrations/20261019000000_family_branches.sql',
+  'docs/migrations/20261019010000_family_branch_privacy.sql',
+  'docs/migrations/20261019020000_home_origin_previous.sql',
+  'docs/migrations/20261019030000_family_branch_descendants.sql'
 ] as const
 
 const MIGRATION_TABLE = 'public.app_migrations'

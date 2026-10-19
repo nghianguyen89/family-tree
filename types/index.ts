@@ -4,6 +4,7 @@ export type UserRole = 'admin' | 'editor' | 'member'
 
 export interface Profile {
   id: string
+  person_id?: string | null
   role: UserRole
   is_active: boolean
   created_at: string
@@ -12,6 +13,7 @@ export interface Profile {
 
 export interface AdminUserData {
   id: string
+  person_id?: string | null
   email: string
   role: UserRole
   is_active: boolean
@@ -20,6 +22,8 @@ export interface AdminUserData {
 
 export interface Person {
   id: string
+  /** Null for the main family; shared profiles join auxiliary branches separately. */
+  family_branch_id?: string | null
   full_name: string
   gender: Gender
   memorial_day?: number | null
@@ -62,6 +66,8 @@ export interface Person {
 
 export interface Relationship {
   id: string
+  /** Null for main-family relationships. */
+  family_branch_id?: string | null
   type: RelationshipType
   person_a: string // UUID
   person_b: string // UUID

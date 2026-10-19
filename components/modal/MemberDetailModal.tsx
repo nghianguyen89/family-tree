@@ -21,7 +21,7 @@ export default function MemberDetailModal() {
     showCreateMember,
     setShowCreateMember
   } = useMemberListView()
-  const { isAdmin, isEditor: canEdit, supabase } = useUser()
+  const { isAdmin, isEditor, supabase } = useUser()
   const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
 
@@ -29,6 +29,8 @@ export default function MemberDetailModal() {
   const [error, setError] = useState<string | null>(null)
 
   const [person, setPerson] = useState<Person | null>(null)
+  const [canEditPerson, setCanEditPerson] = useState(false)
+  const canEdit = isEditor && canEditPerson && person?.id === memberId
   const [privateData, setPrivateData] = useState<Record<
     string,
     unknown
@@ -55,6 +57,7 @@ export default function MemberDetailModal() {
     async (id: string) => {
       setLoading(true)
       setError(null)
+      setCanEditPerson(false)
       try {
         // Public and (admin-only) private data are fetched in parallel
         const [personRes, privateRes] = await Promise.all([
@@ -71,6 +74,14 @@ export default function MemberDetailModal() {
         if (personRes.error || !personRes.data) {
           throw new Error(t('memberLoadError'))
         }
+        let editable = isEditor
+        if (editable && personRes.data.family_branch_id) {
+          const permission = await supabase.rpc('can_edit_person', {
+            p_person_id: id
+          })
+          editable = !permission.error && permission.data === true
+        }
+        setCanEditPerson(editable)
         setPerson(personRes.data)
         setPrivateData(isAdmin ? privateRes?.data || {} : null)
       } catch (err) {
@@ -81,7 +92,7 @@ export default function MemberDetailModal() {
         setLoading(false)
       }
     },
-    [isAdmin, supabase, t]
+    [isAdmin, isEditor, supabase, t]
   )
 
   // Sync state with URL parameter or create mode
@@ -257,7 +268,7 @@ export default function MemberDetailModal() {
                     {t('close')}
                   </button>
                 </motion.div>
-              ) : isEditing && formInitialData ? (
+              ) : isEditing && canEdit && formInitialData ? (
                 /* ── EDIT MODE ── */
                 <motion.div
                   key='editing'

@@ -12,9 +12,11 @@ import { getAvatarBg } from '@/utils/styleHelprs'
 import { AdjacencyLists, getFilteredTreeData } from '@/utils/treeHelpers'
 import { formatPersonYear } from '@/utils/yearRanges'
 
+import BranchNodeLinks from './branches/BranchNodeLinks'
 import DefaultAvatar from './DefaultAvatar'
 
 export interface MindmapContextData {
+  auxiliary?: boolean
   personsMap: Map<string, Person>
   relationships: Relationship[]
   adj: AdjacencyLists
@@ -88,7 +90,7 @@ export const MindmapNode = memo(
         {level > 0 && (
           <>
             <div
-              className='absolute border-l-[1.5px] border-stone-300'
+              className={`absolute border-l-[1.5px] ${ctx.auxiliary ? 'border-tertiary' : 'border-stone-300'}`}
               style={{
                 left: '0',
                 top: isLast ? '-16px' : '-16px',
@@ -96,7 +98,7 @@ export const MindmapNode = memo(
                 height: isLast ? '40px' : '100%'
               }}></div>
             <div
-              className='absolute rounded-bl-xl border-b-[1.5px] border-l-[1.5px] border-stone-300'
+              className={`absolute rounded-bl-xl border-b-[1.5px] border-l-[1.5px] ${ctx.auxiliary ? 'border-tertiary' : 'border-stone-300'}`}
               style={{
                 left: '0',
                 top: '24px',
@@ -139,10 +141,12 @@ export const MindmapNode = memo(
                     ctx.setMemberModalId(data.person.id)
                   }
                 }}
-                className='group/card relative flex cursor-pointer flex-wrap items-center gap-2 overflow-hidden rounded-2xl border border-stone-200/60 bg-surface p-2 transition-colors duration-300 hover:border-amber-300 sm:p-2.5'
+                className={`group/card relative flex cursor-pointer flex-wrap items-center gap-2 overflow-hidden rounded-2xl border p-2 transition-colors duration-300 hover:border-tertiary sm:p-2.5 ${ctx.auxiliary ? 'border-tertiary bg-tertiary/10' : 'border-stone-200/60 bg-surface'}`}
                 onClick={() => ctx.setMemberModalId(data.person.id)}>
-                <div className='relative z-10 flex w-full items-center gap-2.5'>
-                  <div className='flex min-w-0 flex-1 items-center gap-2.5'>
+                <div
+                  className={`relative z-10 flex w-full items-center gap-2.5 ${ctx.auxiliary ? 'flex-wrap' : ''}`}>
+                  <div
+                    className={`flex flex-1 items-center gap-2.5 ${ctx.auxiliary ? 'min-w-40' : 'min-w-0'}`}>
                     {ctx.showAvatar && (
                       <div className='relative shrink-0'>
                         <div
@@ -166,7 +170,8 @@ export const MindmapNode = memo(
                       </div>
                     )}
                     <div className='flex min-w-0 flex-1 flex-col'>
-                      <span className='mb-0.5 truncate text-sm leading-tight font-medium text-stone-900 transition-colors group-hover/card:text-amber-700'>
+                      <span
+                        className={`mb-0.5 text-sm leading-tight font-medium text-stone-900 transition-colors group-hover/card:text-amber-700 ${ctx.auxiliary ? 'break-words' : 'truncate'}`}>
                         {data.person.full_name}
                       </span>
                       <span className='flex items-center gap-1 truncate text-sm font-medium text-stone-500'>
@@ -226,7 +231,8 @@ export const MindmapNode = memo(
                               e.stopPropagation()
                               ctx.setMemberModalId(spouseData.person.id)
                             }}
-                            className='group/spouse flex cursor-pointer flex-col items-center gap-1 rounded-xl border border-stone-200/60 bg-stone-50 p-1.5 transition-colors hover:border-amber-300 hover:bg-surface'
+                            className={`group/spouse flex cursor-pointer flex-col items-center gap-1 rounded-xl border p-1.5 transition-colors hover:border-tertiary hover:bg-surface ${ctx.auxiliary ? 'border-tertiary bg-tertiary/10' : 'border-stone-200/60 bg-stone-50'}`}
+                            aria-label={spouseData.person.full_name}
                             title={
                               spouseData.note ||
                               (spouseData.person.gender === 'male'
@@ -255,8 +261,15 @@ export const MindmapNode = memo(
                                 )}
                               </div>
                             )}
-                            <span className='max-w-12.5 truncate text-center text-sm font-medium text-stone-600'>
-                              {spouseData.person.full_name.split(' ').pop()}
+                            <span
+                              className={
+                                ctx.auxiliary
+                                  ? 'text-center text-sm font-medium text-primary'
+                                  : 'max-w-12.5 truncate text-center text-sm font-medium text-stone-600'
+                              }>
+                              {ctx.auxiliary
+                                ? spouseData.person.full_name
+                                : spouseData.person.full_name.split(' ').pop()}
                             </span>
                           </button>
                         )
@@ -268,6 +281,18 @@ export const MindmapNode = memo(
             )
           })()}
         </div>
+
+        {!ctx.auxiliary && (
+          <div className='pl-6'>
+            <BranchNodeLinks personId={data.person.id} />
+            {data.spouses.map((spouse) => (
+              <BranchNodeLinks
+                key={spouse.person.id}
+                personId={spouse.person.id}
+              />
+            ))}
+          </div>
+        )}
 
         {/* Children Container */}
         <AnimatePresence initial={false}>

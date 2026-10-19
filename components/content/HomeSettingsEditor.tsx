@@ -43,7 +43,9 @@ export default function HomeSettingsEditor({
             ? t.conflict
             : result.error === 'invalid'
               ? t.invalid
-              : t.error
+              : result.error === 'migration'
+                ? t.migration
+                : t.error
         )
       else {
         setValue((prev) => ({ ...prev, revision: result.revision! }))
@@ -68,18 +70,35 @@ export default function HomeSettingsEditor({
           </h2>
           <p className='text-sm text-secondary'>{t.coverHelp}</p>
         </div>
-        {(['title', 'subtitle', 'origin'] as const).map((k) => (
+        {(['title', 'subtitle'] as const).map((k) => (
           <label key={k} className='content-field'>
             {t[k]}
             <input
               className='content-control'
-              maxLength={k === 'title' ? 200 : k === 'subtitle' ? 600 : 300}
+              maxLength={k === 'title' ? 200 : 600}
               required={k === 'title'}
               value={value[k]}
               onChange={(e) => setValue({ ...value, [k]: e.target.value })}
             />
           </label>
         ))}
+        <fieldset className='space-y-4'>
+          <legend className='mb-3 text-sm font-medium'>{t.origin}</legend>
+          {(['origin', 'origin_previous'] as const).map((key) => (
+            <label key={key} className='content-field'>
+              {key === 'origin' ? t.originCurrent : t.originPrevious}
+              <textarea
+                className='content-control'
+                rows={3}
+                maxLength={300}
+                value={value[key] ?? ''}
+                onChange={(event) =>
+                  setValue({ ...value, [key]: event.target.value })
+                }
+              />
+            </label>
+          ))}
+        </fieldset>
         {(['introduction', 'contact'] as const).map((k) => (
           <label key={k} className='content-field'>
             {t[k]}

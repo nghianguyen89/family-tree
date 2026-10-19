@@ -16,6 +16,7 @@ Cập nhật: 2026-10-16.
 10. [Tải nhiều ảnh](MULTI-IMAGE-UPLOAD-HANDOFF.md): thumbnail, tải theo lô và bổ sung mô tả sau cho CMS/thư viện ảnh.
 11. [Thư viện ảnh chung](SHARED-MEDIA-HANDOFF.md): migration ảnh cũ, dùng lại file cho album/trang chủ, masonry và PhotoSwipe.
 12. [Panel điều hướng dashboard](DASHBOARD-NAVIGATION-HANDOFF.md): hamburger, thanh icon thu gọn, panel mở rộng và link theo vai trò.
+13. [Nhánh gia đình bên dâu/rể](FAMILY-BRANCHES-HANDOFF.md): cây phụ, đời riêng, liên kết hồ sơ dùng chung, lịch cúng theo nhánh và sao lưu JSON.
 
 ## Tài liệu và tài nguyên có sẵn
 

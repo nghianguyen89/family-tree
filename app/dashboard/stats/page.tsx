@@ -1,5 +1,6 @@
 import FamilyStats from '@/components/FamilyStats'
 import { getServerTranslations } from '@/lib/i18n/server'
+import { mainFamilyScope } from '@/utils/familyBranches'
 import { fetchAllRows } from '@/utils/supabase/fetchAll'
 import { getSupabase } from '@/utils/supabase/queries'
 
@@ -13,7 +14,7 @@ export default async function StatsPage() {
   const { t } = await getServerTranslations()
   const supabase = await getSupabase()
 
-  const [{ data: persons }, { data: relationships }] = await Promise.all([
+  const [{ data: allPersons }, { data: allRelationships }] = await Promise.all([
     fetchAllRows((from, to) =>
       supabase.from('persons').select('*').order('id').range(from, to)
     ),
@@ -21,6 +22,11 @@ export default async function StatsPage() {
       supabase.from('relationships').select('*').order('id').range(from, to)
     )
   ])
+
+  const { persons, relationships } = mainFamilyScope(
+    allPersons || [],
+    allRelationships || []
+  )
 
   return (
     <div className='relative flex w-full flex-1 flex-col pb-12'>

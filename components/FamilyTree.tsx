@@ -9,6 +9,7 @@ import { useI18n } from '@/lib/i18n/I18nProvider'
 import { Person, Relationship } from '@/types'
 import { buildAdjacencyLists, getFilteredTreeData } from '@/utils/treeHelpers'
 
+import BranchNodeLinks from './branches/BranchNodeLinks'
 import FamilyNodeCard from './FamilyNodeCard'
 import TreeToolbar from './TreeToolbar'
 
@@ -158,6 +159,7 @@ export default function FamilyTree({
 
   useEffect(() => {
     const equalizeHeights = () => {
+      // Only equalize the people row. Auxiliary panels can grow independently.
       if (!containerRef.current) return
       const nodes = containerRef.current.querySelectorAll('.node-container')
       const levelMap: Record<string, HTMLElement[]> = {}
@@ -173,14 +175,18 @@ export default function FamilyTree({
       Object.values(levelMap).forEach((levelNodes) => {
         // Reset min-height first to get natural height
         levelNodes.forEach((node) => {
-          const innerFlex = node.firstElementChild as HTMLElement
+          const innerFlex = node.querySelector<HTMLElement>(
+            ':scope > [data-family-card]'
+          )
           if (innerFlex) innerFlex.style.minHeight = '0px'
         })
 
         let maxHeight = 0
         // Find the maximum height in this level
         levelNodes.forEach((node) => {
-          const innerFlex = node.firstElementChild as HTMLElement
+          const innerFlex = node.querySelector<HTMLElement>(
+            ':scope > [data-family-card]'
+          )
           if (innerFlex) {
             maxHeight = Math.max(maxHeight, innerFlex.offsetHeight)
           }
@@ -188,7 +194,9 @@ export default function FamilyTree({
 
         // Apply max height to all nodes in this level
         levelNodes.forEach((node) => {
-          const innerFlex = node.firstElementChild as HTMLElement
+          const innerFlex = node.querySelector<HTMLElement>(
+            ':scope > [data-family-card]'
+          )
           if (innerFlex && maxHeight > 0) {
             innerFlex.style.minHeight = `${maxHeight}px`
           }
@@ -248,10 +256,12 @@ export default function FamilyTree({
       return (
         <li>
           <div
-            className='node-container inline-flex flex-col items-center'
-            data-level={level}>
+            className='node-container relative inline-flex flex-col items-center'
+            data-level={level}
+            data-person-id={personId}>
             {/* Main Person & Spouses Row */}
             <div
+              data-family-card='true'
               className={`relative z-10 flex h-full items-stretch ${showAvatar ? 'rounded-2xl border border-stone-200/80 bg-surface' : ''}`}>
               <FamilyNodeCard person={data.person} level={level} />
 
@@ -265,28 +275,37 @@ export default function FamilyTree({
                   />
                 </div>
               ))}
-
-              {/* Expand/Collapse Toggle – centered on the row */}
-              {!hideExpandButtons && hasChildren && (
-                <button
-                  type='button'
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    e.preventDefault()
-                    toggleCollapse(personId)
-                  }}
-                  className='absolute -bottom-3 left-1/2 z-100 flex size-6 -translate-x-1/2 items-center justify-center rounded-full border border-stone-200/80 bg-surface text-stone-500 transition-colors hover:border-amber-300 hover:text-amber-600'
-                  title={isCollapsed ? t('expand') : t('collapse')}
-                  aria-label={isCollapsed ? t('expand') : t('collapse')}
-                  aria-expanded={!isCollapsed}>
-                  {isCollapsed ? (
-                    <Plus className='h-3.5 w-3.5' />
-                  ) : (
-                    <Minus className='h-3.5 w-3.5' />
-                  )}
-                </button>
-              )}
             </div>
+
+            {/* Auxiliary panels must not be measured as part of family cards. */}
+            <BranchNodeLinks personId={data.person.id} />
+            {data.spouses.map((spouse) => (
+              <BranchNodeLinks
+                key={spouse.person.id}
+                personId={spouse.person.id}
+              />
+            ))}
+
+            {/* Main descendants toggle stays below any auxiliary panels. */}
+            {!hideExpandButtons && hasChildren && (
+              <button
+                type='button'
+                onClick={(e) => {
+                  e.stopPropagation()
+                  e.preventDefault()
+                  toggleCollapse(personId)
+                }}
+                className='absolute -bottom-3 left-1/2 z-100 flex size-6 -translate-x-1/2 items-center justify-center rounded-full border border-stone-200/80 bg-surface text-stone-500 transition-colors hover:border-amber-300 hover:text-amber-600'
+                title={isCollapsed ? t('expand') : t('collapse')}
+                aria-label={isCollapsed ? t('expand') : t('collapse')}
+                aria-expanded={!isCollapsed}>
+                {isCollapsed ? (
+                  <Plus className='h-3.5 w-3.5' />
+                ) : (
+                  <Minus className='h-3.5 w-3.5' />
+                )}
+              </button>
+            )}
           </div>
 
           {/* Render Children (if any and not collapsed) */}

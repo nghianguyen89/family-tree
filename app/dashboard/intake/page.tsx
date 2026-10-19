@@ -47,7 +47,10 @@ export default async function IntakePage() {
           {links.error ? text.migration : text.error}
         </p>
       ) : (
-        <IntakeManager people={people.data} links={links.data} />
+        <IntakeManager
+          people={people.data.filter((person) => !person.family_branch_id)}
+          links={links.data}
+        />
       )}
     </main>
   )

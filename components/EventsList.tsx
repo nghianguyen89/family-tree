@@ -17,6 +17,7 @@ import { useMemo, useState } from 'react'
 
 import CustomEventModal from '@/components/modal/CustomEventModal'
 import { useMemberListView } from '@/context/MemberListContext'
+import { branchesMessages } from '@/lib/i18n/branches'
 import { useI18n } from '@/lib/i18n/I18nProvider'
 import type { TranslationKey, TranslationValues } from '@/lib/i18n/messages'
 import { getZodiacSign } from '@/utils/dateHelpers'
@@ -25,10 +26,12 @@ import {
   CustomEventRecord,
   FamilyEvent
 } from '@/utils/eventHelpers'
+import { peopleInCalendarScope } from '@/utils/familyBranches'
 
 interface EventsListProps {
   persons: {
     id: string
+    family_branch_id?: string | null
     full_name: string
     memorial_day?: number | null
     memorial_month?: number | null
@@ -47,6 +50,9 @@ interface EventsListProps {
     is_deceased: boolean
   }[]
   customEvents?: CustomEventRecord[]
+  branches?: { id: string; name: string }[]
+  branchMembers?: { branch_id: string; person_id: string }[]
+  initialBranchId?: string
 }
 
 const SPECIAL_DAY_OFFSETS = new Set([-1, 0, 1])
@@ -72,11 +78,13 @@ function daysUntilLabel(
 function EventCard({
   event,
   index,
-  onEditCustomEvent
+  onEditCustomEvent,
+  branchLabel
 }: {
   event: FamilyEvent
   index: number
   onEditCustomEvent: (e: FamilyEvent) => void
+  branchLabel?: string
 }) {
   const { t } = useI18n()
   const isBirthday = event.type === 'birthday'
@@ -223,6 +231,9 @@ function EventCard({
 
         {/* Details */}
         <div className='mt-1 flex flex-col gap-0.5'>
+          {branchLabel && (
+            <p className='text-sm text-secondary'>{branchLabel}</p>
+          )}
           <p className='flex items-center gap-1.5 text-sm leading-snug text-stone-500 sm:text-sm'>
             <CalendarDays className='size-3.5 shrink-0' />
             <span className='font-medium text-stone-600'>{dateLabel}</span>
@@ -249,10 +260,14 @@ function EventCard({
 
 export default function EventsList({
   persons,
-  customEvents = []
+  customEvents = [],
+  branches = [],
+  branchMembers = [],
+  initialBranchId = 'all'
 }: EventsListProps) {
   const router = useRouter()
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
+  const [familyScope, setFamilyScope] = useState(initialBranchId)
   const [filter, setFilter] = useState<
     'all' | 'birthday' | 'death_anniversary' | 'custom_event' | 'past'
   >('all')
@@ -319,9 +334,27 @@ export default function EventsList({
   })
 
   const allEvents = useMemo(
-    () => computeEvents(persons, customEvents),
-    [persons, customEvents]
+    () =>
+      computeEvents(
+        peopleInCalendarScope(persons, branchMembers, familyScope),
+        familyScope === 'all' || familyScope === 'main' ? customEvents : []
+      ),
+    [persons, branchMembers, familyScope, customEvents]
   )
+
+  const branchLabels = useMemo(() => {
+    const names = new Map(branches.map((branch) => [branch.id, branch.name]))
+    const labels = new Map<string, Set<string>>()
+    for (const member of branchMembers) {
+      const name = names.get(member.branch_id)
+      if (!name) continue
+      if (!labels.has(member.person_id)) labels.set(member.person_id, new Set())
+      labels.get(member.person_id)!.add(name)
+    }
+    return new Map(
+      Array.from(labels, ([id, names]) => [id, Array.from(names).join(' · ')])
+    )
+  }, [branches, branchMembers])
 
   const filtered = useMemo(() => {
     let result = allEvents
@@ -400,16 +433,42 @@ export default function EventsList({
           </div>
         </div>
 
-        <button
-          onClick={handleOpenCreateModal}
-          className='btn-primary relative z-10 w-full sm:w-auto'>
-          <Plus className='size-5 text-stone-300' />
-          <span>{t('addEvent')}</span>
-        </button>
+        {(familyScope === 'all' || familyScope === 'main') && (
+          <button
+            onClick={handleOpenCreateModal}
+            className='btn-primary relative z-10 w-full sm:w-auto'>
+            <Plus className='size-5 text-stone-300' />
+            <span>{t('addEvent')}</span>
+          </button>
+        )}
       </motion.div>
 
       {/* Controls */}
       <div className='flex flex-col gap-3'>
+        {branches.length > 0 && (
+          <label className='flex flex-wrap items-center gap-3 text-sm text-secondary'>
+            {branchesMessages[locale].calendarScope}
+            <select
+              value={familyScope}
+              onChange={(event) => {
+                setFamilyScope(event.target.value)
+                setShowCount(20)
+              }}
+              className='max-w-full rounded-xl border border-border bg-surface px-4 py-2 text-sm text-primary'>
+              <option value='all'>
+                {branchesMessages[locale].allFamilies}
+              </option>
+              <option value='main'>
+                {branchesMessages[locale].mainFamily}
+              </option>
+              {branches.map((branch) => (
+                <option key={branch.id} value={branch.id}>
+                  {branch.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
         {/* Filter tabs */}
         <div className='flex flex-wrap items-center gap-2'>
           {(
@@ -472,6 +531,11 @@ export default function EventsList({
             <EventCard
               key={`${event.personId}-${event.type}-${event.eventDateLabel}`}
               event={event}
+              branchLabel={
+                event.type !== 'custom_event' && event.personId
+                  ? branchLabels.get(event.personId)
+                  : undefined
+              }
               index={i}
               onEditCustomEvent={handleOpenEditModal}
             />

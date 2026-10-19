@@ -35,12 +35,14 @@ interface MembersViewsProps {
   persons: Person[]
   relationships: Relationship[]
   canEdit?: boolean
+  storageKey?: string
 }
 
 export default function MembersViews({
   persons,
   relationships,
-  canEdit = false
+  canEdit = false,
+  storageKey = 'members_rootId'
 }: MembersViewsProps) {
   const { view: currentView, rootId, setRootId } = useMemberListView()
   const searchParams = useSearchParams()
@@ -104,7 +106,7 @@ export default function MembersViews({
 
     if (!urlRootId) {
       try {
-        const savedRootId = localStorage.getItem('members_rootId')
+        const savedRootId = localStorage.getItem(storageKey)
 
         if (!urlRootId && savedRootId && savedRootId !== rootId) {
           setRootId(savedRootId)
@@ -124,14 +126,14 @@ export default function MembersViews({
 
     const timeout = setTimeout(() => {
       try {
-        if (activeRootId) localStorage.setItem('members_rootId', activeRootId)
+        if (activeRootId) localStorage.setItem(storageKey, activeRootId)
       } catch (e) {
         console.warn('Failed to write to localStorage:', e)
       }
     }, 100)
 
     return () => clearTimeout(timeout)
-  }, [currentView, activeRootId])
+  }, [currentView, activeRootId, storageKey])
 
   return (
     <>

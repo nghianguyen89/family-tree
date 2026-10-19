@@ -58,6 +58,7 @@ export function validateHomeSettings(v: unknown): v is HomeSettings {
     !!p.title.trim() &&
     text(p.subtitle, 600) &&
     text(p.origin, 300) &&
+    (p.origin_previous === undefined || text(p.origin_previous, 300)) &&
     text(p.introduction, 20000) &&
     text(p.contact, 2000) &&
     (p.cover_image_id === null ||

@@ -10,6 +10,10 @@ Các chức năng gồm hồ sơ thành viên, quan hệ gia đình, sơ đồ c
 
 Đã bổ sung form công khai theo nhánh để người thân khai cả gia đình vào khu chờ, admin/editor duyệt trước khi đưa lên cây. Ngày cúng riêng được lưu độc lập với ngày mất để hỗ trợ lịch cúng truyền thống dù không nhớ ngày mất.
 
+Nhánh gia đình phụ bên dâu/rể dùng chung hồ sơ và lịch cúng, có người gốc/đời riêng, quan hệ tách phạm vi khỏi họ chính. Phần mở tại cây chính chỉ xem nhanh đời đầu bằng ảnh + tên ngang hàng; **Mở nhánh** mới xem cây đầy đủ. Xem [bàn giao nhánh phụ](FAMILY-BRANCHES-HANDOFF.md) để áp dụng migration và hiểu giới hạn sao lưu.
+
+Nhánh phụ dành cho admin, đúng cặp vợ chồng được xác nhận và con cháu của người nối nhánh theo quan hệ cha mẹ–con trong họ chính (gồm con nuôi). Tài khoản phải hoạt động và được admin liên kết đúng hồ sơ. Con cháu chỉ xem; quyền sửa nhánh dành cho admin/cặp vợ chồng có vai trò editor. Quyền được kiểm soát tại database cho nhánh, hồ sơ riêng, lịch và ảnh; người không liên quan không được xem. Từ cây chính có thể mở rộng nhánh phụ ngay tại người nối, dùng màu nhấn riêng, không đổi gốc/đời họ chính. Xem migration nâng cấp `20261019030000_family_branch_descendants.sql`.
+
 Trang chủ có khu giới thiệu dòng họ, thông báo sắp tới, bài viết và album. Admin/editor biên tập tại `/dashboard/content`, có bản nháp, hẹn giờ, phạm vi công khai/nội bộ và thùng rác. Ảnh CMS và phòng trưng bày dùng một danh mục chung, album/trang chủ tham chiếu file có sẵn; ảnh không tự công khai chỉ vì được đưa vào thư viện. Thư viện hiển thị masonry theo tỷ lệ thật và mở ảnh bằng PhotoSwipe (MIT). Xem [bàn giao thư viện chung](SHARED-MEDIA-HANDOFF.md) và [bàn giao trang chủ](HOME-CONTENT-HANDOFF.md) để áp dụng migration.
 
 ## Công nghệ

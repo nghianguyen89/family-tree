@@ -1,8 +1,10 @@
 import { redirect } from 'next/navigation'
 
+import type { UserPersonOption } from '@/components/admin/UserPersonLink'
 import AdminUserList from '@/components/AdminUserList'
 import { getServerTranslations } from '@/lib/i18n/server'
 import { AdminUserData } from '@/types'
+import { fetchAllRows } from '@/utils/supabase/fetchAll'
 import { getProfile, getSupabase } from '@/utils/supabase/queries'
 
 export default async function AdminUsersPage() {
@@ -23,7 +25,33 @@ export default async function AdminUsersPage() {
     console.error('Error fetching users:', error)
   }
 
-  const typedUsers = (users as AdminUserData[]) || []
+  const [identities, persons] = await Promise.all([
+    fetchAllRows<{ id: string; person_id: string | null }>((from, to) =>
+      supabase
+        .from('profiles')
+        .select('id,person_id')
+        .order('id')
+        .range(from, to)
+    ),
+    fetchAllRows<UserPersonOption>((from, to) =>
+      supabase
+        .from('persons')
+        .select('id,full_name,birth_year')
+        .is('family_branch_id', null)
+        .order('full_name')
+        .order('id')
+        .range(from, to)
+    )
+  ])
+  const personByUser = new Map(
+    identities.error
+      ? []
+      : identities.data.map((row) => [row.id, row.person_id])
+  )
+  const typedUsers = ((users as AdminUserData[]) || []).map((user) => ({
+    ...user,
+    person_id: personByUser.get(user.id)
+  }))
 
   return (
     <main className='relative flex w-full flex-1 flex-col overflow-auto bg-stone-50/50 pt-8'>
@@ -40,7 +68,12 @@ export default async function AdminUsersPage() {
             </p>
           </div>
         </div>
-        <AdminUserList initialUsers={typedUsers} currentUserId={profile.id} />
+        <AdminUserList
+          initialUsers={typedUsers}
+          currentUserId={profile.id}
+          persons={persons.error ? [] : persons.data}
+          personLinkUnavailable={!!identities.error || !!persons.error}
+        />
       </div>
     </main>
   )

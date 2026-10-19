@@ -323,6 +323,60 @@ test('private storage rejects public/member direct reads and permits active edit
   )
 })
 
+test('origin addresses preserve independent multiline values, editor permissions and migration replay', async () => {
+  const current = 'Thôn minh họa\nXã mới, tỉnh mới'
+  const previous = 'Thôn minh họa\nXã cũ, huyện cũ, tỉnh cũ'
+  const settings = (
+    await asUser(
+      editor,
+      'UPDATE home_settings SET origin=$1, origin_previous=$2 WHERE id=1 RETURNING *',
+      [current, previous]
+    )
+  ).rows[0]
+  assert.equal(validateHomeSettings(settings), true)
+  assert.equal(
+    validateHomeSettings({ ...settings, origin_previous: 'x'.repeat(301) }),
+    false
+  )
+  assert.equal(
+    (
+      await asUser(
+        member,
+        'UPDATE home_settings SET origin_previous=$1 RETURNING id',
+        ['Forbidden']
+      )
+    ).rows.length,
+    0
+  )
+  await assert.rejects(() =>
+    asUser(editor, 'UPDATE home_settings SET origin_previous=$1', [
+      'x'.repeat(301)
+    ])
+  )
+  await db.exec(
+    readFileSync(
+      'docs/migrations/20261019020000_home_origin_previous.sql',
+      'utf8'
+    )
+  )
+  const publicSettings = (
+    await asUser(
+      null,
+      'SELECT origin,origin_previous FROM home_settings WHERE id=1'
+    )
+  ).rows[0]
+  assert.deepEqual(publicSettings, {
+    origin: current,
+    origin_previous: previous
+  })
+  await asUser(editor, "UPDATE home_settings SET origin_previous='' WHERE id=1")
+  assert.equal(
+    (await asUser(null, 'SELECT origin FROM home_settings WHERE id=1')).rows[0]
+      .origin,
+    current
+  )
+})
+
 test('database enforces event/schedule constraints and migration replay preserves editorial data', async () => {
   await assert.rejects(() =>
     asUser(

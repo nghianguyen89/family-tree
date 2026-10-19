@@ -70,11 +70,23 @@ export default async function HomePageView() {
               <p className='max-w-xl text-sm leading-relaxed text-secondary'>
                 {settings.subtitle}
               </p>
-              {settings.origin && (
-                <p className='flex items-start gap-2 text-sm text-secondary'>
-                  <MapPin className='size-4 shrink-0 text-tertiary' />
-                  <span>{settings.origin}</span>
-                </p>
+              {(['origin', 'origin_previous'] as const).map(
+                (key) =>
+                  settings[key] && (
+                    <p
+                      key={key}
+                      className='flex items-start gap-2 text-sm text-secondary'>
+                      <MapPin className='mt-1 size-4 shrink-0 text-tertiary' />
+                      <span className='min-w-0 break-words whitespace-pre-line'>
+                        <span className='block font-medium'>
+                          {key === 'origin'
+                            ? t.originCurrent
+                            : t.originPrevious}
+                        </span>
+                        {settings[key]}
+                      </span>
+                    </p>
+                  )
               )}
             </div>
             <div className='flex flex-wrap items-center gap-3'>

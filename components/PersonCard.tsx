@@ -10,6 +10,7 @@ import { getAvatarUrl } from '@/utils/avatar'
 import { getAvatarBg } from '@/utils/styleHelprs'
 import { formatPersonYear } from '@/utils/yearRanges'
 
+import BranchNodeLinks from './branches/BranchNodeLinks'
 import DefaultAvatar from './DefaultAvatar'
 import { FemaleIcon, MaleIcon } from './GenderIcons'
 
@@ -29,7 +30,7 @@ function PersonCard({ person }: PersonCardProps) {
     return 'bg-stone-100 text-stone-600'
   }
 
-  return (
+  const card = (
     <button
       type='button'
       onClick={() => setMemberModalId(person.id)}
@@ -132,6 +133,12 @@ function PersonCard({ person }: PersonCardProps) {
         </div>
       </div>
     </button>
+  )
+  return (
+    <div>
+      {card}
+      <BranchNodeLinks personId={person.id} />
+    </div>
   )
 }
 

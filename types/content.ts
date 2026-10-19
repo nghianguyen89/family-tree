@@ -44,6 +44,7 @@ export interface HomeSettings {
   title: string
   subtitle: string
   origin: string
+  origin_previous?: string
   introduction: string
   contact: string
   cover_image_id: string | null

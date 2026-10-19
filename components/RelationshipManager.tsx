@@ -8,6 +8,7 @@ import {
   MemberListContext,
   useMemberListView
 } from '@/context/MemberListContext'
+import { branchesMessages } from '@/lib/i18n/branches'
 import { useI18n } from '@/lib/i18n/I18nProvider'
 import { Person, RelationshipType } from '@/types'
 import { getAvatarUrl } from '@/utils/avatar'
@@ -49,6 +50,7 @@ interface RelationshipManagerProps {
 
 interface EnrichedRelationship {
   id: string
+  familyBranchId?: string | null
   type: RelationshipType
   direction: 'parent' | 'child' | 'spouse' | 'child_in_law'
   targetPerson: Person
@@ -61,7 +63,7 @@ export default function RelationshipManager({
   canEdit = false,
   onStatsLoaded
 }: RelationshipManagerProps) {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const supabase = createClient()
   const memberListContext = useContext(MemberListContext)
   const { setMemberModalId } = useMemberListView()
@@ -153,6 +155,9 @@ export default function RelationshipManager({
 
       // Process Rels where I am Person A
       relsA?.forEach((r) => {
+        // RLS already limits these rows to branches the viewer may read.
+        // A shared main-family profile can have parents in an auxiliary branch.
+        if (!r.target) return
         let direction: 'parent' | 'child' | 'spouse' = 'spouse'
         if (r.type === 'marriage') direction = 'spouse'
         else if (r.type === 'biological_child' || r.type === 'adopted_child')
@@ -160,6 +165,7 @@ export default function RelationshipManager({
 
         formattedRels.push({
           id: r.id,
+          familyBranchId: r.family_branch_id,
           type: r.type,
           direction,
           targetPerson: r.target,
@@ -169,6 +175,7 @@ export default function RelationshipManager({
 
       // Process Rels where I am Person B
       relsB?.forEach((r) => {
+        if (!r.target) return
         let direction: 'parent' | 'child' | 'spouse' = 'spouse'
         if (r.type === 'marriage') direction = 'spouse'
         else if (r.type === 'biological_child' || r.type === 'adopted_child')
@@ -176,6 +183,7 @@ export default function RelationshipManager({
 
         formattedRels.push({
           id: r.id,
+          familyBranchId: r.family_branch_id,
           type: r.type,
           direction,
           targetPerson: r.target,
@@ -220,6 +228,7 @@ export default function RelationshipManager({
 
               formattedRels.push({
                 id: m.id + '_inlaw',
+                familyBranchId: m.family_branch_id,
                 type: 'marriage',
                 direction: 'child_in_law',
                 targetPerson: spousePerson,
@@ -230,8 +239,18 @@ export default function RelationshipManager({
         }
       }
 
+      // The same relation can be stored in multiple readable scopes. Prefer
+      // the main-family row so each relative appears and is counted once.
+      const unique = new Map<string, EnrichedRelationship>()
+      for (const relation of formattedRels) {
+        const key = `${relation.direction}:${relation.type}:${relation.targetPerson.id}`
+        if (!unique.has(key) || !relation.familyBranchId)
+          unique.set(key, relation)
+      }
+      const visibleRelationships = [...unique.values()]
+
       if (onStatsLoaded) {
-        const biologicalChildrenList = formattedRels.filter(
+        const biologicalChildrenList = visibleRelationships.filter(
           (r) => r.direction === 'child' && r.type === 'biological_child'
         )
         const biologicalChildren = biologicalChildrenList.length
@@ -242,11 +261,11 @@ export default function RelationshipManager({
           (c) => c.targetPerson.gender === 'female'
         ).length
 
-        const daughterInLaw = formattedRels.filter(
+        const daughterInLaw = visibleRelationships.filter(
           (r) =>
             r.direction === 'child_in_law' && r.targetPerson.gender === 'female'
         ).length
-        const sonInLaw = formattedRels.filter(
+        const sonInLaw = visibleRelationships.filter(
           (r) =>
             r.direction === 'child_in_law' && r.targetPerson.gender === 'male'
         ).length
@@ -257,30 +276,34 @@ export default function RelationshipManager({
         if (childrenIds.length > 0) {
           const { data: grandchildrenData } = await supabase
             .from('relationships')
-            .select('id, person_a')
+            .select('*')
             .in('type', ['biological_child', 'adopted_child'])
             .in('person_a', childrenIds)
 
           if (grandchildrenData) {
-            const maleChildrenIds = formattedRels
+            const maleChildrenIds = visibleRelationships
               .filter(
                 (r) =>
                   r.direction === 'child' && r.targetPerson.gender === 'male'
               )
               .map((r) => r.targetPerson.id)
-            const femaleChildrenIds = formattedRels
+            const femaleChildrenIds = visibleRelationships
               .filter(
                 (r) =>
                   r.direction === 'child' && r.targetPerson.gender === 'female'
               )
               .map((r) => r.targetPerson.id)
 
-            paternalGrandchildren = grandchildrenData.filter((g) =>
-              maleChildrenIds.includes(g.person_a)
-            ).length
-            maternalGrandchildren = grandchildrenData.filter((g) =>
-              femaleChildrenIds.includes(g.person_a)
-            ).length
+            paternalGrandchildren = new Set(
+              grandchildrenData
+                .filter((g) => maleChildrenIds.includes(g.person_a))
+                .map((g) => g.person_b)
+            ).size
+            maternalGrandchildren = new Set(
+              grandchildrenData
+                .filter((g) => femaleChildrenIds.includes(g.person_a))
+                .map((g) => g.person_b)
+            ).size
           }
         }
 
@@ -295,7 +318,7 @@ export default function RelationshipManager({
         })
       }
 
-      setRelationships(formattedRels)
+      setRelationships(visibleRelationships)
     } catch (err) {
       console.error('Error fetching relationships:', err)
     } finally {
@@ -323,7 +346,8 @@ export default function RelationshipManager({
         .neq('id', personId) // Exclude self
         .limit(5)
 
-      if (data) setSearchResults(data)
+      if (data)
+        setSearchResults(data.filter((person) => !person.family_branch_id))
     }
 
     const timeoutId = setTimeout(searchPeople, 300)
@@ -340,7 +364,8 @@ export default function RelationshipManager({
           .neq('id', personId)
           .order('created_at', { ascending: false })
           .limit(10)
-        if (data) setRecentMembers(data)
+        if (data)
+          setRecentMembers(data.filter((person) => !person.family_branch_id))
       }
       fetchRecent()
     }
@@ -678,6 +703,7 @@ export default function RelationshipManager({
         .from('relationships')
         .delete()
         .eq('id', relId)
+        .is('family_branch_id', null)
       if (error) throw error
       fetchRelationships()
       router.refresh()
@@ -780,32 +806,39 @@ export default function RelationshipManager({
                             ({t('adoptedChild')})
                           </span>
                         )}
+                        {rel.familyBranchId && (
+                          <span className='mt-0.5 text-sm text-secondary'>
+                            {branchesMessages[locale].title}
+                          </span>
+                        )}
                       </div>
                     </button>
-                    {canEdit && rel.direction !== 'child_in_law' && (
-                      <button
-                        onClick={() => handleDelete(rel.id)}
-                        className='ml-2 flex items-center justify-center rounded-lg p-2 text-stone-300 transition-colors hover:bg-red-50 hover:text-red-500 sm:p-2.5'
-                        title={t('deleteRelationship')}
-                        aria-label={t('deleteRelationship')}>
-                        <svg
-                          xmlns='http://www.w3.org/2000/svg'
-                          width='16'
-                          height='16'
-                          viewBox='0 0 24 24'
-                          fill='none'
-                          stroke='currentColor'
-                          strokeWidth='2'
-                          strokeLinecap='round'
-                          strokeLinejoin='round'>
-                          <path d='M3 6h18' />
-                          <path d='M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6' />
-                          <path d='M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2' />
-                          <line x1='10' x2='10' y1='11' y2='17' />
-                          <line x1='14' x2='14' y1='11' y2='17' />
-                        </svg>
-                      </button>
-                    )}
+                    {canEdit &&
+                      !rel.familyBranchId &&
+                      rel.direction !== 'child_in_law' && (
+                        <button
+                          onClick={() => handleDelete(rel.id)}
+                          className='ml-2 flex items-center justify-center rounded-lg p-2 text-stone-300 transition-colors hover:bg-red-50 hover:text-red-500 sm:p-2.5'
+                          title={t('deleteRelationship')}
+                          aria-label={t('deleteRelationship')}>
+                          <svg
+                            xmlns='http://www.w3.org/2000/svg'
+                            width='16'
+                            height='16'
+                            viewBox='0 0 24 24'
+                            fill='none'
+                            stroke='currentColor'
+                            strokeWidth='2'
+                            strokeLinecap='round'
+                            strokeLinejoin='round'>
+                            <path d='M3 6h18' />
+                            <path d='M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6' />
+                            <path d='M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2' />
+                            <line x1='10' x2='10' y1='11' y2='17' />
+                            <line x1='14' x2='14' y1='11' y2='17' />
+                          </svg>
+                        </button>
+                      )}
                   </li>
                 ))}
               </ul>

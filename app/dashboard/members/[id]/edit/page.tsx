@@ -42,6 +42,12 @@ export default async function EditMemberPage({ params }: PageProps) {
   if (error || !person) {
     notFound()
   }
+  if (person.family_branch_id) {
+    const permission = await supabase.rpc('can_edit_person', {
+      p_person_id: id
+    })
+    if (permission.error || permission.data !== true) notFound()
+  }
 
   // Fetch Private Data
   let privateData = null

@@ -29,9 +29,19 @@ export interface GedcomRelationship {
 }
 
 export function exportToGedcom(data: {
-  persons: GedcomPerson[]
-  relationships: GedcomRelationship[]
+  persons: (GedcomPerson & { family_branch_id?: string | null })[]
+  relationships: (GedcomRelationship & { family_branch_id?: string | null })[]
+  family_branches?: unknown[]
+  family_branch_members?: unknown[]
 }): string {
+  if (
+    data.family_branches?.length ||
+    data.family_branch_members?.length ||
+    data.persons.some((person) => person.family_branch_id) ||
+    data.relationships.some((relationship) => relationship.family_branch_id)
+  ) {
+    throw new Error('Auxiliary branch data requires JSON backup.')
+  }
   let gedcom = ''
 
   // Header (GEDCOM 7.0)

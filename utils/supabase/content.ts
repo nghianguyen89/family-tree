@@ -14,6 +14,7 @@ export const defaultHomeSettings: HomeSettings = {
   title: config.siteName,
   subtitle: 'Gìn giữ cội nguồn, kết nối các thế hệ.',
   origin: '',
+  origin_previous: '',
   introduction: '',
   contact: '',
   cover_image_id: null,

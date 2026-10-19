@@ -94,14 +94,23 @@ export async function updateDescendantGenerationsAction(
   }
 
   // 1. Fetch all parent-child relationships
+  const { data: sourcePerson, error: sourceError } = await supabase
+    .from('persons')
+    .select('*')
+    .eq('id', personId)
+    .single()
+  if (sourceError || !sourcePerson || sourcePerson.family_branch_id) {
+    return { error: t('invalidProfile') }
+  }
   const { data: relationships, error: relError } = await fetchAllRows<{
     person_a: string
     person_b: string
     type: string
+    family_branch_id?: string | null
   }>((from, to) =>
     supabase
       .from('relationships')
-      .select('person_a, person_b, type')
+      .select('*')
       .in('type', ['biological_child', 'adopted_child'])
       .order('id')
       .range(from, to)
@@ -115,6 +124,7 @@ export async function updateDescendantGenerationsAction(
   // Build children map (person_a is parent, person_b is child)
   const childrenMap = new Map<string, string[]>()
   relationships.forEach((r) => {
+    if (r.family_branch_id) return
     if (!childrenMap.has(r.person_a)) childrenMap.set(r.person_a, [])
     childrenMap.get(r.person_a)!.push(r.person_b)
   })
@@ -139,10 +149,8 @@ export async function updateDescendantGenerationsAction(
   // 3. Fetch current generations of descendants
   const { data: persons, error: personsError } = await fetchInChunks<
     string,
-    { id: string; generation: number | null }
-  >(descendantIds, (ids) =>
-    supabase.from('persons').select('id, generation').in('id', ids)
-  )
+    { id: string; generation: number | null; family_branch_id?: string | null }
+  >(descendantIds, (ids) => supabase.from('persons').select('*').in('id', ids))
 
   if (personsError) {
     console.error('Error fetching persons:', personsError)
@@ -153,6 +161,7 @@ export async function updateDescendantGenerationsAction(
   let hasError = false
   // Batch processing can be done by looping
   for (const person of persons) {
+    if (person.family_branch_id) continue
     if (person.generation !== null && person.generation !== undefined) {
       const newGen = Math.max(1, person.generation + generationDelta)
       const { error: updateError } = await supabase

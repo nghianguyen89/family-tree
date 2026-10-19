@@ -19,8 +19,10 @@ import { useEffect, useRef, useState } from 'react'
 
 import { updateDescendantGenerationsAction } from '@/app/actions/member'
 import AvatarCropDialog from '@/components/AvatarCropDialog'
+import BranchLinks from '@/components/branches/BranchLinks'
 import MemorialFields from '@/components/MemorialFields'
 import YearRangeFields from '@/components/YearRangeFields'
+import { branchesMessages } from '@/lib/i18n/branches'
 import { useI18n } from '@/lib/i18n/I18nProvider'
 import { intakeMessages } from '@/lib/i18n/intake'
 import { Gender, Person } from '@/types'
@@ -131,6 +133,7 @@ export default function MemberForm({
     useState(true) // Default to true if they change it
 
   const hasGenerationChanged =
+    !initialData?.family_branch_id &&
     isEditing &&
     initialData?.generation !== undefined &&
     generation !== initialData?.generation &&
@@ -424,9 +427,15 @@ export default function MemberForm({
             ? Number(finalDeathLunarDay)
             : null,
         is_deceased: isDeceased,
-        is_in_law: isInLaw,
+        is_in_law: initialData?.family_branch_id
+          ? initialData.is_in_law
+          : isInLaw,
         birth_order: birthOrder === '' ? null : Number(birthOrder),
-        generation: generation === '' ? null : Number(generation),
+        generation: initialData?.family_branch_id
+          ? null
+          : generation === ''
+            ? null
+            : Number(generation),
         other_names: otherNames || null,
         avatar_url: url,
         note: note || null
@@ -576,7 +585,7 @@ export default function MemberForm({
   const inputClasses =
     'bg-surface text-stone-900 placeholder-stone-500 block w-full rounded-xl border border-stone-300  focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:bg-surface text-sm px-4 py-3 transition-all outline-none!'
 
-  return (
+  const form = (
     <form onSubmit={handleSubmit} className='space-y-6 sm:space-y-8'>
       {cropFile && (
         <AvatarCropDialog
@@ -653,6 +662,7 @@ export default function MemberForm({
                 <input
                   type='checkbox'
                   checked={isInLaw}
+                  disabled={!!initialData?.family_branch_id}
                   onChange={(e) => setIsInLaw(e.target.checked)}
                   className='peer sr-only'
                 />
@@ -710,11 +720,17 @@ export default function MemberForm({
               min='1'
               placeholder={t('generationPlaceholder')}
               value={generation}
+              disabled={!!initialData?.family_branch_id}
               onChange={(e) =>
                 setGeneration(e.target.value ? Number(e.target.value) : '')
               }
               className={inputClasses}
             />
+            {initialData?.family_branch_id && (
+              <p className='mt-2 text-sm text-secondary'>
+                {branchesMessages[locale].profileScopeHint}
+              </p>
+            )}
             <p className='mt-1.5 flex items-center gap-1 text-sm text-stone-400'>
               <span>💡</span> {t('leaveBlank')}
             </p>
@@ -1219,5 +1235,15 @@ export default function MemberForm({
         </button>
       </motion.div>
     </form>
+  )
+  return (
+    <>
+      {form}
+      {isEditing && initialData?.family_branch_id && (
+        <div className='mt-6'>
+          <BranchLinks person={initialData} canEdit={true} />
+        </div>
+      )}
+    </>
   )
 }

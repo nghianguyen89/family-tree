@@ -2,6 +2,8 @@ import MembersViews from '@/components/MembersViews'
 import MemberDetailModal from '@/components/modal/MemberDetailModal'
 import ViewToggle, { ViewMode } from '@/components/ViewToggle'
 import { MemberListProvider } from '@/context/MemberListContext'
+import type { FamilyBranch } from '@/types/branches'
+import { mainFamilyScope } from '@/utils/familyBranches'
 import { fetchAllRows } from '@/utils/supabase/fetchAll'
 import { getProfile, getSupabase } from '@/utils/supabase/queries'
 
@@ -24,7 +26,7 @@ export default async function FamilyTreePage({ searchParams }: PageProps) {
   // we will fetch data here and pass it down as props.
   const supabase = await getSupabase()
 
-  const [personsRes, relsRes] = await Promise.all([
+  const [personsRes, relsRes, branchesRes] = await Promise.all([
     fetchAllRows((from, to) =>
       supabase
         .from('persons')
@@ -35,11 +37,22 @@ export default async function FamilyTreePage({ searchParams }: PageProps) {
     ),
     fetchAllRows((from, to) =>
       supabase.from('relationships').select('*').order('id').range(from, to)
+    ),
+    fetchAllRows<FamilyBranch>((from, to) =>
+      supabase
+        .from('family_branches')
+        .select(
+          'id,name,anchor_person_id,partner_person_id,root_person_id,created_at,updated_at'
+        )
+        .order('id')
+        .range(from, to)
     )
   ])
 
-  const persons = personsRes.data || []
-  const relationships = relsRes.data || []
+  const { persons, relationships } = mainFamilyScope(
+    personsRes.data || [],
+    relsRes.data || []
+  )
 
   // Prepare map and roots for tree views
   const personsMap = new Map()
@@ -67,6 +80,7 @@ export default async function FamilyTreePage({ searchParams }: PageProps) {
 
   return (
     <MemberListProvider
+      branches={branchesRes.error ? [] : branchesRes.data}
       initialView={initialView}
       initialRootId={finalRootId}
       initialShowAvatar={initialShowAvatar}>

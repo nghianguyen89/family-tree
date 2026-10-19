@@ -11,8 +11,12 @@ import {
 } from 'react'
 
 import { ViewMode } from '@/components/ViewToggle'
+import type { FamilyBranch } from '@/types/branches'
+
+const noBranches: FamilyBranch[] = []
 
 interface MemberListViewState {
+  branches: FamilyBranch[]
   memberModalId: string | null
   setMemberModalId: (id: string | null) => void
   showCreateMember: boolean
@@ -44,12 +48,14 @@ export function MemberListProvider({
   children,
   initialView,
   initialRootId,
-  initialShowAvatar
+  initialShowAvatar,
+  branches = noBranches
 }: {
   children: React.ReactNode
   initialView?: ViewMode
   initialRootId?: string | null
   initialShowAvatar?: boolean
+  branches?: FamilyBranch[]
 }) {
   const searchParams = useSearchParams()
 
@@ -115,6 +121,7 @@ export function MemberListProvider({
 
   const value = useMemo(
     () => ({
+      branches,
       memberModalId,
       setMemberModalId: updateModalId,
       showCreateMember,
@@ -127,6 +134,7 @@ export function MemberListProvider({
       setRootId
     }),
     [
+      branches,
       memberModalId,
       updateModalId,
       showCreateMember,
@@ -152,6 +160,7 @@ export function useMemberListView(): MemberListViewState {
   // (e.g., on the /dashboard/members/[id] standalone page)
   if (context === undefined) {
     return {
+      branches: noBranches,
       memberModalId: null,
       setMemberModalId: () => {},
       showCreateMember: false,
