@@ -57,6 +57,10 @@ Sau khi sửa `.env.local`, dừng rồi chạy lại để chắc chắn server
 
 ## Khởi tạo và nâng cấp Supabase
 
+- `/dashboard/upgrade` của bản fork so `package.json.version` với `nghianguyen89/family-tree/main`, không phải repo gốc. **Kiểm tra lại** đọc GitHub không dùng cache. Hai phiên bản bằng nhau được xem là đã cập nhật; lỗi GitHub hiển thị chưa xác minh và tạm khóa migration.
+- Kiểm tra migration chỉ đọc bảng `public.app_migrations`; SQL đã chạy thủ công có thể chưa được ghi nhận. Không dùng danh sách này như bằng chứng chắc chắn database thiếu migration. Trang có link tới repo, hướng dẫn, `/setup`, SQL Editor và `/dashboard/data` để sao lưu.
+- Lỗi PostgreSQL `28P01`: kiểm tra user/mật khẩu của connection string `SUPABASE_DB_URL` theo màn hình **Connect** của đúng project; mã hóa ký tự đặc biệt của mật khẩu trong URL. Đây là mật khẩu database, không phải anon/service-role key. Khởi động lại server sau khi sửa; Vercel cần redeploy để nhận biến môi trường mới.
+
 - Database mới: cấu hình URL/key, mở `/setup`, copy toàn bộ SQL bundle và chạy trong Supabase SQL Editor.
 - Database đã có dữ liệu: xác định migration còn thiếu trước khi chạy. Bundle `/setup` gồm schema và các migration theo thứ tự; không thay thế việc kiểm tra trạng thái thực tế.
 - Riêng tính năng khoảng năm: copy toàn bộ [20261014010000_add_person_year_ranges.sql](migrations/20261014010000_add_person_year_ranges.sql), dán vào SQL Editor và bấm **Run**. File này không thực thi thao tác thay thế dữ liệu; nó bổ sung cột, ràng buộc và định nghĩa lại hàm nhập sao lưu. Chỉ khi gọi chức năng nhập sao lưu, hàm đó mới thay thế dữ liệu.

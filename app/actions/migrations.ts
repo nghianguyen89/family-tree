@@ -9,7 +9,7 @@ import { getServerTranslations } from '@/lib/i18n/server'
 import packageJson from '@/package.json'
 import { getIsAdmin } from '@/utils/supabase/queries'
 
-const SOURCE_REPOSITORY = 'homielab/giapha-os'
+const SOURCE_REPOSITORY = 'nghianguyen89/family-tree'
 const SOURCE_BRANCH = 'main'
 const SOURCE_README_URL = `https://github.com/${SOURCE_REPOSITORY}/blob/${SOURCE_BRANCH}/README.md#hướng-dẫn-cập-nhật-source-code`
 const SOURCE_README_EN_URL = `https://github.com/${SOURCE_REPOSITORY}/blob/${SOURCE_BRANCH}/README.en.md#source-code-updates`
@@ -63,6 +63,7 @@ export interface SourceVersionStatus {
   currentVersion: string | null
   latestVersion: string | null
   readmeUrl: string
+  repositoryUrl: string
   error?: string
 }
 
@@ -129,7 +130,8 @@ export async function getSourceVersionStatus(): Promise<SourceVersionStatus> {
 
   try {
     const response = await fetch(SOURCE_PACKAGE_URL, {
-      next: { revalidate: 300 }
+      cache: 'no-store',
+      signal: AbortSignal.timeout(10000)
     })
 
     if (!response.ok) {
@@ -159,6 +161,7 @@ export async function getSourceVersionStatus(): Promise<SourceVersionStatus> {
       currentVersion: currentVersionLabel,
       latestVersion: latestVersionLabel,
       readmeUrl: sourceReadmeUrl,
+      repositoryUrl: `https://github.com/${SOURCE_REPOSITORY}/tree/${SOURCE_BRANCH}`,
       ...(comparison !== null ? {} : { error: t('sourceVersionUnknownError') })
     }
   } catch (error) {
@@ -168,6 +171,7 @@ export async function getSourceVersionStatus(): Promise<SourceVersionStatus> {
       currentVersion: currentVersionLabel,
       latestVersion: null,
       readmeUrl: sourceReadmeUrl,
+      repositoryUrl: `https://github.com/${SOURCE_REPOSITORY}/tree/${SOURCE_BRANCH}`,
       error: t('sourceVersionFetchError')
     }
   }
@@ -204,24 +208,6 @@ function createDatabaseClient() {
   })
 }
 
-async function ensureMigrationTable(sql: ReturnType<typeof postgres>) {
-  await sql.unsafe(`
-    CREATE TABLE IF NOT EXISTS ${MIGRATION_TABLE} (
-      migration_id TEXT PRIMARY KEY,
-      file_name TEXT NOT NULL,
-      applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    );
-    ALTER TABLE ${MIGRATION_TABLE} ENABLE ROW LEVEL SECURITY;
-    REVOKE ALL ON ${MIGRATION_TABLE} FROM PUBLIC, anon, authenticated;
-    DROP POLICY IF EXISTS "No client access to app migrations" ON ${MIGRATION_TABLE};
-    CREATE POLICY "No client access to app migrations"
-      ON ${MIGRATION_TABLE}
-      FOR ALL TO anon, authenticated
-      USING (false)
-      WITH CHECK (false);
-  `)
-}
-
 export async function getMigrationStatus(): Promise<MigrationStatus> {
   const { locale, t } = await getServerTranslations()
   const sourceReadmeUrl =
@@ -238,7 +224,8 @@ export async function getMigrationStatus(): Promise<MigrationStatus> {
         state: 'unknown',
         currentVersion: null,
         latestVersion: null,
-        readmeUrl: sourceReadmeUrl
+        readmeUrl: sourceReadmeUrl,
+        repositoryUrl: `https://github.com/${SOURCE_REPOSITORY}/tree/${SOURCE_BRANCH}`
       },
       migrations: definitions.map(({ id, file }) => ({
         id,
@@ -250,31 +237,36 @@ export async function getMigrationStatus(): Promise<MigrationStatus> {
 
   const source = await getSourceVersionStatus()
 
-  const sql = createDatabaseClient()
-  if (!sql) {
-    return {
-      configured: false,
-      databaseReachable: false,
-      error: t('databaseConfigMissing'),
-      source,
-      migrations: definitions.map(({ id, file }) => ({
-        id,
-        file,
-        appliedAt: null
-      }))
-    }
-  }
-
+  let sql: ReturnType<typeof postgres> | null = null
   try {
-    await ensureMigrationTable(sql)
-    const rows = await sql.unsafe<
-      Array<{
-        migration_id: string
-        applied_at: string
-      }>
-    >(
-      `SELECT migration_id, applied_at FROM ${MIGRATION_TABLE} ORDER BY applied_at ASC`
-    )
+    sql = createDatabaseClient()
+    if (!sql) {
+      return {
+        configured: false,
+        databaseReachable: false,
+        error: t('databaseConfigMissing'),
+        source,
+        migrations: definitions.map(({ id, file }) => ({
+          id,
+          file,
+          appliedAt: null
+        }))
+      }
+    }
+
+    const [tracking] = await sql<{ exists: boolean }[]>`
+      SELECT to_regclass('public.app_migrations') IS NOT NULL AS exists
+    `
+    const rows = tracking.exists
+      ? await sql.unsafe<
+          Array<{
+            migration_id: string
+            applied_at: string
+          }>
+        >(
+          `SELECT migration_id, applied_at FROM ${MIGRATION_TABLE} ORDER BY applied_at ASC`
+        )
+      : []
     const applied = new Map(
       rows.map((row) => [
         row.migration_id,
@@ -297,7 +289,11 @@ export async function getMigrationStatus(): Promise<MigrationStatus> {
     return {
       configured: true,
       databaseReachable: false,
-      error: t('migrationStatusError'),
+      error: t(
+        error instanceof Error && 'code' in error && error.code === '28P01'
+          ? 'databaseAuthenticationError'
+          : 'migrationStatusError'
+      ),
       source,
       migrations: definitions.map(({ id, file }) => ({
         id,
@@ -306,7 +302,7 @@ export async function getMigrationStatus(): Promise<MigrationStatus> {
       }))
     }
   } finally {
-    await sql.end({ timeout: 5 })
+    await sql?.end({ timeout: 5 })
   }
 }
 
@@ -326,15 +322,15 @@ export async function runPendingMigrations() {
     }
   }
 
-  const sql = createDatabaseClient()
-  if (!sql) {
-    return {
-      success: false,
-      error: t('databaseConfigMissing')
-    }
-  }
-
+  let sql: ReturnType<typeof postgres> | null = null
   try {
+    sql = createDatabaseClient()
+    if (!sql) {
+      return {
+        success: false,
+        error: t('databaseConfigMissing')
+      }
+    }
     const definitions = await getMigrationDefinitions()
     const result = await sql.begin(async (transaction) => {
       await transaction.unsafe(`
@@ -401,6 +397,6 @@ export async function runPendingMigrations() {
           : t('migrationRunError')
     }
   } finally {
-    await sql.end({ timeout: 5 })
+    await sql?.end({ timeout: 5 })
   }
 }

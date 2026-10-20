@@ -196,7 +196,7 @@ When `/dashboard/upgrade` reports that the source code is outdated, update the *
 
 **If deployed on Vercel:**
 
-1. Confirm that the Vercel project is linked to the correct `homielab/giapha-os` repository and deployment branch.
+1. Confirm that the Vercel project is linked to this fork's `nghianguyen89/family-tree` repository and `main` branch.
 2. Synchronize that branch with the latest GitHub code. If updating from a local Git checkout:
 
    ```bash
