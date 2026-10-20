@@ -133,24 +133,6 @@ function createDatabaseClient() {
   })
 }
 
-async function ensureMigrationTable(sql: ReturnType<typeof postgres>) {
-  await sql.unsafe(`
-    CREATE TABLE IF NOT EXISTS ${MIGRATION_TABLE} (
-      migration_id TEXT PRIMARY KEY,
-      file_name TEXT NOT NULL,
-      applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    );
-    ALTER TABLE ${MIGRATION_TABLE} ENABLE ROW LEVEL SECURITY;
-    REVOKE ALL ON ${MIGRATION_TABLE} FROM PUBLIC, anon, authenticated;
-    DROP POLICY IF EXISTS "No client access to app migrations" ON ${MIGRATION_TABLE};
-    CREATE POLICY "No client access to app migrations"
-      ON ${MIGRATION_TABLE}
-      FOR ALL TO anon, authenticated
-      USING (false)
-      WITH CHECK (false);
-  `)
-}
-
 export async function getMigrationStatus(): Promise<MigrationStatus> {
   const { t } = await getServerTranslations()
   const isAdmin = await getIsAdmin()
@@ -214,15 +196,19 @@ export async function getMigrationStatus(): Promise<MigrationStatus> {
   }
 
   try {
-    await ensureMigrationTable(sql)
-    const rows = await sql.unsafe<
-      Array<{
-        migration_id: string
-        applied_at: string
-      }>
-    >(
-      `SELECT migration_id, applied_at FROM ${MIGRATION_TABLE} ORDER BY applied_at ASC`
-    )
+    const [tracking] = await sql<
+      { exists: boolean }[]
+    >`SELECT to_regclass('public.app_migrations') IS NOT NULL AS exists`
+    const rows = tracking.exists
+      ? await sql.unsafe<
+          Array<{
+            migration_id: string
+            applied_at: string
+          }>
+        >(
+          `SELECT migration_id, applied_at FROM ${MIGRATION_TABLE} ORDER BY applied_at ASC`
+        )
+      : []
     const applied = new Map(
       rows.map((row) => [
         row.migration_id,
@@ -253,7 +239,11 @@ export async function getMigrationStatus(): Promise<MigrationStatus> {
     return {
       configured: true,
       databaseReachable: false,
-      error: t('migrationStatusError'),
+      error: t(
+        error instanceof Error && 'code' in error && error.code === '28P01'
+          ? 'databaseAuthenticationError'
+          : 'migrationStatusError'
+      ),
       source,
       schemaVersion: MIGRATION_FILES[MIGRATION_FILES.length - 1],
       schemaCompatible: false,

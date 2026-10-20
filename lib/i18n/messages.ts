@@ -703,6 +703,8 @@ export const messages = {
     latestVersion: 'Bản phát hành:',
     unknownVersion: 'không xác định',
     sourceUpdateGuide: 'Xem hướng dẫn cập nhật source code',
+    sourceRepository: 'Xem repository phát triển của sản phẩm',
+    migrationNotRecorded: 'Chưa ghi nhận',
     database: 'Database',
     databaseConnected: 'Đã kết nối thành công',
     databaseUnavailable: 'Chưa thể kết nối',
@@ -717,6 +719,8 @@ export const messages = {
     migrationAccessDenied: 'Từ chối truy cập.',
     databaseConfigMissing: 'Chưa cấu hình SUPABASE_DB_URL trên server.',
     migrationStatusError: 'Không thể kết nối hoặc đọc trạng thái migration.',
+    databaseAuthenticationError:
+      'Database từ chối thông tin đăng nhập. Kiểm tra user và mật khẩu trong SUPABASE_DB_URL, mã hóa ký tự đặc biệt trong mật khẩu rồi khởi động lại server.',
     migrationConfigureRetry:
       'Hãy cấu hình kết nối database rồi bấm “Kiểm tra lại”.',
     sourceOutdatedError:
@@ -731,7 +735,7 @@ export const messages = {
     databaseSetupGuide: 'Xem hướng dẫn cấu hình database',
     pendingChanges: 'Có thay đổi cần áp dụng',
     pendingMigrations:
-      '{count} migration đang chờ được áp dụng. Các migration đã chạy được ẩn khỏi danh sách.',
+      '{count} migration chưa được ghi nhận trong bảng theo dõi. Migration chạy thủ công qua SQL Editor có thể chưa được ghi nhận; hãy kiểm tra trước khi áp dụng lại.',
     notRun: 'Chưa chạy',
     updateSourceFirst:
       'Hãy cập nhật source code lên version mới nhất trước khi áp dụng các thay đổi database.',
@@ -1536,6 +1540,8 @@ export const messages = {
     latestVersion: 'Published:',
     unknownVersion: 'unknown',
     sourceUpdateGuide: 'View source code update guide',
+    sourceRepository: 'View the product development repository',
+    migrationNotRecorded: 'Not recorded',
     database: 'Database',
     databaseConnected: 'Connected successfully',
     databaseUnavailable: 'Could not connect',
@@ -1550,6 +1556,8 @@ export const messages = {
     migrationAccessDenied: 'Access denied.',
     databaseConfigMissing: 'SUPABASE_DB_URL is not configured on the server.',
     migrationStatusError: 'Could not connect to or read migration status.',
+    databaseAuthenticationError:
+      'Database authentication failed. Check the username and password in SUPABASE_DB_URL, URL-encode special characters in the password, then restart the server.',
     migrationConfigureRetry:
       'Configure the database connection, then click “Check again”.',
     sourceOutdatedError:
@@ -1564,7 +1572,7 @@ export const messages = {
     databaseSetupGuide: 'View database setup guide',
     pendingChanges: 'Changes need to be applied',
     pendingMigrations:
-      '{count} migration(s) are waiting to be applied. Completed migrations are hidden.',
+      '{count} migration(s) are not recorded in the tracking table. Migrations run manually in SQL Editor may not be recorded; check before applying them again.',
     notRun: 'Not run',
     updateSourceFirst:
       'Update the source code to the latest version before applying database changes.',

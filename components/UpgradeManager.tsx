@@ -8,6 +8,7 @@ import {
   RefreshCw,
   ServerCog
 } from 'lucide-react'
+import Link from 'next/link'
 import { useMemo, useState } from 'react'
 
 import {
@@ -16,6 +17,7 @@ import {
   type MigrationStatus
 } from '@/app/actions/migrations'
 import { useI18n } from '@/lib/i18n/I18nProvider'
+import { PRODUCT_REPOSITORY } from '@/utils/releases'
 
 export default function UpgradeManager({
   initialStatus
@@ -36,7 +38,6 @@ export default function UpgradeManager({
     [status.databaseReachable, status.migrations]
   )
   const hasPendingMigrations = pendingMigrations.length > 0
-  const sourceNeedsUpdate = status.source.state !== 'current'
   const canRunMigrations =
     hasPendingMigrations &&
     status.configured &&
@@ -163,7 +164,14 @@ export default function UpgradeManager({
                   {release.version}: {release.notes}
                 </p>
               ))}
-              {sourceNeedsUpdate && (
+              <a
+                href={`https://github.com/${PRODUCT_REPOSITORY}/tree/multi-family-tree`}
+                target='_blank'
+                rel='noreferrer'
+                className='mt-3 inline-flex text-sm font-medium break-all text-stone-800 underline underline-offset-2 hover:text-amber-800'>
+                {t('sourceRepository')}
+              </a>
+              <div>
                 <a
                   href={status.source.readmeUrl}
                   target='_blank'
@@ -171,7 +179,7 @@ export default function UpgradeManager({
                   className='mt-3 inline-flex text-sm font-medium text-stone-800 underline underline-offset-2 hover:text-amber-800'>
                   {t('sourceUpdateGuide')}
                 </a>
-              )}
+              </div>
             </div>
           </div>
         </section>
@@ -207,13 +215,34 @@ export default function UpgradeManager({
               <p className='mt-2 text-sm break-all text-stone-600'>
                 {t('selectedSchema')}: {status.schemaVersion}
               </p>
+              <div className='mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm font-medium text-stone-800'>
+                <Link
+                  href='/setup'
+                  className='underline underline-offset-2 hover:text-amber-800'>
+                  {t('databaseSetupGuide')}
+                </Link>
+                <a
+                  href='https://supabase.com/dashboard/project/_/sql/new'
+                  target='_blank'
+                  rel='noreferrer'
+                  className='underline underline-offset-2 hover:text-amber-800'>
+                  Supabase SQL Editor
+                </a>
+                <Link
+                  href='/dashboard/data'
+                  className='underline underline-offset-2 hover:text-amber-800'>
+                  {t('backupRestore')}
+                </Link>
+              </div>
             </div>
           </div>
         </section>
       </div>
 
       {message && (
-        <div className='rounded-xl border border-stone-200 bg-stone-50 p-4 text-sm text-stone-700'>
+        <div
+          role='status'
+          className='rounded-xl border border-stone-200 bg-stone-50 p-4 text-sm text-stone-700'>
           {message}
         </div>
       )}
@@ -269,7 +298,7 @@ export default function UpgradeManager({
                   {migration.file.split('/').pop()}
                 </span>
                 <span className='shrink-0 text-sm font-medium text-amber-700'>
-                  {t('notRun')}
+                  {t('migrationNotRecorded')}
                 </span>
               </div>
             ))}
@@ -300,9 +329,15 @@ export default function UpgradeManager({
             <CheckCircle2 className='mt-0.5 size-5 shrink-0 text-emerald-700' />
             <div>
               <h2 className='text-base font-semibold text-stone-900'>
-                {t('systemUpdated')}
+                {status.source.state === 'current'
+                  ? t('systemUpdated')
+                  : t('databaseAlreadyCurrent')}
               </h2>
-              <p className='mt-1 text-sm text-stone-600'>{t('systemSynced')}</p>
+              <p className='mt-1 text-sm text-stone-600'>
+                {status.source.state === 'current'
+                  ? t('systemSynced')
+                  : sourceStatusLabel}
+              </p>
             </div>
           </div>
         </section>

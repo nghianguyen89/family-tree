@@ -1,8 +1,10 @@
 # Family tree — Trạng thái hiện tại
 
-Ngày ghi nhận: 2026-10-19. Đây là trạng thái ở workspace, không phải xác nhận đã triển khai lên production.
+Ngày ghi nhận: 2026-10-20. Đây là trạng thái ở workspace, không phải xác nhận đã triển khai lên production.
 
 ## Đã thực hiện
+
+- Đồng bộ bản sửa upgrade từ main (2026-10-20, nguồn 093136c): kiểm tra migration chỉ đọc; nối repo/nhánh, hướng dẫn, SQL bundle, SQL Editor và sao lưu; nhãn chưa ghi nhận giải thích SQL thủ công; không báo đồng bộ toàn hệ thống khi nguồn chưa current; thông báo lỗi xác thực PostgreSQL 28P01. Giữ manifest phát hành, cảnh báo bắt buộc, quyền admin, binding Supabase/TLS, kiểm tra schema và transaction của nhánh nhiều gia tộc. Nguồn unknown/bản thường mới hơn vẫn không khóa migration tương thích của code đã chọn. Bỏ qua refactor upstream 2.4.0. 127 tests/29 file (cùng 6 test con cô lập), TypeScript, ESLint tệp sửa, build Webpack bằng demo/key giả và kiểm tra bundle chỉ chứa cấu hình gia tộc được chọn đều qua. Chưa kiểm tra browser hoặc phiên admin thật trong lần đồng bộ này. Output build là fixture, cần build lại đúng môi trường trước deploy. Không sửa env, chạy migration, ghi Supabase hoặc deploy.
 
 - Đồng bộ main vào multi-family-tree (2026-10-19): fast-forward từ `cf97719` lên `0e31c8d`, khôi phục đầy đủ phần phát triển nhiều gia tộc chưa commit; giữ env, binding project, config/branding, manifest cập nhật và runner riêng. Ghép ba tệp xung đột (quản lý tài khoản, snapshot, mục lục), kết hợp liên kết tài khoản với hồ sơ nhánh phụ và bỏ giới hạn demo theo hostname như thiết kế nhiều gia tộc. Backup trước ghép: stash `591a55d629fbe5aee7a0d3293b916f23b3e70abd`, vẫn giữ để đối chiếu. Nguồn có 18 mục schema/migration; 14 mục đã xác nhận trên hai project thử là lịch sử trước đồng bộ, bốn migration mới chưa chạy thật. 123 tests, TypeScript, ESLint, production Webpack build với cấu hình/key giả, kiểm tra client bundle chỉ chứa gia tộc được chọn và Edge fixture login/cấu hình/cập nhật đều qua. Không kiểm thử đăng nhập hoặc migration thật; output build là bản kiểm thử, cần build lại đúng cấu hình khi triển khai. Không commit phần phát triển riêng, push, deploy hoặc ghi Supabase trong lần đồng bộ này.
 

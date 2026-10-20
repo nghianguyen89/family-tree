@@ -10,6 +10,10 @@ Nguồn hiện biết 18 mục schema/migration (thêm bốn file `20261019...`)
 
 Kiểm tra sau đồng bộ: 123 tests/28 file, TypeScript, ESLint, build Webpack với demo/key giả, kiểm tra client bundle chỉ đóng gói cấu hình gia tộc được chọn và không lộ secret sentinel đều PASS. Edge kiểm tra fail-closed, đăng nhập/cập nhật với mock Auth/action, mobile/desktop và vi/en PASS. Không thay xác nhận vận hành thật; output build là fixture, cần build lại bằng cấu hình đích trước deploy.
 
+## Đồng bộ upgrade từ main — 2026-10-20
+
+Ghép 093136c: kiểm tra lịch sử migration chỉ SELECT, thông báo mật khẩu database sai, link repo/nhánh, hướng dẫn, SQL bundle, SQL Editor và sao lưu. Nguồn chưa current không hiện thông báo toàn hệ thống đồng bộ. Giữ hợp đồng nguồn phát hành và migration theo code đã chọn bên dưới; không nhập điều kiện khóa theo GitHub mới nhất của main. Không thay config, env, binding, manifest hoặc dữ liệu từng gia tộc. Kết quả kiểm tra ghi tại snapshot.
+
 ## Môi trường và giới hạn
 
 - Worktree được xác minh: `D:/projects/my-github/apps/family-tree-multi`, nhánh chính thức `multi-family-tree`, bắt đầu từ commit `cf97719`. `main` ở worktree khác và được giữ nguyên.

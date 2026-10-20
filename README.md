@@ -212,7 +212,7 @@ Khi trang `/dashboard/upgrade` thông báo source code đang cũ, hãy cập nh�
 
 **Nếu deploy trên Vercel:**
 
-1. Kiểm tra project Vercel đang liên kết đúng repository `homielab/giapha-os` và branch cần deploy.
+1. Kiểm tra project Vercel đang liên kết đúng repository `nghianguyen89/family-tree` và phiên bản triển khai đã duyệt. Với nhánh nhiều gia tộc, làm theo [handoff giai đoạn 1](docs-multi-family/PHASE-1-HANDOFF.md); không tự deploy mọi commit mới của nhánh phát triển.
 2. Đồng bộ branch đó với code mới nhất trên GitHub. Nếu cập nhật bằng Git local:
 
    ```bash
