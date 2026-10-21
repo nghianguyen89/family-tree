@@ -9,6 +9,7 @@ import type {
   FamilyBranch,
   FamilyBranchMember
 } from '@/types/branches'
+import { branchTreePreview } from '@/utils/familyBranches'
 import { UUID } from '@/utils/intake'
 import { fetchAllRows, fetchInChunks } from '@/utils/supabase/fetchAll'
 import { getProfile, getSupabase } from '@/utils/supabase/queries'
@@ -120,18 +121,13 @@ export default async function BranchPage({
         {text.error}
       </main>
     )
-  const generations = new Map(
-    membersRes.data.map((member) => [member.person_id, member.generation])
+  const { persons, relationships } = branchTreePreview(
+    branch,
+    personsRes.data,
+    relationsRes.data,
+    membersRes.data
   )
-  const persons = personsRes.data.map((person) => ({
-    ...person,
-    generation: generations.get(person.id) ?? null
-  }))
   const visibleIds = new Set(persons.map((person) => person.id))
-  const relationships = relationsRes.data.filter(
-    (relation) =>
-      visibleIds.has(relation.person_a) && visibleIds.has(relation.person_b)
-  )
   const defaultRoot =
     branch.root_person_id && visibleIds.has(branch.root_person_id)
       ? branch.root_person_id

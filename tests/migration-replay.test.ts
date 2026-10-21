@@ -178,6 +178,66 @@ test('full setup bundle can be replayed and recover a partial schema replay with
         )
       ).rows[0].updated_at
     )
+
+    // Recording confirmed manual work must not execute migrations or change data.
+    const historySql = readFileSync(
+      'docs/record-manual-migrations-20261020.sql',
+      'utf8'
+    )
+    await db.exec(
+      'ALTER TABLE home_settings RENAME COLUMN origin_previous TO missing_origin'
+    )
+    await assert.rejects(db.exec(historySql), /Missing columns/)
+    await db.exec('ROLLBACK')
+    assert.equal(
+      (
+        await db.query<{ name: string | null }>(
+          "SELECT to_regclass('public.app_migrations')::text AS name"
+        )
+      ).rows[0].name,
+      null
+    )
+    await db.exec(
+      'ALTER TABLE home_settings RENAME COLUMN missing_origin TO origin_previous'
+    )
+    const beforeHistory = await snapshot()
+    const functionsBeforeHistory = await privateFunctions()
+    await db.exec(historySql)
+    const history = await db.query<{ migration_id: string }>(
+      'SELECT * FROM app_migrations ORDER BY migration_id'
+    )
+    assert.equal(history.rows.length, 18)
+    const expectedFiles = [
+      'docs/schema.sql',
+      ...readdirSync('docs/migrations')
+        .filter(
+          (file) =>
+            file.endsWith('.sql') &&
+            file <= '20261019030000_family_branch_descendants.sql'
+        )
+        .sort()
+        .map((file) => `docs/migrations/${file}`)
+    ]
+    assert.deepEqual(
+      history.rows.map((row) => row.migration_id).sort(),
+      expectedFiles.sort()
+    )
+    await db.exec(historySql)
+    assert.deepEqual(
+      await db.query('SELECT * FROM app_migrations ORDER BY migration_id'),
+      history
+    )
+    assert.deepEqual(await snapshot(), beforeHistory)
+    assert.deepEqual(await privateFunctions(), functionsBeforeHistory)
+    for (const role of ['anon', 'authenticated']) {
+      await assert.rejects(
+        db.transaction(async (tx) => {
+          await tx.exec(`SET LOCAL ROLE ${role}`)
+          await tx.query('SELECT * FROM public.app_migrations')
+        }),
+        /permission denied/
+      )
+    }
   } finally {
     await db.close()
   }
