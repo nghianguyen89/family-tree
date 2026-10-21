@@ -95,8 +95,8 @@ test('public, admin and SQL credentials remain bound to the selected project', (
 
 test('canonical URL allows explicit local development and rejects a different family host', () => {
   assert.equal(
-    canonicalAppUrl('https://demo.example.com', a.domain),
-    'https://demo.example.com'
+    canonicalAppUrl(`https://${a.domain}`, a.domain),
+    `https://${a.domain}`
   )
   assert.equal(
     canonicalAppUrl('http://localhost:3001', a.domain),
@@ -104,15 +104,15 @@ test('canonical URL allows explicit local development and rejects a different fa
   )
   for (const url of [
     'https://legiatrang.example.com',
-    'http://demo.example.com',
-    'https://demo.example.com/other',
-    'https://user:pass@demo.example.com'
+    `http://${a.domain}`,
+    `https://${a.domain}/other`,
+    `https://user:pass@${a.domain}`
   ])
     assert.throws(() => canonicalAppUrl(url, a.domain))
 })
 
 test('build configuration exposes only selected family fields and assets; invalid selection exposes none', () => {
-  const selected = (familyId: string) =>
+  const selected = (familyId: string, appUrl = 'http://localhost:3000') =>
     JSON.parse(
       execFileSync(
         process.execPath,
@@ -125,7 +125,7 @@ test('build configuration exposes only selected family fields and assets; invali
           env: {
             ...process.env,
             FAMILY_ID: familyId,
-            APP_URL: 'http://localhost:3000',
+            APP_URL: appUrl,
             SUPABASE_SERVICE_ROLE_KEY: 'server-only-sentinel'
           },
           encoding: 'utf8'
@@ -144,6 +144,17 @@ test('build configuration exposes only selected family fields and assets; invali
   )
   assert.equal(selected('missing').NEXT_PUBLIC_FAMILY_CONFIG, '')
   assert.equal(selected('../demo').NEXT_PUBLIC_FAMILY_CONFIG, '')
+  assert.equal(
+    JSON.parse(
+      selected('demo', 'https://demo-familytree.vercel.app')
+        .NEXT_PUBLIC_FAMILY_CONFIG
+    ).appUrl,
+    'https://demo-familytree.vercel.app'
+  )
+  assert.equal(
+    selected('demo', 'https://demo.example.com').NEXT_PUBLIC_FAMILY_CONFIG,
+    ''
+  )
 })
 
 test('all actual clients fail before network access on missing or mismatched deployment', () => {

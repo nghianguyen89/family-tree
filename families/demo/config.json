@@ -2,7 +2,7 @@
   "configVersion": 1,
   "id": "demo",
   "siteName": "Gia tộc An — Demo",
-  "domain": "demo.example.com",
+  "domain": "demo-familytree.vercel.app",
   "isDemo": true,
   "supabaseProjectRef": "owwuvellerhfpqyzpkdw"
 }

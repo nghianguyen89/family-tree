@@ -16,6 +16,8 @@ Ghép 093136c: kiểm tra lịch sử migration chỉ SELECT, thông báo mật 
 
 ## Môi trường và giới hạn
 
+Ngày 2026-10-21 đã đối chiếu 218 metadata liên quan bốn migration `20261019...` trên **Demo** với schema kỳ vọng của code, khớp đầy đủ; chỉ bổ sung bốn bản ghi lịch sử thiếu trong transaction sau kiểm tra lại, không chạy lại SQL migration hoặc sửa dữ liệu cây. Hậu kiểm 18/18 mục được ghi nhận. Lịch sử cũ thiếu vì `/setup` không ghi tracker; nguồn `/setup` đã sửa để ghi SQL và lịch sử nguyên tử, giữ timestamp khi replay. Chi tiết/bằng chứng tại [snapshot](../docs/CURRENT_SNAPSHOT.md). Không suy trạng thái Lê Gia Trang từ kết quả Demo; chưa deploy bản sửa.
+
 - Worktree được xác minh: `D:/projects/my-github/apps/family-tree-multi`, nhánh chính thức `multi-family-tree`, bắt đầu từ commit `cf97719`. `main` ở worktree khác và được giữ nguyên.
 - Trước triển khai đã có thay đổi tại `docs/CURRENT_SNAPSHOT.md` và thư mục `docs-multi-family/`; giữ nội dung có sẵn. Không tự commit, push, merge, deploy hoặc tạo tài nguyên.
 - Ngày 2026-10-18 worktree mới chưa có `.env.local`. Ngày 2026-10-19 chủ dự án đã cung cấp hai project mới và điền `.env.local` cho A; agent giữ nguyên file này, lưu thêm `.env.demo.local` (A) và `.env.legiatrang.local` (B chưa kích hoạt), đều được Git ignore. Không đọc/copy môi trường của worktree `main`, không dùng dữ liệu hoặc key gia đình cũ.
@@ -52,6 +54,8 @@ Config không bí mật tại `families/<family-id>/config.json` có hợp đồ
 
 `FAMILY_ID` chọn đúng một config lúc build. `next.config.ts` chỉ đưa phần công khai đã kiểm tra của config đó vào `NEXT_PUBLIC_FAMILY_CONFIG`; không import danh mục mọi gia tộc vào component trình duyệt. Không tự đặt biến nội bộ này trong môi trường triển khai. Secret nằm ở biến môi trường server, không được thêm vào JSON/assets/public.
 
+Domain Demo được đổi từ mẫu `demo.example.com` sang địa chỉ chủ dự án đang triển khai `demo-familytree.vercel.app` ngày 2026-10-21. Vercel cần `FAMILY_ID=demo`, `APP_URL=https://demo-familytree.vercel.app` và build mới từ nguồn đã sửa; thiếu/sai domain khiến public config rỗng và bị chuyển `/missing-db-config` dù Supabase key đã điền. Domain Lê Gia Trang vẫn là ví dụ; chưa xác minh env hoặc deployment Vercel thật trong lượt sửa này.
+
 Mỗi folder có `assets/logo.svg` (SVG tĩnh do người vận hành duyệt trong Git). Build chỉ nhúng logo đã chọn; `/family-assets/logo` trả logo đó, dùng chung cho header và metadata icon. `APP_URL` chỉ nhận origin HTTPS khớp `domain`, hoặc localhost/127.0.0.1 cho thử local; server runtime vẫn cần `FAMILY_ID` và `APP_URL` khớp bản build. OAuth, email và link thu thập dùng origin này. Để trống biến service/SQL chưa sử dụng; không giữ key placeholder trong môi trường. SQL URL chỉ nhận host Supabase trực tiếp/pooler khớp ref, không nhận query đổi host; runner yêu cầu TLS.
 
 Hai config ban đầu dùng project ref giả; ngày 2026-10-19 đã gắn với hai project mới do chủ dự án cung cấp. B đã đổi ID/folder thành `legiatrang`, tên hiển thị `Lê Gia Trang`, logo chữ L và domain ví dụ `legiatrang.example.com` theo yêu cầu. Sau đó đã khởi tạo schema/migration thật trên cả hai project với cho phép của chủ dự án; chưa deploy website. Khi đổi `FAMILY_ID` hoặc config phải build/deploy lại; không dùng một output `.next` cho hai gia tộc bằng cách chỉ đổi biến runtime.
@@ -65,7 +69,7 @@ Cả hai bật Email và xác minh email, chưa bật Google. Khởi tạo theo 
 
 Lưu ý vận hành: metadata membership của SQL role với owner `auth.users`/`storage.objects` có thể trả false nhưng quyền DDL thật vẫn được Supabase cho phép. Đã xác nhận bằng probe CREATE/DROP trigger/policy trong transaction rollback, không đổi owner hoặc cấp thêm quyền. Anonymous đọc `persons` bị từ chối `42501` là hành vi bảo vệ mong đợi; không GRANT thêm chỉ để làm smoke test qua.
 
-Profile là `.env.demo.local` và `.env.legiatrang.local`, đều Git ignore; `.env.local` hiện vẫn chọn A. Khi đổi profile, dừng server, copy file profile tương ứng vào `.env.local`, rồi khởi động/build lại trong cùng worktree. Hai profile phụ không được Next.js tự chọn; không chạy đồng thời hai server dùng chung `.next`. Không kích hoạt B trước khi người vận hành chủ động chọn.
+Từ 2026-10-20, profile được chuyển từ `.env.demo.local` và `.env.legiatrang.local` ở gốc vào `families/demo/.env.local` và `families/legiatrang/.env.local`; nội dung được giữ nguyên và cả hai vẫn được Git ignore. `.env.local` ở gốc được giữ nguyên làm cấu hình đang chạy. Next.js không tự nạp profile trong `families`; lệnh `bun run dev:family <id>` kiểm tra ID/project URL và khóa dev server, copy profile vào `.env.local` ở gốc rồi chạy dev. Dừng server trước khi chuyển; lưu thay đổi cần giữ ở file gốc về profile trước khi chạy lệnh. Chỉ chạy một gia tộc mỗi lần trong worktree này; production local cần copy profile và build lại. Xem [runbook local](../docs/LOCAL-DEVELOPER-RUNBOOK.md). Trên Vercel, đặt biến môi trường riêng cho từng project và dùng lệnh build bình thường; không dùng file env local.
 
 Thiếu/sai ID, config hoặc project binding phải dừng thao tác dữ liệu, không chuyển sang demo. URL Supabase, publishable/anon key, service key và SQL URL phải thuộc project đã chọn. Với loại key opaque không tự chứa project ref, người vận hành phải xác minh cặp URL/key bằng dashboard project và thao tác thử có quyền phù hợp; không ghi secret vào bằng chứng.
 

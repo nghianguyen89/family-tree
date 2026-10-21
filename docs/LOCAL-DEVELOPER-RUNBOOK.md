@@ -1,6 +1,6 @@
 # Family tree — Hướng dẫn chạy local
 
-Cập nhật: 2026-10-18. Thực hiện từ thư mục gốc dự án trong terminal VS Code. Với nhánh `multi-family-tree`, đọc thêm [bàn giao giai đoạn 1](../docs-multi-family/PHASE-1-HANDOFF.md); dùng worktree và Supabase thử riêng, không sao chép `.env.local` từ `main`.
+Cập nhật: 2026-10-21. Thực hiện từ thư mục gốc dự án trong terminal VS Code. Với nhánh `multi-family-tree`, đọc thêm [bàn giao giai đoạn 1](../docs-multi-family/PHASE-1-HANDOFF.md); dùng worktree và Supabase thử riêng, không sao chép `.env.local` từ `main`.
 
 ## Công cụ và thư viện
 
@@ -47,6 +47,22 @@ Không dùng tiền tố `NEXT_PUBLIC_` cho secret/service-role/database key. Kh
 
 ## Khởi động và dừng
 
+Trên nhánh `multi-family-tree`, profile riêng nằm tại `families/demo/.env.local` và `families/legiatrang/.env.local`, đều được Git ignore. Chỉ chạy một gia tộc mỗi lần. Để chuyển gia tộc, dừng server bằng `Ctrl+C`, lưu thay đổi cần giữ từ file gốc về profile của gia tộc đang chạy, rồi chọn **một** lệnh tự copy profile và khởi động dev:
+
+```powershell
+# Chọn Demo
+bun run dev:family demo
+```
+
+```powershell
+# Hoặc chọn Lê Gia Trang
+bun run dev:family legiatrang
+```
+
+Lệnh kiểm tra ID gia tộc, project URL Supabase và khóa `.next/dev/lock` trước khi thay thế `.env.local` ở gốc, rồi chạy Next.js dev. Profile thiếu/sai hoặc còn khóa server sẽ bị từ chối, không ghi đè file gốc. Lệnh không tự sao lưu thay đổi chỉ có trong file gốc; nên chỉnh cấu hình trong profile của gia tộc. Nếu khóa còn sau khi server bị tắt đột ngột, xác minh không còn dev server trước khi xử lý khóa. Nếu dùng production local, copy profile về `.env.local` thủ công rồi build lại trước khi chạy `bun start`. Trên Vercel vẫn dùng `bun run build` và biến môi trường của từng project, không dùng lệnh chọn profile local.
+
+Nếu muốn tiếp tục dùng cấu hình hiện có ở gốc mà không copy profile:
+
 ```powershell
 bun dev
 ```
@@ -57,11 +73,16 @@ Sau khi sửa `.env.local`, dừng rồi chạy lại để chắc chắn server
 
 ## Khởi tạo và nâng cấp Supabase
 
+### Triển khai Demo trên Vercel
+
+Config Demo hiện gắn với `demo-familytree.vercel.app`. Trong scope Vercel cần triển khai, đặt `FAMILY_ID=demo`, `APP_URL=https://demo-familytree.vercel.app` và URL/key Supabase đúng project Demo theo config. Không tự điền `NEXT_PUBLIC_FAMILY_CONFIG`: biến này do build tạo. `APP_URL` phải khớp chính xác domain Git; đổi URL/domain hoặc biến môi trường cần build/deploy mới từ nguồn đã có config tương ứng. `.env.local` trên máy không tự được chuyển lên Vercel. Auth Site URL/redirect trên Supabase cần khớp website theo handoff, nhưng lỗi `/missing-db-config` được kiểm tra trước bước Auth.
+
 - `/dashboard/upgrade` trên nhánh `multi-family-tree` dùng manifest sản phẩm tại `PRODUCT_RELEASE_MANIFEST_URL`; không so package repo gốc hoặc commit nhánh phát triển. **Kiểm tra lại** không dùng cache. Thiếu/lỗi manifest trả chưa xác minh; vẫn cho phép migration tương thích của code đã chọn. Link repo mở nhánh phát triển để tham khảo; triển khai dùng commit/tag đã duyệt theo [handoff nhiều gia tộc](../docs-multi-family/PHASE-1-HANDOFF.md).
 - Kiểm tra migration chỉ đọc bảng `public.app_migrations`; SQL đã chạy thủ công có thể chưa được ghi nhận. Không dùng danh sách này như bằng chứng chắc chắn database thiếu migration. Trang có link tới repo, hướng dẫn, `/setup`, SQL Editor và `/dashboard/data` để sao lưu.
 - Lỗi PostgreSQL `28P01`: kiểm tra user/mật khẩu của connection string `SUPABASE_DB_URL` theo màn hình **Connect** của đúng project; mã hóa ký tự đặc biệt của mật khẩu trong URL. Đây là mật khẩu database, không phải anon/service-role key. Khởi động lại server sau khi sửa; Vercel cần redeploy để nhận biến môi trường mới.
 
 - Database mới: cấu hình URL/key, mở `/setup`, copy toàn bộ SQL bundle và chạy trong Supabase SQL Editor.
+- Bundle `/setup` từ 2026-10-21 ghi schema/migration và lịch sử trong cùng một transaction; lỗi sẽ rollback cả hai, chạy lại giữ timestamp lịch sử đã có. Bundle cũ không ghi lịch sử nên SQL đã chạy vẫn có thể hiện “Chưa ghi nhận”. Với database đang dùng, đối chiếu schema/policy/quyền với đúng mã nguồn trước khi bổ sung lịch sử; không chỉ dựa vào bảng/cột tồn tại và không chạy lại toàn bộ setup chỉ để hết cảnh báo. Demo đã được đối chiếu và bổ sung đủ 18/18 ngày 2026-10-21; kết quả không áp dụng cho project khác.
 - Database đã có dữ liệu: xác định migration còn thiếu trước khi chạy. Bundle `/setup` gồm schema và các migration theo thứ tự; không thay thế việc kiểm tra trạng thái thực tế.
 - Riêng tính năng khoảng năm: copy toàn bộ [20261014010000_add_person_year_ranges.sql](migrations/20261014010000_add_person_year_ranges.sql), dán vào SQL Editor và bấm **Run**. File này không thực thi thao tác thay thế dữ liệu; nó bổ sung cột, ràng buộc và định nghĩa lại hàm nhập sao lưu. Chỉ khi gọi chức năng nhập sao lưu, hàm đó mới thay thế dữ liệu.
 

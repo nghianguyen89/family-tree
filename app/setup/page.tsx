@@ -7,6 +7,7 @@ import Link from 'next/link'
 import Footer from '@/components/Footer'
 import ThemeToggle from '@/components/ThemeToggle'
 import { getServerTranslations } from '@/lib/i18n/server'
+import { buildSetupSqlBundle } from '@/utils/setup-sql'
 
 import CopyButton from './CopyButton'
 
@@ -26,18 +27,13 @@ export default async function SetupPage() {
       )
     )
 
-    sqlBundle = [
-      '-- GIAPHA-OS: schema + all migrations (idempotent bundle)',
-      '-- Run this entire script once in Supabase SQL Editor.',
-      '',
-      '-- docs/schema.sql',
-      schemaContent,
-      ...migrationContents.flatMap((content, index) => [
-        '',
-        `-- docs/migrations/${migrationFiles[index]}`,
-        content
-      ])
-    ].join('\n')
+    sqlBundle = buildSetupSqlBundle([
+      { file: 'docs/schema.sql', sql: schemaContent },
+      ...migrationContents.map((sql, index) => ({
+        file: `docs/migrations/${migrationFiles[index]}`,
+        sql
+      }))
+    ])
   } catch (error) {
     console.error('Error reading database SQL bundle:', error)
     sqlBundle =

@@ -5,6 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "next dev",
+    "dev:family": "bun scripts/dev-family.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
