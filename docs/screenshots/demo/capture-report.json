@@ -1,0 +1,140 @@
+{
+  "capturedAt": "2026-10-22T08:13:06.376Z",
+  "environment": "Real local Next.js UI with fictional records in dedicated Demo Supabase; not a deployment check",
+  "desktop": {
+    "width": 1440,
+    "height": 1050
+  },
+  "mobile": {
+    "width": 390,
+    "height": 844
+  },
+  "screens": [
+    {
+      "name": "home",
+      "route": "/",
+      "status": "captured",
+      "bytes": 46360
+    },
+    {
+      "name": "login",
+      "route": "/login",
+      "status": "captured",
+      "bytes": 31218
+    },
+    {
+      "name": "dashboard",
+      "route": "/dashboard",
+      "status": "captured",
+      "bytes": 50240
+    },
+    {
+      "name": "members",
+      "route": "/dashboard/members?view=list",
+      "status": "captured",
+      "bytes": 56450
+    },
+    {
+      "name": "tree",
+      "route": "/dashboard/members?view=tree&rootId=da000000-0000-4000-8000-000000000001",
+      "status": "captured",
+      "bytes": 55420
+    },
+    {
+      "name": "mindmap",
+      "route": "/dashboard/members?view=mindmap&rootId=da000000-0000-4000-8000-000000000001",
+      "status": "captured",
+      "bytes": 41490
+    },
+    {
+      "name": "member-detail",
+      "route": "/dashboard/members/da000000-0000-4000-8000-000000000014",
+      "status": "captured",
+      "bytes": 40736
+    },
+    {
+      "name": "member-form",
+      "route": "/dashboard/members/da000000-0000-4000-8000-000000000001/edit",
+      "status": "captured",
+      "bytes": 46742
+    },
+    {
+      "name": "kinship",
+      "route": "/dashboard/kinship?p1=da000000-0000-4000-8000-000000000018&p2=da000000-0000-4000-8000-000000000007",
+      "status": "captured",
+      "bytes": 40364
+    },
+    {
+      "name": "stats",
+      "route": "/dashboard/stats",
+      "status": "captured",
+      "bytes": 36282
+    },
+    {
+      "name": "events",
+      "route": "/dashboard/events",
+      "status": "captured",
+      "bytes": 53882
+    },
+    {
+      "name": "gallery",
+      "route": "/dashboard/gallery",
+      "status": "captured",
+      "bytes": 82620
+    },
+    {
+      "name": "content",
+      "route": "/dashboard/content",
+      "status": "captured",
+      "bytes": 56032
+    },
+    {
+      "name": "intake",
+      "route": "/dashboard/intake",
+      "status": "captured",
+      "bytes": 46532
+    },
+    {
+      "name": "lineage",
+      "route": "/dashboard/lineage",
+      "status": "captured",
+      "bytes": 49588
+    },
+    {
+      "name": "data",
+      "route": "/dashboard/data",
+      "status": "captured",
+      "bytes": 48488
+    },
+    {
+      "name": "users",
+      "route": "/dashboard/users",
+      "status": "skipped: existing non-demo account email"
+    },
+    {
+      "name": "upgrade",
+      "route": "/dashboard/upgrade",
+      "status": "captured",
+      "bytes": 62924
+    },
+    {
+      "name": "branch",
+      "route": "/dashboard/branches/da000000-0000-4000-8000-000000000500?view=tree",
+      "status": "captured",
+      "bytes": 52298
+    },
+    {
+      "name": "dark",
+      "route": "/dashboard/stats",
+      "status": "captured",
+      "bytes": 38162
+    },
+    {
+      "name": "mobile",
+      "route": "/dashboard/members?view=list",
+      "status": "captured",
+      "bytes": 21226
+    }
+  ],
+  "runtimeExceptions": []
+}

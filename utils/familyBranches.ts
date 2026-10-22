@@ -45,7 +45,7 @@ export function branchTreePreview(
       .filter((m) => m.branch_id === branch.id)
       .map((m) => [m.person_id, m.generation])
   )
-  const persons = people
+  let persons = people
     .filter((p) => generations.has(p.id))
     .map((p) => ({ ...p, generation: generations.get(p.id) ?? null }))
   const ids = new Set(persons.map((p) => p.id))
@@ -64,6 +64,7 @@ export function branchTreePreview(
     unique.set(`${r.type}:${pair.join(':')}`, r)
   }
   const relationships = [...unique.values()]
+  persons = inferBranchGenerations(persons, relationships)
   const childIds = new Set(
     relationships
       .filter(
@@ -96,6 +97,64 @@ export function branchTreePreview(
   if (!rootIds.length && ids.has(branch.anchor_person_id))
     rootIds.push(branch.anchor_person_id)
   return { branch, persons, relationships, rootIds }
+}
+
+/** Fill missing display generations from consistent branch relationships only. */
+function inferBranchGenerations(
+  persons: Person[],
+  relationships: Relationship[]
+): Person[] {
+  const neighbors = new Map(
+    persons.map((p) => [p.id, [] as Array<{ id: string; step: number }>])
+  )
+  for (const r of relationships) {
+    const step =
+      r.type === 'marriage'
+        ? 0
+        : r.type === 'biological_child' || r.type === 'adopted_child'
+          ? 1
+          : null
+    if (step === null) continue
+    neighbors.get(r.person_a)?.push({ id: r.person_b, step })
+    neighbors.get(r.person_b)?.push({ id: r.person_a, step: -step })
+  }
+  const byId = new Map(persons.map((p) => [p.id, p]))
+  const visited = new Set<string>()
+  const inferred = new Map<string, number>()
+  for (const person of persons) {
+    if (visited.has(person.id)) continue
+    const offsets = new Map([[person.id, 0]])
+    const queue = [person.id]
+    const bases = new Set<number>()
+    let consistent = true
+    for (let index = 0; index < queue.length; index++) {
+      const id = queue[index]
+      visited.add(id)
+      const offset = offsets.get(id)!
+      const generation = byId.get(id)?.generation
+      if (generation != null) bases.add(generation - offset)
+      for (const neighbor of neighbors.get(id) ?? []) {
+        const next = offset + neighbor.step
+        if (offsets.has(neighbor.id)) {
+          if (offsets.get(neighbor.id) !== next) consistent = false
+        } else {
+          offsets.set(neighbor.id, next)
+          queue.push(neighbor.id)
+        }
+      }
+    }
+    if (!consistent || bases.size !== 1) continue
+    const base = [...bases][0]
+    for (const [id, offset] of offsets) {
+      const generation = base + offset
+      if (Number.isSafeInteger(generation) && generation > 0)
+        inferred.set(id, generation)
+    }
+  }
+  return persons.map((person) => ({
+    ...person,
+    generation: person.generation ?? inferred.get(person.id) ?? null
+  }))
 }
 
 /** Auxiliary relationships must not affect the main family's roots or generations. */

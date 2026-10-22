@@ -1,6 +1,6 @@
 # Mục lục tài liệu dự án
 
-Cập nhật: 2026-10-16.
+Cập nhật: 2026-10-22.
 
 ## Thứ tự đọc
 
@@ -18,6 +18,7 @@ Cập nhật: 2026-10-16.
 12. [Panel điều hướng dashboard](DASHBOARD-NAVIGATION-HANDOFF.md): hamburger, thanh icon thu gọn, panel mở rộng và link theo vai trò.
 13. [Nhánh gia đình bên dâu/rể](FAMILY-BRANCHES-HANDOFF.md): cây phụ, đời riêng, liên kết hồ sơ dùng chung, lịch cúng theo nhánh và sao lưu JSON.
 14. [Giai đoạn 1 nhiều gia tộc](../docs-multi-family/PHASE-1-HANDOFF.md): config Git theo deployment, binding Supabase, phiên bản/migration và runbook; chỉ trên nhánh `multi-family-tree`.
+15. [Dữ liệu Demo và ảnh README](DEMO-HANDOFF.md): dữ liệu hư cấu, seed có kiểm tra project và cách chụp giao diện production thật.
 
 ## Tài liệu và tài nguyên có sẵn
 

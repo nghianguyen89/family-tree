@@ -16,6 +16,10 @@ Ghép 093136c: kiểm tra lịch sử migration chỉ SELECT, thông báo mật 
 
 ## Môi trường và giới hạn
 
+Ngày 2026-10-22, theo yêu cầu mới của chủ dự án, đã seed riêng Supabase Demo bằng dữ liệu **Gia tộc An hư cấu** và chụp 20 màn hình qua phiên admin hư cấu trên bản production local. Đây là thao tác bổ sung sau giai đoạn khởi tạo trống được ghi ở các mục lịch sử bên dưới; không seed/reset Lê Gia Trang hoặc project gia đình trên main, không chạy migration/deploy. Xem [handoff dữ liệu/ảnh Demo](../docs/DEMO-HANDOFF.md) và [snapshot](../docs/CURRENT_SNAPSHOT.md). Không có tài khoản đọc Demo công khai hoặc link intake đang hoạt động được phát hành.
+
+Bản sửa đời hiển thị nhánh phụ từ `family-tree/main` được đồng bộ ngày 2026-10-21 sau khi chủ dự án xác nhận bản main hoạt động: danh sách/phần xem nhanh suy đời còn trống từ quan hệ và mốc đời đã nhập nhất quán trong chính nhánh; giữ đời nhập tay, không ghi lại database hoặc đổi đời họ chính. 134 tests/31 file, TypeScript và ESLint file sửa PASS. Không thay cấu hình nhiều gia tộc, migration, env hoặc deployment; chưa xác nhận browser/deploy bản đồng bộ này. Xem [hướng dẫn nhánh phụ](../docs/FAMILY-BRANCHES-HANDOFF.md).
+
 Ngày 2026-10-21 đã đối chiếu 218 metadata liên quan bốn migration `20261019...` trên **Demo** với schema kỳ vọng của code, khớp đầy đủ; chỉ bổ sung bốn bản ghi lịch sử thiếu trong transaction sau kiểm tra lại, không chạy lại SQL migration hoặc sửa dữ liệu cây. Hậu kiểm 18/18 mục được ghi nhận. Lịch sử cũ thiếu vì `/setup` không ghi tracker; nguồn `/setup` đã sửa để ghi SQL và lịch sử nguyên tử, giữ timestamp khi replay. Chi tiết/bằng chứng tại [snapshot](../docs/CURRENT_SNAPSHOT.md). Không suy trạng thái Lê Gia Trang từ kết quả Demo; chưa deploy bản sửa.
 
 - Worktree được xác minh: `D:/projects/my-github/apps/family-tree-multi`, nhánh chính thức `multi-family-tree`, bắt đầu từ commit `cf97719`. `main` ở worktree khác và được giữ nguyên.

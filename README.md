@@ -1,266 +1,141 @@
-<p align="center">
-  <img src="https://raw.githubusercontent.com/homielab/giapha-os/main/public/icon.png" alt="Gia Phả OS Icon" width="100" height="100" style="border-radius: 22%; border: 0.5px solid rgba(0,0,0,0.1);" />
-</p>
+# Family Tree — Gia phả Việt Nam
 
-# Gia Phả OS (Gia Phả Open Source)
+Bản fork của [Gia Phả OS](https://github.com/homielab/giapha-os), dùng để quản lý hồ sơ, quan hệ và sinh hoạt dòng họ. Mỗi website dùng Supabase riêng cho dữ liệu, tài khoản và ảnh; gia đình tự quản lý quyền truy cập và việc triển khai.
 
-Ghi chú của bản fork cá nhân: [tổng quan, trạng thái, hướng dẫn local và các vấn đề đã xử lý](docs/README.md).
+Nhánh `multi-family-tree` hiện triển khai **giai đoạn 1: một deployment cho một gia tộc**, chọn cấu hình Git bằng `FAMILY_ID` khi build. Mỗi gia tộc có domain, Supabase và phiên bản triển khai riêng. Giai đoạn 2–3 về quản trị hệ thống và tự động hóa chưa được triển khai. Xem [bàn giao nhiều gia tộc](docs-multi-family/PHASE-1-HANDOFF.md).
 
-[Tiếng Việt](README.md) | [English](README.en.md)
+## Demo và ảnh giao diện
 
-Đây là mã nguồn mở cho ứng dụng quản lý gia phả dòng họ, cung cấp giao diện trực quan để xem sơ đồ phả hệ, quản lý thành viên và tìm kiếm danh xưng.
+Website Demo: **[demo-familytree.vercel.app](https://demo-familytree.vercel.app)**. Dữ liệu giới thiệu và ảnh chụp dành cho Demo sử dụng nhân vật hư cấu. Không nhập thông tin gia đình thật vào môi trường này. README không công bố tài khoản quản trị hoặc thông tin đăng nhập dùng chung.
 
-Dự án ra đời từ nhu cầu thực tế: cần một hệ thống Cloud để con cháu ở nhiều nơi có thể cùng cập nhật thông tin (kết hôn, sinh con...), thay vì phụ thuộc vào một máy cục bộ. Việc tự triển khai mã nguồn mở giúp gia đình bạn nắm trọn quyền kiểm soát dữ liệu nhạy cảm, thay vì phó mặc cho các dịch vụ bên thứ ba. Ban đầu mình chỉ làm cho gia đình sử dụng, nhưng vì được nhiều người quan tâm nên mình quyết định chia sẻ công khai.
+Ảnh dưới đây minh họa giao diện với dữ liệu Demo; trạng thái dữ liệu và phiên bản trên website có thể khác thời điểm chụp.
 
-Phù hợp với người Việt Nam.
+Bộ mẫu gồm 21 hồ sơ hư cấu qua năm thế hệ, nhánh bên ngoại, lịch cúng, sự kiện, bài viết và album. Xem [cách tạo dữ liệu và chụp ảnh](docs/DEMO-HANDOFF.md).
 
-## Mục lục
+| Trang chủ                                          | Tổng quan                                                  |
+| -------------------------------------------------- | ---------------------------------------------------------- |
+| ![Trang chủ Demo](docs/screenshots/demo/home.webp) | ![Tổng quan gia phả](docs/screenshots/demo/dashboard.webp) |
 
-- [Các tính năng chính](#các-tính-năng-chính)
-- [Demo](#demo)
-- [Hình ảnh Giao diện](#hình-ảnh-giao-diện)
-- [Cài đặt và Chạy dự án](#cài-đặt-và-chạy-dự-án)
-  - [Cách 1: Deploy nhanh lên Vercel](#cách-1-deploy-nhanh-lên-vercel)
-  - [Cách 2: Chạy trên máy cá nhân](#cách-2-chạy-trên-máy-cá-nhân)
-- [Tài khoản đầu tiên](#tài-khoản-đầu-tiên)
-- [Xử lý lỗi khi đăng ký](#xử-lý-lỗi-khi-đăng-ký)
-- [Phân quyền người dùng (User Roles)](#phân-quyền-người-dùng-user-roles)
-- [Đóng góp (Contributing)](#đóng-góp-contributing)
-- [Tuyên bố từ chối trách nhiệm & Quyền riêng tư](#tuyên-bố-từ-chối-trách-nhiệm--quyền-riêng-tư)
-- [Giấy phép (License)](#giấy-phép-license)
+| Thành viên                                                  | Sơ đồ cây                                             |
+| ----------------------------------------------------------- | ----------------------------------------------------- |
+| ![Danh sách thành viên](docs/screenshots/demo/members.webp) | ![Sơ đồ cây gia phả](docs/screenshots/demo/tree.webp) |
 
-## Các tính năng chính
+| Mindmap                                              | Nhánh gia đình bên dâu/rể                                |
+| ---------------------------------------------------- | -------------------------------------------------------- |
+| ![Sơ đồ mindmap](docs/screenshots/demo/mindmap.webp) | ![Cây nhánh gia đình](docs/screenshots/demo/branch.webp) |
 
-- **Sơ đồ trực quan**: Xem gia phả dạng Cây (Tree) và Sơ đồ tư duy (Mindmap).
-- **Tìm danh xưng**: Tự động xác định cách gọi tên (Bác, Chú, Cô, Dì...) chính xác.
-- **Quản lý thành viên**: Lưu trữ thông tin, avatar và sắp xếp thứ tự nhánh dòng họ.
-- **Quản lý quan hệ**: Quản lý các mối quan hệ trong gia phả (hỗ trợ các trường hợp đặc biệt như đa thê, đa phu,...).
-- **Thống kê & Sự kiện**: Theo dõi ngày giỗ và các chỉ số nhân khẩu học của dòng họ.
-- **Sao lưu dữ liệu**: Xuất/nhập file JSON, CSV, GEDCOM để lưu trữ hoặc di chuyển dễ dàng.
-- **Thu thập thông tin gia đình**: Link công khai theo nhánh, không cần đăng nhập; admin/editor duyệt trước khi đưa lên cây.
-- **Lịch cúng riêng**: Thiết lập ngày/tháng cúng âm hoặc dương lịch khi không nhớ ngày mất hoặc gia đình có lịch cúng riêng.
-- **Bảo mật**: Phân quyền (Admin, Editor, Member) và bảo vệ dữ liệu bằng Supabase.
-- **Đa thiết bị**: Giao diện hiện đại, tối ưu cho cả máy tính và điện thoại.
+| Thống kê                                              | Sự kiện                                                         |
+| ----------------------------------------------------- | --------------------------------------------------------------- |
+| ![Thống kê gia phả](docs/screenshots/demo/stats.webp) | ![Lịch sự kiện và ngày cúng](docs/screenshots/demo/events.webp) |
 
-## Demo
+| Thư viện ảnh                                        | Chế độ tối                                               |
+| --------------------------------------------------- | -------------------------------------------------------- |
+| ![Thư viện ảnh](docs/screenshots/demo/gallery.webp) | ![Giao diện chế độ tối](docs/screenshots/demo/dark.webp) |
 
-- Demo: [giapha-os.homielab.com](https://giapha-os.homielab.com)
-- Tài khoản: `giaphaos@homielab.com`
-- Mật khẩu: `giaphaos`
+[Xem giao diện điện thoại](docs/screenshots/demo/mobile.webp) · [Toàn bộ ảnh Demo](docs/screenshots/demo/)
 
-## Hình ảnh Giao diện
+Các màn hình chức năng khác: [chi tiết thành viên](docs/screenshots/demo/member-detail.webp), [sửa hồ sơ và khoảng năm](docs/screenshots/demo/member-form.webp), [tra cứu danh xưng](docs/screenshots/demo/kinship.webp), [biên tập nội dung](docs/screenshots/demo/content.webp), [thu thập và chờ duyệt](docs/screenshots/demo/intake.webp), [sao lưu](docs/screenshots/demo/data.webp), [kiểm tra nâng cấp](docs/screenshots/demo/upgrade.webp).
 
-![Dashboard](docs/screenshots/dashboard.png)
+## Tính năng
 
-![Danh sách](docs/screenshots/list.png)
+- Hồ sơ thành viên, avatar có cắt ảnh, quan hệ cha mẹ–con ruột/con nuôi và vợ chồng; xem cây, mindmap và tìm danh xưng.
+- Ngày sinh/ngày mất biết đầy đủ, biết một phần hoặc chỉ biết khoảng năm; khoảng năm ước tính được lưu riêng và hiển thị dấu `≈`.
+- Thống kê, sự kiện, ngày giỗ và ngày cúng riêng theo âm/dương lịch, kể cả khi không nhớ ngày mất.
+- Link thu thập thông tin gia đình theo nhánh; người thân gửi không cần đăng nhập, admin/editor duyệt trước khi đưa lên cây.
+- Nhánh gia đình bên dâu/rể có gốc và đời riêng, dùng chung hồ sơ phù hợp và kiểm soát quyền theo quan hệ gia đình.
+- Trang chủ với giới thiệu, thông báo, bài viết và album; quản lý bản nháp, hẹn giờ và phạm vi công khai/nội bộ.
+- Thư viện ảnh chung, tải nhiều ảnh, dùng lại ảnh cho nội dung/album và xem ảnh bằng PhotoSwipe.
+- Phân quyền admin/editor/member, liên kết tài khoản với hồ sơ; giao diện điện thoại, chế độ sáng/tối, tiếng Việt/Anh.
+- Xuất/nhập cây bằng JSON; CSV/GEDCOM cho phạm vi được hỗ trợ. Xem giới hạn sao lưu bên dưới.
 
-![Sơ đồ cây](docs/screenshots/tree.png)
+## Chạy local
 
-![Mindmap](docs/screenshots/mindmap.png)
+Công nghệ chính: Next.js 16, React 19, TypeScript, Tailwind CSS 4, Supabase PostgreSQL/Auth/Storage và D3. Dự án dùng **Bun và `bun.lock`**; giữ bản vá trong `patches/` khi cài thư viện. Cần Node.js, Bun và project Supabase để đăng nhập/lưu dữ liệu; chưa có chế độ database offline hoàn chỉnh.
 
-![Mindmap](docs/screenshots/stats.png)
-
-![Mindmap](docs/screenshots/kinship.png)
-
-![Mindmap](docs/screenshots/events.png)
-
-More screenshots: [docs/screenshots/](docs/screenshots/)
-
-## Cài đặt và Chạy dự án
-
-Chỉ cần khoảng 10 -> 15 phút là bạn có thể tự dựng hệ thống gia phả cho gia đình mình.
-
----
-
-## 1. Tạo Database (Miễn phí với Supabase)
-
-1. Tạo tài khoản miễn phí tại https://github.com nếu chưa có.
-2. Tạo tài khoản miễn phí tại https://supabase.com nếu chưa có (khuyên dùng đăng ký bằng tài khoản GitHub cho nhanh).
-3. Tạo **New Project**. Đợi khoảng 1 -> 2 phút để hệ thống khởi tạo xong.
-4. Vào **Project → Connect** hoặc **Project Settings → API Keys** để lấy:
-   - `Project URL`
-   - `Publishable key` (bắt đầu bằng `sb_publishable_`; project cũ có thể hiển thị key `anon`)
-   - `Secret key` cho server (bắt đầu bằng `sb_secret_`) nếu cần gửi email thông báo và quản trị server. Project cũ có thể dùng key `service_role` trong tab **Legacy API Keys**.
-
----
-
-## Cách 1: Deploy nhanh lên Vercel
-
-Nhánh `multi-family-tree`: dùng [runbook giai đoạn 1](docs-multi-family/PHASE-1-HANDOFF.md) để chuẩn bị project riêng, config `FAMILY_ID` và pin commit/tag. Chưa deploy từ nhánh phát triển; không thay project gia đình trên `main`.
-
-1. Tạo tài khoản miễn phí tại https://vercel.com nếu chưa có (khuyên dùng đăng ký bằng tài khoản GitHub cho nhanh).
-2. Import repo sản phẩm vào project Vercel mới và chọn commit/tag đã duyệt theo runbook giai đoạn 1.
-3. Điền các biến môi trường đã lưu ở **bước 1**:
-   - `NEXT_PUBLIC_SUPABASE_URL` = `Project URL`
-   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` = `Publishable key` (hoặc key `anon` trong **Legacy API Keys**)
-   - `NEXT_PUBLIC_DISABLE_SSO` = `false` để bật SSO; đặt `true` để ẩn SSO khi chưa cấu hình
-   - `APP_URL` = URL public của ứng dụng, ví dụ `https://giapha-os.vercel.app`
-   - `SUPABASE_SERVICE_ROLE_KEY` = **Secret key** trong **Project Settings → API Keys → Secret keys**. Nếu project dùng giao diện cũ, vào tab **Legacy API Keys** và copy key `service_role`. Đây là key có quyền cao, chỉ lưu ở Vercel server environment; tuyệt đối không dùng publishable/anon key cho biến này và không đặt tên biến với tiền tố `NEXT_PUBLIC_`.
-   - `SUPABASE_DB_URL` = PostgreSQL connection string trong **Project Settings → Database → Connection Pooling** (Session mode, chỉ lưu ở Vercel server environment). Biến này cho phép admin kiểm tra/chạy migration ngay trong Dashboard.
-   - `RESEND_API_KEY` = API key của [Resend](https://resend.com)
-   - `RESEND_FROM_EMAIL` = địa chỉ gửi đã xác minh domain trên Resend, ví dụ `Gia Phả OS <no-reply@your-domain.com>`
-   - `ADMIN_NOTIFICATION_EMAIL` = tuỳ chọn; email nhận thông báo. Nếu bỏ trống, hệ thống tự gửi tới email của các admin đang hoạt động
-4. Nhấn **Deploy** và chờ 2 -> 3 phút.
-
-Bạn sẽ có một đường link website để sử dụng ngay.
-
-> **Nếu đang nâng cấp hệ thống đã có dữ liệu:** chỉ cần mở Supabase Dashboard → SQL Editor, bấm **Copy toàn bộ SQL** ở trang `/setup`, dán và chạy một lần. Bundle này bao gồm schema và tất cả migration theo đúng thứ tự, đồng thời có thể chạy lặp lại an toàn. Không cần copy hoặc chạy từng file riêng lẻ. Các tài khoản đang hoạt động được giữ nguyên; chỉ tài khoản đăng ký mới ở trạng thái chờ duyệt.
-
----
-
-## Cách 2: Chạy trên máy cá nhân
-
-Yêu cầu: máy đã cài [Node.js](https://nodejs.org/en) và [Bun](https://bun.sh/)
-
-1. Clone hoặc tải project về máy.
-2. Đổi tên file `.env.example` thành `.env.local`.
-3. Mở file `.env.local` và điền các giá trị đã lưu ở **bước 1**.
-
-```env
-NEXT_PUBLIC_SUPABASE_URL="https://your-project.supabase.co"
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY="your-anon-key"
+```powershell
+bun install --frozen-lockfile
+if (!(Test-Path .env.local)) { Copy-Item .env.example .env.local }
 ```
 
-4. Cài thư viện
+Tạo `families/<id>/config.json` và `assets/logo.svg` theo [hợp đồng cấu hình](docs-multi-family/PHASE-1-HANDOFF.md). Cấu hình phải có ID khớp tên thư mục, domain dự kiến và `supabaseProjectRef` của project riêng. Các cấu hình có sẵn đang gắn với môi trường của chủ dự án; khi tự triển khai, tạo cấu hình cho project của mình.
 
-```bash
-bun install
+Điền `.env.local` theo [.env.example](.env.example):
+
+| Biến                                           | Mục đích                                                                          |
+| ---------------------------------------------- | --------------------------------------------------------------------------------- |
+| `FAMILY_ID`                                    | Chọn `families/<id>/config.json` khi build; tên và logo lấy từ config             |
+| `APP_URL`                                      | Local: `http://localhost:3000`; production: origin HTTPS khớp domain trong config |
+| `NEXT_PUBLIC_SUPABASE_URL`                     | URL của đúng Supabase project đã khai báo trong config                            |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` | Publishable key hoặc legacy anon key của project đó                               |
+| `NEXT_PUBLIC_DISABLE_SSO`                      | Đặt `true` khi chưa cấu hình Google/Facebook                                      |
+| `SUPABASE_SERVICE_ROLE_KEY`                    | Secret/service-role key phía server, cần cho luồng ảnh và chức năng admin client  |
+| `SUPABASE_DB_URL`                              | Kết nối PostgreSQL có TLS, dùng khi chạy migration trong Dashboard                |
+| `RESEND_API_KEY`, `RESEND_FROM_EMAIL`          | Tùy chọn: gửi thông báo email; để trống nếu chưa sử dụng                          |
+| `ADMIN_NOTIFICATION_EMAIL`                     | Tùy chọn: người nhận thông báo; mặc định lấy các admin đang hoạt động             |
+| `PRODUCT_RELEASE_MANIFEST_URL`                 | Tùy chọn: manifest phát hành sản phẩm HTTPS đã được người vận hành xác minh       |
+
+Không đưa secret vào Git, ảnh chụp hoặc biến `NEXT_PUBLIC_*`. Không tự đặt `NEXT_PUBLIC_FAMILY_CONFIG`: build tạo biến này từ config đã kiểm tra. URL/key/SQL phải cùng project đã chọn; cấu hình thiếu hoặc sai bị từ chối, không tự chuyển sang Demo.
+
+```powershell
+bun dev
 ```
 
-5. Chạy dự án
+Mở `http://localhost:3000`. Dừng server bằng `Ctrl+C`. Sau khi sửa env, khởi động lại server.
 
-```bash
-bun run dev
-```
+Nếu có nhiều profile local, lưu riêng tại `families/<id>/.env.local` rồi dùng `bun run dev:family <id>`. Lệnh kiểm tra profile và khóa dev server trước khi copy về `.env.local` ở gốc; chỉ chạy một gia tộc mỗi lần. Dừng server và lưu thay đổi cần giữ ở file gốc về profile trước khi chuyển. Chi tiết tại [runbook local](docs/LOCAL-DEVELOPER-RUNBOOK.md).
 
-Mở trình duyệt và truy cập: `http://localhost:3000`
+## Khởi tạo database và tài khoản
 
----
+1. Tạo Supabase project riêng, đối chiếu project ref với config và điền đúng URL/key.
+2. Với **database mới**, mở `/setup`, copy toàn bộ SQL bundle và chạy trong SQL Editor của đúng project. Bundle gồm schema và migration theo thứ tự, ghi lịch sử cùng transaction.
+3. Cấu hình Supabase Auth Site URL/redirect cho website, gồm `/auth/callback`; thêm localhost khi cần thử local. Nếu bật OAuth, cấu hình provider ở Supabase và callback của đúng Supabase project.
+4. Đăng ký tài khoản chủ ứng dụng, xác minh email, mở [bootstrap-admin.sql](docs/bootstrap-admin.sql), thay email mẫu rồi chạy trong SQL Editor. Script chỉ cấp admin đầu tiên khi chưa có admin hoạt động. Đăng xuất rồi đăng nhập lại.
+5. Admin duyệt các tài khoản tiếp theo trong **Quản lý người dùng**. Tài khoản mới là `member`, chưa hoạt động; người đăng ký đầu tiên không tự có quyền admin.
 
-## Tài khoản đầu tiên
+| Vai trò | Quyền chính                                                        |
+| ------- | ------------------------------------------------------------------ |
+| Admin   | Quản trị hệ thống, tài khoản và dữ liệu theo các luồng được hỗ trợ |
+| Editor  | Biên soạn hồ sơ, quan hệ, sự kiện, nội dung và duyệt thu thập      |
+| Member  | Xem dữ liệu theo quyền được cấp                                    |
 
-### Form công khai và ngày cúng riêng
+Quyền xem/sửa nhánh phụ còn phụ thuộc liên kết tài khoản–hồ sơ và quan hệ gia đình. Xem [bàn giao nhánh phụ](docs/FAMILY-BRANCHES-HANDOFF.md).
 
-Chạy [migration thu thập/ngày cúng](docs/migrations/20261014020000_family_intake_and_memorial.sql) sau các migration trước đó. Admin/editor mở menu tài khoản → **Thông tin chờ duyệt** (`/dashboard/intake`), tạo link theo người gốc của nhánh rồi copy để chia sẻ. Người thân chọn người nối, khai gia đình và gửi; dữ liệu chỉ xuất hiện trên cây sau khi được duyệt. Link tạo tại `localhost` chưa dùng để chia sẻ cho người thân ở nơi khác; cần tạo link trên website có địa chỉ public.
+## Triển khai và nâng cấp
 
-Trong form thành viên hoặc form công khai, chọn **Đã mất → Thiết lập ngày cúng riêng hằng năm**, nhập ngày/tháng và chọn âm/dương lịch. Không cần ngày/năm mất; lịch này ưu tiên thay sự kiện suy ra từ ngày mất. Xem [hướng dẫn và bàn giao](docs/FAMILY-INTAKE-HANDOFF.md).
+Mỗi gia tộc dùng project Vercel và Supabase riêng. Chọn commit/tag đã duyệt, cấu hình biến môi trường riêng và chạy `bun run build`; start local production bằng `bun start`. Trên Vercel, `.env.local` của máy không được tự chuyển lên môi trường triển khai.
 
-### Ngày sinh, ngày mất chỉ biết khoảng năm
+Đổi `FAMILY_ID`, domain hoặc biến public cần build/deploy lại; không dùng chung output `.next` cho hai gia tộc. Production cần `APP_URL` khớp domain trong config. Với Demo, domain cấu hình là `demo-familytree.vercel.app`. Không gắn mọi website vào cơ chế tự deploy mọi commit của nhánh phát triển.
 
-Trong form thêm/sửa thành viên, chọn **Chỉ biết khoảng năm** rồi nhập **Từ năm** và **Đến năm**, ví dụ sinh 1880–1885, mất 1937–1939. Khoảng năm dùng dương lịch và hiển thị với dấu `≈`; không được dùng làm ngày chính xác để tính tuổi, cung/con giáp hoặc sự kiện ngày sinh/ngày giỗ. Các khoảng năm được giữ trong sao lưu JSON, CSV và GEDCOM.
+**Deploy code không tự chạy migration Supabase.** Với database đã có dữ liệu, sao lưu, đọc ghi chú tương thích và xác định migration còn thiếu trước khi chạy. Không chạy lại toàn bộ `/setup` chỉ để xóa cảnh báo lịch sử. SQL đã chạy thủ công có thể chưa có trong `public.app_migrations`; tracker không thay thế đối chiếu schema thực tế.
 
-Với database đã cài trước tính năng này, mở **Supabase → SQL Editor**, copy toàn bộ [migration khoảng năm](docs/migrations/20261014010000_add_person_year_ranges.sql) và chạy một lần. Migration chỉ bổ sung trường dữ liệu và cập nhật hàm nhập sao lưu, giữ nguyên thành viên hiện có; có thể chạy lặp lại. Database mới dùng SQL bundle tại `/setup` đã bao gồm migration này.
+Admin mở `/dashboard/upgrade` để kiểm tra nguồn phát hành và lịch sử migration. Nguồn phát hành dùng `PRODUCT_RELEASE_MANIFEST_URL`, không so với repo upstream; thiếu/lỗi manifest trả trạng thái chưa xác minh. Migration trong Dashboard cần `SUPABASE_DB_URL`; có thể dùng SQL Editor theo runbook nếu chưa cấu hình. Mỗi website giữ phiên bản độc lập; xem quy trình nâng cấp/rollback tại [handoff giai đoạn 1](docs-multi-family/PHASE-1-HANDOFF.md).
 
-Bản fork này dùng Bun và `bun.lock`; cài bằng `bun install --frozen-lockfile` để áp dụng bản vá `patches/braces@3.0.3.patch`. Bản vá chặn pattern/AST lồng quá sâu gây stack overflow; công cụ audit theo phiên bản vẫn có thể báo advisory upstream. Kiểm tra bằng `bun run test:security`.
+## Sao lưu và dữ liệu riêng tư
 
-Gallery cần `SUPABASE_SERVICE_ROLE_KEY` ở server để tải ảnh qua route kiểm tra phiên đăng nhập. Thành viên không có quyền tạo signed URL trực tiếp từ Storage. Không đặt key này vào biến `NEXT_PUBLIC_*`.
+JSON v4 xuất phần cây theo quyền, gồm hồ sơ, quan hệ, chi tiết riêng, sự kiện và cấu trúc nhánh phụ. CSV/GEDCOM không giữ cấu trúc nhánh và bị chặn khi có nhánh phụ. Nhập cây là thao tác thay thế phần dữ liệu cây được hỗ trợ.
 
-- Đăng ký tài khoản mới khi vào web lần đầu.
-- Mọi tài khoản đăng ký đều là **member**, chờ xác minh email và admin duyệt.
-- Chủ ứng dụng cấp quyền admin đầu tiên bằng Supabase SQL Editor: mở `docs/bootstrap-admin.sql`, thay email mẫu bằng email tài khoản đã xác minh của mình rồi chạy. Không cấp quyền tự động theo thứ tự đăng ký.
-- Khi nâng cấp database cũ, chạy cả migration `20261014000000_personal_fork_security.sql`. Admin hiện có được giữ nguyên.
+**File xuất cây không phải bản sao lưu toàn website.** File này không bao gồm toàn bộ CMS, thư viện media, intake, Auth, cấu hình dịch vụ hay bytes ảnh; URL ảnh không thay cho file ảnh. Chuyển sang project mới cần xác nhận lại liên kết tài khoản–hồ sơ. Sao lưu toàn môi trường cần database, Storage và cấu hình vận hành riêng, cùng lần khôi phục thử đã kiểm chứng. Xem [quy trình sao lưu/khôi phục](docs-multi-family/PHASE-1-HANDOFF.md#sao-lưu-và-kiểm-tra-khôi-phục-thủ-công).
 
-### Thông báo và duyệt tài khoản mới
+Dữ liệu được lưu trong Supabase do người vận hành cấu hình. Người vận hành chịu trách nhiệm quản lý tài khoản, quyền, bản sao lưu và các dịch vụ ngoài được bật. Không đưa dữ liệu gia đình thật, file env, dump database hoặc thông tin đăng nhập vào repo.
 
-Sau khi người dùng xác nhận email, tài khoản vẫn giữ trạng thái **chờ duyệt**. Hệ thống gửi email cho admin kèm liên kết duyệt một lần, có hiệu lực 7 ngày. Liên kết chỉ hoạt động với admin đã đăng nhập; nếu được chuyển tới trang đăng nhập, hãy đăng nhập rồi mở lại liên kết trong email. Admin cũng có thể duyệt tại **Quản lý người dùng**.
+## Phát triển và tài liệu
 
-Để bật email thông báo trên Vercel, khai báo `APP_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_KEY` và `RESEND_FROM_EMAIL`. `ADMIN_NOTIFICATION_EMAIL` là tuỳ chọn; nếu không khai báo, hệ thống sẽ tự lấy email từ các tài khoản admin đang hoạt động. Secret key/service role key có thể bỏ qua Row Level Security (RLS), vì vậy chỉ được lưu ở server và không được đưa vào source code, trình duyệt hoặc Git. Xem thêm [hướng dẫn API keys của Supabase](https://supabase.com/docs/guides/getting-started/api-keys).
-
-## Xử lý lỗi khi đăng ký
-
-Sau khi cài đặt xong, nếu bạn gặp lỗi `Failed to fetch` khi đăng ký:
-
-**Nguyên nhân:** Supabase chặn các request từ domain chưa được thêm vào danh sách cho phép.
-
-**Cách khắc phục:**
-
-1. Vào [Supabase Dashboard](https://supabase.com/dashboard) → chọn Project của bạn.
-2. Vào **Authentication → URL Configuration**.
-3. Ở mục **Site URL**, điền URL chính của ứng dụng, ví dụ:
-   - Vercel: `https://giapha-os.vercel.app`
-   - Máy cá nhân: `http://localhost:3000`
-4. Ở mục **Redirect URLs**, nhấn **Add URL** và thêm:
-   - `https://giapha-os.vercel.app/**`
-   - `http://localhost:3000/**` (nếu chạy local)
-   - Hoặc tối thiểu: `https://giapha-os.vercel.app/auth/callback` và `http://localhost:3000/auth/callback`
-5. Nhấn **Save** và thử lại.
-
-> **Lưu ý:** Thay `giapha-os.vercel.app` bằng domain thực tế của bạn. Nếu dùng domain tùy chỉnh, hãy thêm cả domain đó vào danh sách.
-
-### Đăng nhập bằng Google và Facebook
-
-Màn hình đăng nhập đã hỗ trợ Google và Facebook thông qua Supabase Auth. Để bật hai nút này:
-
-1. Vào Supabase Dashboard → **Authentication → Sign In / Providers** và bật Google hoặc Facebook.
-2. Tạo OAuth app tương ứng trên Google Cloud Console/Facebook Developers.
-3. Trong cấu hình OAuth app, đặt callback URL do Supabase cung cấp, có dạng:
-   `https://<project-ref>.supabase.co/auth/v1/callback`
-4. Trong Supabase → **Authentication → URL Configuration**, thêm callback của ứng dụng:
-   `https://<domain-cua-ban>/auth/callback`
-
-Tài khoản đăng ký bằng SSO cũng được tạo ở trạng thái **chờ admin duyệt**, giống đăng ký bằng email. Xem thêm hướng dẫn chính thức cho [Google](https://supabase.com/docs/guides/auth/social-login/auth-google) và [Facebook](https://supabase.com/docs/guides/auth/social-login/auth-facebook).
-
-Nếu chưa cấu hình SSO, đặt `NEXT_PUBLIC_DISABLE_SSO=true` trong biến môi trường của Vercel rồi deploy lại. Nếu không khai báo biến này, ứng dụng cũng mặc định ẩn SSO để tránh hiển thị chức năng chưa sẵn sàng. Khi đó người dùng sẽ thấy thông báo kèm link tới phần hướng dẫn này. Vì đây là biến `NEXT_PUBLIC_*`, cần build/deploy lại sau khi thay đổi.
-
-### Nâng cấp hệ thống trong Dashboard
-
-Admin có thể mở mục **Nâng cấp hệ thống** trong menu quản trị để kiểm tra version source code trên GitHub và version database, sau đó chạy các migration còn thiếu. Nếu source code hiện tại cũ hơn version mới nhất trên GitHub, hệ thống sẽ yêu cầu cập nhật source code trước khi cho phép chạy migration. Tính năng migration trực tiếp chỉ hoạt động khi đã cấu hình `SUPABASE_DB_URL` ở server. Nếu chưa cấu hình, trang `/dashboard/upgrade` vẫn cho phép copy SQL bundle tại `/setup` để chạy thủ công.
-
-### Hướng dẫn cập nhật source code
-
-Khi trang `/dashboard/upgrade` thông báo source code đang cũ, hãy cập nhật **toàn bộ source code** lên version mới nhất. Không chỉ sửa số `version` trong `package.json` để bỏ qua cảnh báo, vì migration có thể yêu cầu các thay đổi tương ứng trong code.
-
-**Nếu deploy trên Vercel:**
-
-1. Kiểm tra project Vercel đang liên kết đúng repository `nghianguyen89/family-tree` và phiên bản triển khai đã duyệt. Với nhánh nhiều gia tộc, làm theo [handoff giai đoạn 1](docs-multi-family/PHASE-1-HANDOFF.md); không tự deploy mọi commit mới của nhánh phát triển.
-2. Đồng bộ branch đó với code mới nhất trên GitHub. Nếu cập nhật bằng Git local:
-
-   ```bash
-   git fetch origin
-   git pull --ff-only origin main
-   git push origin main
-   ```
-
-3. Chờ Vercel build/deploy hoàn tất. Nếu Vercel không tự deploy, vào **Deployments** và chọn **Redeploy** deployment mới nhất.
-4. Mở lại `/dashboard/upgrade`, bấm **Kiểm tra lại** và xác nhận version hiện tại không thấp hơn version trên GitHub.
-
-**Nếu chạy local hoặc self-host:**
-
-```bash
-git fetch origin
-git pull --ff-only origin main
-bun install
+```powershell
+bun node_modules/typescript/bin/tsc --noEmit
+bun run lint
+bun test tests
 bun run build
 ```
 
-Sau đó khởi động lại ứng dụng bằng lệnh đang dùng, ví dụ `bun run start`. Khi source code đã cập nhật, admin có thể quay lại `/dashboard/upgrade` để chạy migration database. Nên sao lưu database trước khi nâng cấp; nếu chưa cấu hình `SUPABASE_DB_URL`, dùng SQL bundle tại `/setup` theo hướng dẫn ở trên.
+Build cần cấu hình gia tộc hợp lệ. Test tự động/fixture không thay thế kiểm tra đăng nhập, quyền, upload và khôi phục trên môi trường thật.
 
----
+- [Mục lục tài liệu](docs/README.md), [bối cảnh](docs/PROJECT_CONTEXT.md), [trạng thái và bằng chứng kiểm tra](docs/CURRENT_SNAPSHOT.md).
+- [Hướng dẫn local](docs/LOCAL-DEVELOPER-RUNBOOK.md), [giai đoạn 1 nhiều gia tộc](docs-multi-family/PHASE-1-HANDOFF.md).
+- [Khoảng năm](docs/YEAR-RANGES-HANDOFF.md), [thu thập/ngày cúng](docs/FAMILY-INTAKE-HANDOFF.md), [nhánh phụ](docs/FAMILY-BRANCHES-HANDOFF.md).
+- [Trang chủ/CMS](docs/HOME-CONTENT-HANDOFF.md), [thư viện ảnh chung](docs/SHARED-MEDIA-HANDOFF.md), [quy chuẩn UI](DESIGN.md).
 
-## Phân quyền người dùng (User Roles)
+Đọc [AGENTS.md](AGENTS.md) trước khi sửa mã nguồn. Khi báo lỗi hoặc gửi PR, mô tả bước tái hiện và kiểm tra đã chạy; dùng dữ liệu giả và giữ thay đổi gọn, đúng phạm vi.
 
-Hệ thống có 3 cấp độ phân quyền để dễ dàng quản lý ai được phép cập nhật gia phả:
+## Giấy phép và nguồn gốc
 
-1. **Admin (Quản trị viên):** Có toàn quyền đối với hệ thống.
-2. **Editor (Biên soạn):** Cho phép thêm, sửa, xóa thông tin hồ sơ và các mối quan hệ.
-3. **Member (Thành viên):** Chỉ có thể xem sơ đồ gia phả và các thống kê trực quan.
-
-## Đóng góp (Contributing)
-
-Dự án này là mã nguồn mở, hoan nghênh mọi đóng góp, báo cáo lỗi (issues) và yêu cầu sửa đổi (pull requests) để phát triển ứng dụng ngày càng tốt hơn.
-
-## Tuyên bố từ chối trách nhiệm & Quyền riêng tư
-
-> **Dự án này chỉ cung cấp mã nguồn (source code). Không có bất kỳ dữ liệu cá nhân nào được thu thập hay lưu trữ bởi tác giả.**
-
-- **Tự lưu trữ hoàn toàn (Self-hosted):** Khi bạn triển khai ứng dụng, toàn bộ dữ liệu gia phả (tên, ngày sinh, quan hệ, thông tin liên hệ...) được lưu trữ **trong tài khoản Supabase của chính bạn**. Tác giả dự án không có quyền truy cập vào database đó.
-
-- **Không thu thập dữ liệu:** Không có analytics, không có tracking, không có telemetry, không có bất kỳ hình thức thu thập thông tin người dùng nào được tích hợp trong mã nguồn.
-
-- **Bạn kiểm soát dữ liệu của bạn:** Mọi dữ liệu gia đình, thông tin thành viên đều nằm hoàn toàn trong cơ sở dữ liệu Supabase mà bạn tạo và quản lý. Bạn có thể xóa, xuất hoặc di chuyển dữ liệu bất cứ lúc nào.
-
-- **Demo công khai:** Trang demo tại `giapha-os.homielab.com` sử dụng dữ liệu mẫu hư cấu, không chứa thông tin của người thật. Không nên nhập thông tin cá nhân thật vào trang demo.
-
-## Giấy phép (License)
-
-Dự án được phân phối dưới [giấy phép MIT](LICENSE). Copyright (c) 2026 HomieLab.
+Dự án kế thừa mã nguồn [HomieLab/Gia Phả OS](https://github.com/homielab/giapha-os), phát hành theo [MIT License](LICENSE). Giữ nguyên thông báo bản quyền upstream: **Copyright (c) 2026 HomieLab**.
